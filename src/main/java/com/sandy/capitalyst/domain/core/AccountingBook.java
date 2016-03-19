@@ -1,5 +1,8 @@
 package com.sandy.capitalyst.domain.core;
 
-public class AccountingBook extends CapitalystEntity {
-
+public abstract class AccountingBook extends AccountingItemGroup {
+    
+    public AccountingBook( String name ) {
+        super( name ) ;
+    }
 }
