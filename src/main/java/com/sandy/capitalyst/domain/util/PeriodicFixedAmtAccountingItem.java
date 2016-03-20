@@ -5,7 +5,7 @@ import java.util.Date ;
 
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
-public class FixedAmtAccountingItem extends AccountingItem {
+public class PeriodicFixedAmtAccountingItem extends AccountingItem {
     
     private Calendar startDate = null ;
     private Calendar endDate   = null ;
@@ -13,7 +13,7 @@ public class FixedAmtAccountingItem extends AccountingItem {
     private int[] activeMonths = null ;
     private double amount = 0 ;
 
-    public FixedAmtAccountingItem( String name, double amt, 
+    public PeriodicFixedAmtAccountingItem( String name, double amt, 
                                    int... months ) {
         super( name ) ;
         this.amount = amt ;
@@ -34,6 +34,10 @@ public class FixedAmtAccountingItem extends AccountingItem {
     
     public void setActiveMonths( int... activeMonths ) {
         this.activeMonths = activeMonths ;
+    }
+    
+    protected double getAmount() {
+        return this.amount ;
     }
 
     @Override

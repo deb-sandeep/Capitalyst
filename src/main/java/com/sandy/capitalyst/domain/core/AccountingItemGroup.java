@@ -30,7 +30,11 @@ public class AccountingItemGroup extends AccountingItem {
         child.setParent( this ) ;
     }
     
-    public AccountingItemGroup createNestedGroups( String path ) {
+    public AccountingItemGroup getGroup( String path ) {
+        return this.getGroup( path, false ) ;
+    }
+    
+    public AccountingItemGroup getGroup( String path, boolean create ) {
         
         String stepName = path.trim() ;
         String nextLevelSteps = null ;
@@ -43,12 +47,25 @@ public class AccountingItemGroup extends AccountingItem {
         
         AccountingItem child = childrenMap.get( stepName ) ;
         if( child == null ) {
-            child = new AccountingItemGroup( stepName ) ;
-            this.addAccountingItem( child ) ;
+            if( create ) {
+                child = new AccountingItemGroup( stepName ) ;
+                this.addAccountingItem( child ) ;
+            }
+            else {
+                throw new IllegalArgumentException( "No child with the name '" + 
+                        stepName + "' is registered with group '" + 
+                        super.getName() + "'" ) ;
+            }
         }
         
         if( nextLevelSteps == null ) {
-            return (AccountingItemGroup)child ;
+            if( child instanceof AccountingItemGroup ) {
+                return ( AccountingItemGroup )child ;
+            }
+            else {
+                throw new IllegalArgumentException( 
+                                 "Path does not end in an accounting group." ) ;
+            }
         }
         else if( !(child instanceof AccountingItemGroup) ){
             throw new IllegalArgumentException( 
@@ -56,7 +73,7 @@ public class AccountingItemGroup extends AccountingItem {
                     "registered, but is not a item group." ) ;
         }
         else {
-            return (( AccountingItemGroup )child).createNestedGroups( nextLevelSteps ) ;
+            return (( AccountingItemGroup )child).getGroup( nextLevelSteps, create ) ;
         }
     }
     

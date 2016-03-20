@@ -1,27 +1,47 @@
 package com.sandy.capitalyst.domain.core;
 
+import java.util.ArrayList ;
 import java.util.Date ;
 import java.util.HashMap ;
+import java.util.List ;
 import java.util.Map ;
 
 public abstract class AccountingItem {
 
     private String itemName = null ;
+    private String parentPath = "" ;
     private AccountingItem parent = null ;
+    
+    private List<AccountingItem> derivedItems = new ArrayList<AccountingItem>() ;
     
     private Map<Date, Double> computedAmtMap = new HashMap<Date, Double>() ;
     
     private boolean isEntryAddedToGroupSum = true ;
     
-    public AccountingItem( String name ) {
-        this.itemName = name ;
+    public AccountingItem( String qualifiedName ) {
+
+        this.itemName = qualifiedName ;
+        
+        int indexOfGt = qualifiedName.lastIndexOf( ">" ) ;
+        if( indexOfGt != -1 ) {
+            this.itemName   = qualifiedName.substring( indexOfGt+1 ).trim() ;
+            this.parentPath = qualifiedName.substring( 0, indexOfGt ).trim() ;
+        }
     }
     
-    public void setParent( AccountingItem parent ) {
+    String getParentPath() {
+        return this.parentPath ;
+    }
+    
+    void setParent( AccountingItem parent ) {
         this.parent = parent ;
     }
     
     protected abstract double computeEntryForMonth( Date date ) ;
+    
+    public List<AccountingItem> getDerivedAccountingItems() {
+        return derivedItems ;
+    }
     
     public final double getEntryForMonth( Date date ) {
         if( computedAmtMap.containsKey( date ) ) {
