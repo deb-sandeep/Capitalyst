@@ -3,21 +3,22 @@ package com.sandy.capitalyst.poc.domain;
 import java.text.SimpleDateFormat ;
 import java.util.Calendar ;
 
-import com.sandy.capitalyst.domain.CapitalystAccountingBook ;
+import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.CumulativeAccountingItem ;
-import com.sandy.capitalyst.domain.util.PeriodicFixedAmtAccountingItem ;
-import com.sandy.capitalyst.domain.util.PeriodicFixedIncomeItem ;
+import com.sandy.capitalyst.domain.util.IncomeItem ;
+import com.sandy.capitalyst.domain.util.InvestmentItem ;
 
 public class AccountingBookCreation {
 
     private static final String SALARY     = "Income > Salary >" ;
+    private static final String MATURITY   = "Income > Maturity >" ;
     private static final String INVESTMENT = "Expense > Investment>" ;
     
-    private CapitalystAccountingBook book = null ;
+    private AccountingBook book = null ;
     private CumulativeAccountingItem cum  = null ;
     
     public AccountingBookCreation() {
-        book = new CapitalystAccountingBook( "TestBook" ) ;
+        book = new AccountingBook( "TestBook" ) ;
         cum  = new CumulativeAccountingItem( "Cumulative", book ) ;
         
         addSalaryComponents() ;
@@ -25,10 +26,27 @@ public class AccountingBookCreation {
     
     private void addSalaryComponents() {
         
-        book.addAccountingItem( new PeriodicFixedIncomeItem( SALARY + "Base salary",     210000, 0.3 ) ) ;
-        book.addAccountingItem( new PeriodicFixedIncomeItem( SALARY + "Variable payout", 850000, 0.3, Calendar.MARCH ) ) ;
-        book.addAccountingItem( new PeriodicFixedIncomeItem( SALARY + "Food card",         3000, 0.0 ) ) ;
-        book.addAccountingItem( new PeriodicFixedAmtAccountingItem( INVESTMENT + "NPS", -7900 ) ) ;
+//        book.addAccountingItem( new IncomeItem( SALARY + "Base salary",     210000 ).withTax( 0.3 ).startsOn( "02/2015" ).endsOn( "02/2015" ) ) ;
+//        book.addAccountingItem( new IncomeItem( SALARY + "Variable payout", 850000 ).withTax( 0.3 ).activeOnMonths( Calendar.MARCH ) ) ;
+//        book.addAccountingItem( 
+//                new IncomeItem( SALARY + "Test", 1000 )
+//                    .startsOn( "03/2015" )
+//                    .activeOnMonths( Calendar.JULY, Calendar.DECEMBER )
+//                    .numTimes( 1 )
+//        ) ;
+        
+         book.addAccountingItem(  
+                 new InvestmentItem( INVESTMENT + "Test", 1000 )
+                 .startsOn( "03/2015" )
+                 .numTimes( 6 )
+                 .withMaturityDetails( new IncomeItem( MATURITY + "Test maturity", 5000 )
+                                       .startsOn( "01/2016" )
+                                       .activeOnMonths( Calendar.JANUARY, Calendar.MARCH, Calendar.MAY )
+                                       .endsOn( "12/2016" ) ) 
+         ) ;
+        
+//        book.addAccountingItem( new IncomeItem( SALARY + "Food card",         3000 ) ) ;
+//        book.addAccountingItem( new FixedAmountItem( INVESTMENT + "NPS",     -7900 ) ) ;
     }
     
     public void drive() {

@@ -4,18 +4,18 @@ import java.util.Date ;
 
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
-public class IncomeTaxAccountingItem extends AccountingItem {
+public class IncomeTaxItem extends AccountingItem {
     
     private AccountingItem incomeItem = null ;
     private double percentage = 0.3 ;
 
-    public IncomeTaxAccountingItem( AccountingItem incomeItem, double percentage ) {
+    public IncomeTaxItem( AccountingItem incomeItem, double percentage ) {
         super( "Expense > Income tax > Tax on " + incomeItem.getName() ) ;
         this.incomeItem = incomeItem ;
         this.percentage = percentage ;
     }
     
-    public IncomeTaxAccountingItem( AccountingItem incomeItem ) {
+    public IncomeTaxItem( AccountingItem incomeItem ) {
         this( incomeItem, 0.3 ) ;
     }
 

@@ -2,7 +2,7 @@ package com.sandy.capitalyst.domain.core;
 
 import java.util.List ;
 
-public abstract class AccountingBook extends AccountingItemGroup {
+public class AccountingBook extends AccountingItemGroup {
     
     public AccountingBook( String name ) {
         super( name ) ;

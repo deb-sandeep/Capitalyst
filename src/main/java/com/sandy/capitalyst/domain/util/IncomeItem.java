@@ -4,19 +4,21 @@ import java.util.List ;
 
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
-public class PeriodicFixedIncomeItem extends PeriodicFixedAmtAccountingItem {
+public class IncomeItem extends FixedAmountItem<IncomeItem> {
     
     private double taxPct = 0.0 ;
     
-    public PeriodicFixedIncomeItem( String name, double amt, double taxPct,
-                                    int... months ) {
-        super( name, amt, months ) ;
-        this.taxPct = taxPct ;
-        
+    public IncomeItem( String name, double amt ) {
+        super( name, amt ) ;
+    }
+    
+    public IncomeItem withTax( double pct ) {
+        this.taxPct = pct ;
         if( this.taxPct > 0 ) {
             List<AccountingItem> derivedItems = super.getDerivedAccountingItems() ;
-            derivedItems.add( new IncomeTaxAccountingItem( this, taxPct ) ) ;
+            derivedItems.add( new IncomeTaxItem( this, taxPct ) ) ;
         }
+        return this ;
     }
 }
 
