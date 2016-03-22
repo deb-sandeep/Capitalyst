@@ -2,8 +2,10 @@ package com.sandy.capitalyst.domain.util;
 
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
+import java.util.ArrayList ;
 import java.util.Calendar ;
 import java.util.Date ;
+import java.util.List ;
 
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
@@ -16,14 +18,21 @@ public class FixedAmountItem<T> extends AccountingItem {
     private Calendar endDate   = null ;
     private int      numTimes  = -1 ;
     
-    private int[] activeMonths = null ;
-    private double amount = 0 ;
+    private int[]  activeMonths = null ;
+    private double amount       = 0 ;
     
     private int timesGenerated = 0 ; 
-
+    
+    private List<FixedAmountItem<T>> piecewiseDefs = new ArrayList<FixedAmountItem<T>>() ;
+    
     public FixedAmountItem( String name, double amt ) {
         super( name ) ;
         this.amount = amt ;
+    }
+    
+    public T withPiecewiseDefinition( FixedAmountItem<T> link ) {
+        piecewiseDefs.add( link ) ;
+        return (T)this ;
     }
     
     public T startsOn( String date ) {
@@ -63,38 +72,45 @@ public class FixedAmountItem<T> extends AccountingItem {
     @Override
     protected double computeEntryForMonth( Date date ) {
         
-        Calendar cal = getCalendar( date ) ;
+        if( ( numTimes != -1 ) && ( timesGenerated >= numTimes ) ) {
+            return 0 ;
+        }
+        
+        Calendar cal            = getCalendar( date ) ;
+        boolean  generateAmount = true ;
+        double   amt            = 0 ;
         
         if( this.startDate != null && before( cal, startDate ) ) {
-            return 0 ;
+            generateAmount = false ;
         }
         if( this.endDate != null && after( cal, endDate ) ) {
-            return 0 ;
+            generateAmount = false ;
         }
         
-        boolean generateAmount = true ;
-        if( this.activeMonths != null && this.activeMonths.length > 0 ) {
-            generateAmount = false ;
-            for( int mth : activeMonths ) {
-                if( cal.get( Calendar.MONTH ) == mth ) {
-                    generateAmount = true ;
+        if( generateAmount ) {
+            if( this.activeMonths != null && this.activeMonths.length > 0 ) {
+                generateAmount = false ;
+                for( int mth : activeMonths ) {
+                    if( cal.get( Calendar.MONTH ) == mth ) {
+                        generateAmount = true ;
+                    }
                 }
             }
         }
         
         if( generateAmount ) {
-            if( numTimes == -1 ) {
-                return amount ;
-            }
-            else {
-                if( timesGenerated < numTimes ) {
-                    timesGenerated++ ;
-                    return amount ;
-                }
-            }
+            amt = this.amount ;
         }
         
-        return 0 ;
+        for( FixedAmountItem<T> link : this.piecewiseDefs ) {
+            amt += link.getEntryForMonth( date ) ;
+        }
+        
+        if( amt > 0 ) {
+            timesGenerated++ ;
+        }
+        
+        return amt ;
     }
     
     private Calendar getCalendar( Date date ) {

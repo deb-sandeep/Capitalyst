@@ -8,6 +8,10 @@ public class IncomeItem extends FixedAmountItem<IncomeItem> {
     
     private double taxPct = 0.0 ;
     
+    public IncomeItem( double amt ) {
+        super( null, amt ) ;
+    }
+    
     public IncomeItem( String name, double amt ) {
         super( name, amt ) ;
     }

@@ -1,33 +1,34 @@
 package com.sandy.capitalyst.poc.jfreechart;
 
-import java.awt.BasicStroke;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.awt.BasicStroke ;
+import java.text.DecimalFormat ;
+import java.text.SimpleDateFormat ;
+import java.util.Arrays ;
+import java.util.List ;
 
-import javax.swing.JPanel;
+import javax.swing.JPanel ;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.time.Day;
-import org.jfree.data.time.MovingAverage;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.date.MonthConstants;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
+import org.jfree.chart.ChartFactory ;
+import org.jfree.chart.ChartPanel ;
+import org.jfree.chart.ChartUtilities ;
+import org.jfree.chart.JFreeChart ;
+import org.jfree.chart.axis.NumberAxis ;
+import org.jfree.chart.labels.StandardXYToolTipGenerator ;
+import org.jfree.chart.plot.XYPlot ;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer ;
+import org.jfree.data.time.Day ;
+import org.jfree.data.time.MovingAverage ;
+import org.jfree.data.time.TimeSeries ;
+import org.jfree.data.time.TimeSeriesCollection ;
+import org.jfree.data.xy.XYDataset ;
+import org.jfree.date.MonthConstants ;
+import org.jfree.ui.ApplicationFrame ;
+import org.jfree.ui.RefineryUtilities ;
 
 /**
  * A time series chart.
  */
+@SuppressWarnings( "serial" )
 public class TimeSeriesDemo8 extends ApplicationFrame {
 
     /**
@@ -333,7 +334,7 @@ public class TimeSeriesDemo8 extends ApplicationFrame {
         NumberAxis yAxis2 = new NumberAxis(null);
         yAxis2.setAutoRangeIncludesZero(false);
         plot.setRangeAxis(1, yAxis2);
-        List axisIndices = Arrays.asList(new Integer[] {new Integer(0),
+        List<Integer> axisIndices = Arrays.asList(new Integer[] {new Integer(0),
                 new Integer(1)});
         plot.mapDatasetToRangeAxes(0, axisIndices);
 

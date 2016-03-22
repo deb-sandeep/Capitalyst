@@ -20,9 +20,9 @@ public abstract class AccountingItem {
     
     public AccountingItem( String qualifiedName ) {
 
-        this.itemName = qualifiedName ;
+        this.itemName = qualifiedName == null ? "" : qualifiedName ;
         
-        int indexOfGt = qualifiedName.lastIndexOf( ">" ) ;
+        int indexOfGt = this.itemName.lastIndexOf( ">" ) ;
         if( indexOfGt != -1 ) {
             this.itemName   = qualifiedName.substring( indexOfGt+1 ).trim() ;
             this.parentPath = qualifiedName.substring( 0, indexOfGt ).trim() ;

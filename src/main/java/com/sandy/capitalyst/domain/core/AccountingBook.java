@@ -10,6 +10,10 @@ public class AccountingBook extends AccountingItemGroup {
     
     public void addAccountingItem( AccountingItem item ) {
         
+        if( item.getName() == null || item.getName().trim().length() == 0 ) {
+            throw new IllegalArgumentException( "Can't add item with no name" ) ;
+        }
+        
         String parentPath = item.getParentPath() ;
         if( parentPath != null && parentPath.trim().length() != 0 ) {
             AccountingItemGroup group = super.getGroup( parentPath, true ) ;

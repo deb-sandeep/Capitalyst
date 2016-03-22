@@ -7,8 +7,6 @@ import com.sandy.capitalyst.domain.core.AccountingItem ;
 
 public class InvestmentItem extends FixedAmountItem<InvestmentItem> {
     
-    private double taxPct = 0.0 ;
-    
     public InvestmentItem( String name, double amt ) {
         super( name, amt ) ;
     }
@@ -19,8 +17,3 @@ public class InvestmentItem extends FixedAmountItem<InvestmentItem> {
         return this ;
     }
 }
-
-///////////////////////////////////////////////////
-// Employ builder pattern for accounting items
-// Revisit income items
-// Revisit investment items
