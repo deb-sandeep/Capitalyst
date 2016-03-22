@@ -12,7 +12,7 @@ class AccountingItemGroup extends AccountingItem {
     private Map<String, AccountingItem> childrenMap = new HashMap<String, AccountingItem>() ;
     
     public AccountingItemGroup( String name ) {
-        super( name ) ;
+        super( name, null ) ;
     }
     
     public void addAccountingItem( AccountingItem child ) {
@@ -112,9 +112,7 @@ class AccountingItemGroup extends AccountingItem {
         double entry = 0 ;
         for( AccountingItem child : children ) {
             double childEntry = child.getEntryForMonth( date ) ;
-            if( child.shouldEntryBeAddedToGroupSum() ) {
-                entry += childEntry ;
-            }
+            entry += childEntry ;
         }
         return entry ;
     }

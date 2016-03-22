@@ -10,7 +10,7 @@ public class IncomeTaxItem extends AccountingItem {
     private double percentage = 0.3 ;
 
     public IncomeTaxItem( AccountingItem incomeItem, double percentage ) {
-        super( "Expense > Income tax > Tax on " + incomeItem.getName() ) ;
+        super( "Expense > Income tax > Tax on " + incomeItem.getName(), incomeItem.getAccount() ) ;
         this.incomeItem = incomeItem ;
         this.percentage = percentage ;
     }

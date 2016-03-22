@@ -7,6 +7,7 @@ import java.util.Calendar ;
 import java.util.Date ;
 import java.util.List ;
 
+import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
 @SuppressWarnings( "unchecked" )
@@ -25,12 +26,13 @@ public class FixedAmountItem<T> extends AccountingItem {
     
     private List<FixedAmountItem<T>> piecewiseDefs = new ArrayList<FixedAmountItem<T>>() ;
     
-    public FixedAmountItem( String name, double amt ) {
-        super( name ) ;
+    public FixedAmountItem( String name, double amt, Account account ) {
+        super( name, account ) ;
         this.amount = amt ;
     }
     
     public T withPiecewiseDefinition( FixedAmountItem<T> link ) {
+        link.setAccount( getAccount() ) ;
         piecewiseDefs.add( link ) ;
         return (T)this ;
     }

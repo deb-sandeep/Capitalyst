@@ -2,6 +2,7 @@ package com.sandy.capitalyst.domain.util;
 
 import java.util.List ;
 
+import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 
 public class IncomeItem extends FixedAmountItem<IncomeItem> {
@@ -9,11 +10,15 @@ public class IncomeItem extends FixedAmountItem<IncomeItem> {
     private double taxPct = 0.0 ;
     
     public IncomeItem( double amt ) {
-        super( null, amt ) ;
+        super( null, amt, null ) ;
     }
     
-    public IncomeItem( String name, double amt ) {
-        super( name, amt ) ;
+    public IncomeItem( double amt, Account account ) {
+        super( null, amt, account ) ;
+    }
+    
+    public IncomeItem( String name, double amt, Account account ) {
+        super( name, amt, account ) ;
     }
     
     public IncomeItem withTax( double pct ) {
@@ -25,8 +30,3 @@ public class IncomeItem extends FixedAmountItem<IncomeItem> {
         return this ;
     }
 }
-
-///////////////////////////////////////////////////
-// Employ builder pattern for accounting items
-// Revisit income items
-// Revisit investment items

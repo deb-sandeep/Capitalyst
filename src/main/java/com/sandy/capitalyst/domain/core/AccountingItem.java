@@ -6,21 +6,23 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
+import com.sandy.common.util.StringUtil ;
+
 public abstract class AccountingItem {
 
     private String itemName = null ;
     private String parentPath = "" ;
     private AccountingItem parent = null ;
+    private Account account = null ;
     
     private List<AccountingItem> derivedItems = new ArrayList<AccountingItem>() ;
     
     private Map<Date, Double> computedAmtMap = new HashMap<Date, Double>() ;
     
-    private boolean isEntryAddedToGroupSum = true ;
-    
-    public AccountingItem( String qualifiedName ) {
+    public AccountingItem( String qualifiedName, Account operatingAccount ) {
 
         this.itemName = qualifiedName == null ? "" : qualifiedName ;
+        this.account = operatingAccount ;
         
         int indexOfGt = this.itemName.lastIndexOf( ">" ) ;
         if( indexOfGt != -1 ) {
@@ -37,6 +39,14 @@ public abstract class AccountingItem {
         this.parent = parent ;
     }
     
+    public Account getAccount() {
+        return this.account ;
+    }
+    
+    public void setAccount( Account account ) {
+        this.account = account ;
+    }
+    
     protected abstract double computeEntryForMonth( Date date ) ;
     
     public List<AccountingItem> getDerivedAccountingItems() {
@@ -50,15 +60,15 @@ public abstract class AccountingItem {
         
         double amt = computeEntryForMonth( date ) ;
         computedAmtMap.put( date, amt ) ;
+        
+        // We don't want piecewise definitions to start crediting and debiting
+        // They are managed by a top level accounting item who will do the
+        // debit and credit.
+        if( account != null && StringUtil.isNotEmptyOrNull( itemName ) ) {
+            account.operate( amt, date, this ) ;
+        }
+        
         return amt ;
-    }
-    
-    public boolean shouldEntryBeAddedToGroupSum() {
-        return isEntryAddedToGroupSum ;
-    }
-    
-    public void setShouldEntryBeAddedToGroupSum( boolean flag ) {
-        this.isEntryAddedToGroupSum = flag ;
     }
     
     public AccountingItem getParent() {
