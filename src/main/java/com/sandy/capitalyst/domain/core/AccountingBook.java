@@ -76,6 +76,3 @@ public class AccountingBook {
         return ArrayUtils.toPrimitive( monthTotal.values().toArray( new Double[0] ) ) ;
     }
 }
-
-// Credit action, Debit action, Intra account transfer action, Scheduled actions
-// Triggers on accounts
