@@ -7,32 +7,33 @@ import org.junit.Test ;
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
-import com.sandy.capitalyst.domain.util.action.AccountLogAction ;
-import com.sandy.capitalyst.domain.util.action.AccountLogMsgAction ;
-import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanTrigger ;
-import com.sandy.capitalyst.domain.util.trigger.NoConditionTrigger ;
+import com.sandy.capitalyst.domain.util.action.InterAccountTransferAction ;
+import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
 
 public class AccountTriggerTest {
 
     static final Logger logger = Logger.getLogger( AccountTriggerTest.class ) ;
     
     private AccountingBook book = null ;
-    private Account account = null ;
+    private Account accountA = null ;
+    private Account accountB = null ;
     
     @Before
     public void setUp() {
         book = new AccountingBook( "Test" ) ;
-        account = new Account( "Test A/C" ) ;
+        accountA = new Account( "Account A" ) ;
+        accountB = new Account( "Account B" ) ;
     }
     
     @Test
     public void simpleTrigger() throws Exception {
-        account.registerPostUpdateTrigger( new NoConditionTrigger(), 
-                                          new AccountLogAction() ) ;
-        account.registerPostUpdateTrigger( new BalanceGreaterThanTrigger( 900 ), 
-                                           new AccountLogMsgAction( "Balance exceeded 900" ) );
+        accountA.registerPostUpdateTrigger( new BalanceGreaterThanEqualToTrigger( 900 ), 
+                                            new InterAccountTransferAction( accountA, accountB, 50 ) ) ;
         
-        book.addAccountingItem( new IncomeItem( "Test", 100, account ) ) ;
+        book.addAccountingItem( new IncomeItem( "Test", 100, accountA ) ) ;
         book.runSimulation( "01/2015", "12/2015" ) ;
+        
+        logger.debug( "Account A = " + accountA ) ;
+        logger.debug( "Account B = " + accountB ) ;
     }
 }

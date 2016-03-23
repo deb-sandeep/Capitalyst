@@ -8,28 +8,27 @@ import java.util.List ;
 
 public class Account {
     
-    
     public static class Entry {
         private static final SimpleDateFormat SDF = new SimpleDateFormat( "MM/yyyy" ) ;
         
         private Date date = null ;
-        private AccountingItem accountingItem = null ;
+        private String description = null ;
         private double amount = 0 ;
         
-        Entry( double amt, Date date, AccountingItem acctItem ) {
+        Entry( double amt, Date date, String description ) {
             this.amount = amt ;
             this.date = date ;
-            this.accountingItem = acctItem ;
+            this.description = description ;
         }
         
         public double getAmount() { return this.amount ; }
         public Date   getDate()   { return this.date ; }
-        public AccountingItem getAccountingItem() { return this.accountingItem ; }
+        public String getDescription() { return this.description ; }
         
         public String toString() {
             return "Entry [date = " + SDF.format( date ) + 
-                   ", accounting item = " + accountingItem.getName() + 
-                   ", amount = " + amount + "]" ;
+                   ", amount = " + amount + "]" +
+                   " : " + description ; 
         }
     }
     
@@ -47,6 +46,8 @@ public class Account {
     private TriggerActionManager triggerActionManager = new TriggerActionManager() ;
     
     private List<AccountListener> listeners = new ArrayList<Account.AccountListener>() ;
+    
+    private boolean listenersSupressed = false ;
     
     public Account( String name ) {
         this.name = name ;
@@ -78,12 +79,17 @@ public class Account {
         }
     }
     
-    public void operate( double amt, Date date, AccountingItem acctItem ) {
+    public void supressListeners() { listenersSupressed = true ; }
+    public void enableListeners()  { listenersSupressed = false ; }
+    
+    public void operate( double amt, Date date, String description ) {
         if( amt != 0 ) {
-            Entry entry = new Entry( amt, date, acctItem ) ;
+            Entry entry = new Entry( amt, date, description ) ;
             
-            for( AccountListener listener : listeners ) {
-                listener.accountPreUpdate( this, entry ) ;
+            if( !listenersSupressed ) {
+                for( AccountListener listener : listeners ) {
+                    listener.accountPreUpdate( this, entry ) ;
+                }
             }
             
             if( amt > 0 ) {
@@ -94,8 +100,10 @@ public class Account {
             }
             this.amount += amt ;
             
-            for( AccountListener listener : listeners ) {
-                listener.accountPostUpdate( this, entry ) ;
+            if( !listenersSupressed ) {
+                for( AccountListener listener : listeners ) {
+                    listener.accountPostUpdate( this, entry ) ;
+                }
             }
         }
     }

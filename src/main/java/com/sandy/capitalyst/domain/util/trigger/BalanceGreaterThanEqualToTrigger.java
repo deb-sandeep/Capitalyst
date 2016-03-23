@@ -4,16 +4,16 @@ import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.Account.Entry ;
 import com.sandy.capitalyst.domain.core.AccountTrigger ;
 
-public class BalanceLessThanTrigger extends AccountTrigger {
+public class BalanceGreaterThanEqualToTrigger extends AccountTrigger {
     
-    double minBalance = 0 ;
+    double maxBalance = 0 ;
     
-    public BalanceLessThanTrigger( double minBalance ) {
-        this.minBalance = minBalance ;
+    public BalanceGreaterThanEqualToTrigger( double maxBalance ) {
+        this.maxBalance = maxBalance ;
     }
     
     @Override
     public boolean isTriggered( Account account, Entry entry ) {
-        return account.getAmount() <= minBalance ;
+        return account.getAmount() >= maxBalance ;
     }
 }

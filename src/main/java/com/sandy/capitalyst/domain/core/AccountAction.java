@@ -4,7 +4,7 @@ import com.sandy.capitalyst.domain.core.Account.Entry ;
 
 public abstract class AccountAction {
 
-    public boolean canExecute() {
+    public boolean canExecute( Account account, Entry entry ) {
         return true ;
     }
 

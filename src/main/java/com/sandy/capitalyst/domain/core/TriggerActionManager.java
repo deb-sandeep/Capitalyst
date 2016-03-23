@@ -54,7 +54,7 @@ class TriggerActionManager implements AccountListener {
             if( trigger.isTriggered( account, entry ) ) {
                 List<AccountAction> actions = map.get( trigger ) ;
                 for( AccountAction action : actions ) {
-                    if( action.canExecute() ) {
+                    if( action.canExecute( account, entry ) ) {
                         action.execute( preUpdate, account, entry ) ;
                     }
                 }
