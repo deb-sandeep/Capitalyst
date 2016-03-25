@@ -1,8 +1,5 @@
 package com.sandy.capitalyst.domain.core;
 
-import static com.sandy.capitalyst.Capitalyst.BUS ;
-import static com.sandy.capitalyst.domain.EventType.* ;
-
 import java.text.SimpleDateFormat ;
 import java.util.Calendar ;
 import java.util.Date ;
@@ -13,12 +10,17 @@ import org.apache.commons.lang.ArrayUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
-import com.sandy.capitalyst.domain.EventType.AccountingItemAddEvent ;
+import com.sandy.common.bus.EventBus ;
 import com.sandy.common.util.StringUtil ;
 
 public class AccountingBook {
     
     static Logger logger = Logger.getLogger( AccountingBook.class ) ;
+    
+    public static final int ACCOUNTING_ITEM_GROUP_ADDED = 1 ;
+    public static final int ACCOUNTING_ITEM_ADDED       = 2 ;
+    
+    public EventBus bus = new EventBus() ;
     
     private AccountingItemGroup root = null ;
     private LinkedHashMap<String, Double> monthTotal = new LinkedHashMap<String, Double>() ;
@@ -53,8 +55,7 @@ public class AccountingBook {
             root.addAccountingItem( item ) ;
         }
 
-        BUS.publishEvent( ACCOUNTING_ITEM_ADDED, 
-                          new AccountingItemAddEvent( this, item ) ) ;
+        bus.publishEvent( ACCOUNTING_ITEM_ADDED, item ) ;
         
         List<AccountingItem> derivedItems = item.getDerivedAccountingItems() ;
         if( derivedItems != null ) {

@@ -6,8 +6,7 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
-import static com.sandy.capitalyst.Capitalyst.BUS ;
-import static com.sandy.capitalyst.domain.EventType.* ;
+import static com.sandy.capitalyst.domain.core.AccountingBook.* ;
 
 public class AccountingItemGroup extends AccountingItem {
 
@@ -54,10 +53,8 @@ public class AccountingItemGroup extends AccountingItem {
             if( create ) {
                 child = new AccountingItemGroup( stepName, getAccountingBook() ) ;
                 this.addAccountingItem( child ) ;
-                BUS.publishEvent( ACCOUNTING_ITEM_GROUP_ADDED, 
-                                  new AccountingItemAddEvent( 
-                                          getAccountingBook(), 
-                                          (AccountingItemGroup)child ) ) ;
+                getAccountingBook().bus.publishEvent( 
+                                          ACCOUNTING_ITEM_GROUP_ADDED, child ) ; 
             }
             else {
                 throw new IllegalArgumentException( "No child with the name '" + 
