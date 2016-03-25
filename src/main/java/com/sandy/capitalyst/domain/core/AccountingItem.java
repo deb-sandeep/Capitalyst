@@ -15,6 +15,8 @@ public abstract class AccountingItem {
     private AccountingItem parent = null ;
     private Account account = null ;
     
+    private AccountingBook book = null ;
+    
     private List<AccountingItem> derivedItems = new ArrayList<AccountingItem>() ;
     
     private Map<Date, Double> computedAmtMap = new HashMap<Date, Double>() ;
@@ -22,13 +24,31 @@ public abstract class AccountingItem {
     public AccountingItem( String qualifiedName, Account operatingAccount ) {
 
         this.itemName = qualifiedName == null ? "" : qualifiedName ;
-        this.account = operatingAccount ;
+        this.account  = operatingAccount ;
         
         int indexOfGt = this.itemName.lastIndexOf( ">" ) ;
         if( indexOfGt != -1 ) {
             this.itemName   = qualifiedName.substring( indexOfGt+1 ).trim() ;
             this.parentPath = qualifiedName.substring( 0, indexOfGt ).trim() ;
         }
+    }
+    
+    public String getQualifiedName() {
+        String qn = "" ;
+        AccountingItem up = parent ;
+        while( up != null ) {
+            qn = up.itemName + " > " + qn ;
+            up = up.parent ;
+        }
+        return qn + itemName ;
+    }
+    
+    public AccountingBook getAccountingBook() {
+        return this.book ;
+    }
+    
+    public void setAccountingBook( AccountingBook book ) {
+        this.book = book ;
     }
     
     String getParentPath() {

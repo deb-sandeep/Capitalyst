@@ -1,6 +1,8 @@
 package com.sandy.capitalyst.junit.domain;
 
-import static org.hamcrest.Matchers.* ;
+import static org.hamcrest.Matchers.hasKey ;
+import static org.hamcrest.Matchers.hasSize ;
+import static org.hamcrest.Matchers.not ;
 import static org.junit.Assert.assertEquals ;
 import static org.junit.Assert.assertThat ;
 
@@ -13,7 +15,6 @@ import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
 import com.sandy.capitalyst.domain.util.action.InterAccountTransferAction ;
 import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
-import com.sandy.capitalyst.util.AccountLedgerPrinter ;
 import com.sandy.capitalyst.util.Utils ;
 
 public class AccountTriggerTest {
@@ -40,8 +41,8 @@ public class AccountTriggerTest {
         book.addAccountingItem( new IncomeItem( "Test", 100, accountA ) ) ;
         book.runSimulation( "01/2015", "12/2015" ) ;
         
-        AccountLedgerPrinter printer = new AccountLedgerPrinter( accountA ) ;
-        printer.print( System.out, "01/2015", "12/2015" ) ;
+        //AccountLedgerPrinter printer = new AccountLedgerPrinter( accountA ) ;
+        //printer.print( System.out, "01/2015", "12/2015" ) ;
         
         assertEquals( 1000.0, accountA.getAmount(), 0.001 ) ;
         assertEquals(  200.0, accountB.getAmount(), 0.001 ) ;

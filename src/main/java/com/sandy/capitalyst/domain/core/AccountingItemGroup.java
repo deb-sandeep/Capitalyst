@@ -6,13 +6,17 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
-class AccountingItemGroup extends AccountingItem {
+import static com.sandy.capitalyst.Capitalyst.BUS ;
+import static com.sandy.capitalyst.domain.EventType.* ;
+
+public class AccountingItemGroup extends AccountingItem {
 
     private List<AccountingItem> children = new ArrayList<AccountingItem>() ;
     private Map<String, AccountingItem> childrenMap = new HashMap<String, AccountingItem>() ;
     
-    public AccountingItemGroup( String name ) {
+    public AccountingItemGroup( String name, AccountingBook book ) {
         super( name, null ) ;
+        super.setAccountingBook( book ) ;
     }
     
     public void addAccountingItem( AccountingItem child ) {
@@ -48,8 +52,12 @@ class AccountingItemGroup extends AccountingItem {
         AccountingItem child = childrenMap.get( stepName ) ;
         if( child == null ) {
             if( create ) {
-                child = new AccountingItemGroup( stepName ) ;
+                child = new AccountingItemGroup( stepName, getAccountingBook() ) ;
                 this.addAccountingItem( child ) ;
+                BUS.publishEvent( ACCOUNTING_ITEM_GROUP_ADDED, 
+                                  new AccountingItemAddEvent( 
+                                          getAccountingBook(), 
+                                          (AccountingItemGroup)child ) ) ;
             }
             else {
                 throw new IllegalArgumentException( "No child with the name '" + 

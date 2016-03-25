@@ -1,5 +1,8 @@
 package com.sandy.capitalyst.domain.core;
 
+import static com.sandy.capitalyst.Capitalyst.BUS ;
+import static com.sandy.capitalyst.domain.EventType.* ;
+
 import java.text.SimpleDateFormat ;
 import java.util.Calendar ;
 import java.util.Date ;
@@ -10,6 +13,7 @@ import org.apache.commons.lang.ArrayUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.domain.EventType.AccountingItemAddEvent ;
 import com.sandy.common.util.StringUtil ;
 
 public class AccountingBook {
@@ -20,7 +24,11 @@ public class AccountingBook {
     private LinkedHashMap<String, Double> monthTotal = new LinkedHashMap<String, Double>() ;
     
     public AccountingBook( String name ) {
-        root = new AccountingItemGroup( name ) ;
+        root = new AccountingItemGroup( name, this ) ;
+    }
+    
+    public String getName() {
+        return root.getName() ;
     }
     
     public void addAccountingItem( AccountingItem item ) {
@@ -30,9 +38,11 @@ public class AccountingBook {
         }
         
         if( item.getAccount() == null ) {
-            throw new IllegalArgumentException( "Can't add an accoungting " + 
+            throw new IllegalArgumentException( "Can't add an accounting " + 
                                   "item which doesn't operate on an account" ) ;
         }
+        
+        item.setAccountingBook( this ) ;
         
         String parentPath = item.getParentPath() ;
         if( parentPath != null && parentPath.trim().length() != 0 ) {
@@ -42,6 +52,9 @@ public class AccountingBook {
         else {
             root.addAccountingItem( item ) ;
         }
+
+        BUS.publishEvent( ACCOUNTING_ITEM_ADDED, 
+                          new AccountingItemAddEvent( this, item ) ) ;
         
         List<AccountingItem> derivedItems = item.getDerivedAccountingItems() ;
         if( derivedItems != null ) {
