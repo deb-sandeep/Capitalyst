@@ -27,14 +27,7 @@ public class InterAccountTransferAction extends AccountAction {
 
     @Override
     public void execute( boolean preUpdate, Account account, Entry entry ) {
-        
-        src.supressListeners() ;
-        dest.supressListeners() ;
-        
-        src.operate( -amount, entry.getDate(), "To INT DEB " + src.getName() ) ;
-        dest.operate( amount, entry.getDate(), "To INT CRE " + dest.getName() ) ;
-        
-        src.enableListeners() ;
-        dest.enableListeners() ;
+        src.operate( -amount, entry.getDate(), "Internal debit to account " + dest.getName() ) ;
+        dest.operate( amount, entry.getDate(), "Internal credit from account " + src.getName() ) ;
     }
 }

@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat ;
 import java.util.ArrayList ;
 import java.util.Collection ;
 import java.util.Date ;
+import java.util.LinkedHashMap ;
 import java.util.List ;
+import java.util.Map ;
 
 public class Account {
     
@@ -25,6 +27,8 @@ public class Account {
         public Date   getDate()   { return this.date ; }
         public String getDescription() { return this.description ; }
         
+        public boolean isCredit() { return this.amount > 0 ; }
+        
         public String toString() {
             return "Entry [date = " + SDF.format( date ) + 
                    ", amount = " + amount + "]" +
@@ -40,14 +44,12 @@ public class Account {
     private String name = null ;
     private double amount = 0 ;
     
-    private List<Entry> creditEntries = new ArrayList<Account.Entry>() ;
-    private List<Entry> debitEntries  = new ArrayList<Account.Entry>() ;
+    private Map<Date, List<Entry>> creditEntriesMap = new LinkedHashMap<Date, List<Account.Entry>>() ;
+    private Map<Date, List<Entry>> debitEntriesMap  = new LinkedHashMap<Date, List<Account.Entry>>() ;
     
     private TriggerActionManager triggerActionManager = new TriggerActionManager() ;
     
     private List<AccountListener> listeners = new ArrayList<Account.AccountListener>() ;
-    
-    private boolean listenersSupressed = false ;
     
     public Account( String name ) {
         this.name = name ;
@@ -59,16 +61,26 @@ public class Account {
         return this ;
     }
     
-    public void registerPreUpdateTrigger( AccountTrigger trigger, 
+    public void registerPreCreditTrigger( AccountTrigger trigger, 
                                           AccountAction action ) {
-        triggerActionManager.registerPreUpdateTrigger( trigger, action ) ;
+        triggerActionManager.registerPreCreditTrigger( trigger, action ) ;
     }
     
-    public void registerPostUpdateTrigger( AccountTrigger trigger, 
+    public void registerPostCreditTrigger( AccountTrigger trigger, 
                                            AccountAction action ) {
-        triggerActionManager.registerPostUpdateTrigger( trigger, action ) ;
+        triggerActionManager.registerPostCreditTrigger( trigger, action ) ;
     }
 
+    public void registerPreDebitTrigger( AccountTrigger trigger, 
+                                         AccountAction action ) {
+        triggerActionManager.registerPreDebitTrigger( trigger, action ) ;
+    }
+    
+    public void registerPostDebitTrigger( AccountTrigger trigger, 
+                                          AccountAction action ) {
+        triggerActionManager.registerPostDebitTrigger( trigger, action ) ;
+    }
+    
     public double getAmount() {
         return this.amount ;
     }
@@ -79,33 +91,36 @@ public class Account {
         }
     }
     
-    public void supressListeners() { listenersSupressed = true ; }
-    public void enableListeners()  { listenersSupressed = false ; }
-    
     public void operate( double amt, Date date, String description ) {
         if( amt != 0 ) {
             Entry entry = new Entry( amt, date, description ) ;
             
-            if( !listenersSupressed ) {
-                for( AccountListener listener : listeners ) {
-                    listener.accountPreUpdate( this, entry ) ;
-                }
+            for( AccountListener listener : listeners ) {
+                listener.accountPreUpdate( this, entry ) ;
             }
             
             if( amt > 0 ) {
-                creditEntries.add( entry ) ;
+                addToEntryMap( creditEntriesMap, date, entry ) ;
             }
             else if( amt < 0 ) {
-                debitEntries.add( entry ) ;
+                addToEntryMap( debitEntriesMap, date, entry ) ;
             }
             this.amount += amt ;
             
-            if( !listenersSupressed ) {
-                for( AccountListener listener : listeners ) {
-                    listener.accountPostUpdate( this, entry ) ;
-                }
+            for( AccountListener listener : listeners ) {
+                listener.accountPostUpdate( this, entry ) ;
             }
         }
+    }
+    
+    private void addToEntryMap( Map<Date, List<Entry>> map, Date date, Entry entry ) {
+        
+        List<Entry> entryCollection = map.get( date ) ;
+        if( entryCollection == null ) {
+            entryCollection = new ArrayList<Account.Entry>() ;
+            map.put( date, entryCollection ) ;
+        }
+        entryCollection.add( entry ) ;
     }
     
     public String getName() {
@@ -113,7 +128,27 @@ public class Account {
     }
     
     public Collection<Entry> getCreditEntries() {
-        return this.creditEntries ;
+        List<Entry> entries = new ArrayList<Account.Entry>() ;
+        for( List<Entry> ledgerEntries : this.creditEntriesMap.values() ) {
+            entries.addAll( ledgerEntries ) ;
+        }
+        return entries ;
+    }
+    
+    public Collection<Entry> getDebitEntries() {
+        List<Entry> entries = new ArrayList<Account.Entry>() ;
+        for( List<Entry> ledgerEntries : this.debitEntriesMap.values() ) {
+            entries.addAll( ledgerEntries ) ;
+        }
+        return entries ;
+    }
+    
+    public Map<Date, List<Entry>> getCreditEntriesMap() {
+        return this.creditEntriesMap ;
+    }
+    
+    public Map<Date, List<Entry>> getDebitEntriesMap() {
+        return this.debitEntriesMap ;
     }
     
     public String toString() {

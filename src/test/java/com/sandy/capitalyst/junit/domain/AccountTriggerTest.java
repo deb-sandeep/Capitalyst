@@ -9,6 +9,7 @@ import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
 import com.sandy.capitalyst.domain.util.action.InterAccountTransferAction ;
 import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
+import com.sandy.capitalyst.util.AccountLedgerPrinter ;
 
 public class AccountTriggerTest {
 
@@ -27,7 +28,8 @@ public class AccountTriggerTest {
     
     @Test
     public void simpleTrigger() throws Exception {
-        accountA.registerPostUpdateTrigger( new BalanceGreaterThanEqualToTrigger( 900 ), 
+        
+        accountA.registerPostCreditTrigger( new BalanceGreaterThanEqualToTrigger( 900 ), 
                                             new InterAccountTransferAction( accountA, accountB, 50 ) ) ;
         
         book.addAccountingItem( new IncomeItem( "Test", 100, accountA ) ) ;
@@ -35,5 +37,8 @@ public class AccountTriggerTest {
         
         logger.debug( "Account A = " + accountA ) ;
         logger.debug( "Account B = " + accountB ) ;
+        
+        AccountLedgerPrinter printer = new AccountLedgerPrinter( accountA ) ;
+        printer.print( System.out, "01/2015", "12/2015" ) ;
     }
 }

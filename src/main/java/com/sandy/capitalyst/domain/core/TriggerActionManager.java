@@ -10,20 +10,36 @@ import com.sandy.capitalyst.domain.core.Account.Entry ;
 
 class TriggerActionManager implements AccountListener {
     
-    private Map<AccountTrigger, List<AccountAction>> preUpdateTriggerMap = 
+    private Map<AccountTrigger, List<AccountAction>> preCreditTriggerMap = 
                             new HashMap<AccountTrigger, List<AccountAction>>() ;
     
-    private Map<AccountTrigger, List<AccountAction>> postUpdateTriggerMap = 
+    private Map<AccountTrigger, List<AccountAction>> postCreditTriggerMap = 
                             new HashMap<AccountTrigger, List<AccountAction>>() ;
     
-    public void registerPreUpdateTrigger( AccountTrigger trigger, 
+    private Map<AccountTrigger, List<AccountAction>> preDebitTriggerMap = 
+            new HashMap<AccountTrigger, List<AccountAction>>() ;
+    
+    private Map<AccountTrigger, List<AccountAction>> postDebitTriggerMap = 
+            new HashMap<AccountTrigger, List<AccountAction>>() ;
+    
+    public void registerPreCreditTrigger( AccountTrigger trigger, 
                                           AccountAction action ) {
-        registerTrigger( preUpdateTriggerMap, trigger, action ) ;
+        registerTrigger( preCreditTriggerMap, trigger, action ) ;
     }
     
-    public void registerPostUpdateTrigger( AccountTrigger trigger, 
+    public void registerPostCreditTrigger( AccountTrigger trigger, 
                                            AccountAction action ) {
-        registerTrigger( postUpdateTriggerMap, trigger, action ) ;
+        registerTrigger( postCreditTriggerMap, trigger, action ) ;
+    }
+    
+    public void registerPreDebitTrigger( AccountTrigger trigger, 
+                                         AccountAction action ) {
+        registerTrigger( preDebitTriggerMap, trigger, action ) ;
+    }
+    
+    public void registerPostDebitTrigger( AccountTrigger trigger, 
+                                          AccountAction action ) {
+        registerTrigger( postDebitTriggerMap, trigger, action ) ;
     }
     
     private void registerTrigger( Map<AccountTrigger, List<AccountAction>> map,
@@ -39,17 +55,28 @@ class TriggerActionManager implements AccountListener {
 
     @Override
     public final void accountPreUpdate( Account account, Entry entry ) {
-        checkTriggerCondition( true, preUpdateTriggerMap, account, entry ) ;
+        if( entry.isCredit() ) {
+            checkTriggerAndFireAction( true, preCreditTriggerMap, account, entry ) ;
+        }
+        else {
+            checkTriggerAndFireAction( true, preDebitTriggerMap, account, entry ) ;
+        }
     }
 
     @Override
     public final void accountPostUpdate( Account account, Entry entry ) {
-        checkTriggerCondition( false, postUpdateTriggerMap, account, entry ) ;
+        if( entry.isCredit() ) {
+            checkTriggerAndFireAction( true, postCreditTriggerMap, account, entry ) ;
+        }
+        else {
+            checkTriggerAndFireAction( true, postDebitTriggerMap, account, entry ) ;
+        }
     }
 
-    private void checkTriggerCondition( boolean preUpdate,
-                                        Map<AccountTrigger, List<AccountAction>> map,
-                                        Account account, Entry entry ) {
+    private void checkTriggerAndFireAction( boolean preUpdate,
+                                            Map<AccountTrigger, List<AccountAction>> map,
+                                            Account account, Entry entry ) {
+        
         for( AccountTrigger trigger : map.keySet() ) {
             if( trigger.isTriggered( account, entry ) ) {
                 List<AccountAction> actions = map.get( trigger ) ;
