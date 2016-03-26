@@ -1,20 +1,21 @@
-package com.sandy.capitalyst.domain.util.action;
+package com.sandy.capitalyst.domain.util.instruction;
 
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.Account.Entry ;
-import com.sandy.capitalyst.domain.core.AccountAction ;
+import com.sandy.capitalyst.domain.core.Instruction ;
 
-public class InterAccountTransferAction extends AccountAction {
+public class InterAccountTransferInstruction extends Instruction {
     
-    static final Logger logger = Logger.getLogger( InterAccountTransferAction.class ) ;
+    static final Logger logger = Logger.getLogger( InterAccountTransferInstruction.class ) ;
     
     private Account src    = null ;
     private Account dest   = null ;
     private double  amount = 0 ;
     
-    public InterAccountTransferAction( Account src, Account dest, double amt ) {
+    public InterAccountTransferInstruction( Account src, Account dest, double amt ) {
+        super( "Inter account transfer instruction." ) ;
         this.src    = src ;
         this.dest   = dest ;
         this.amount = amt ;

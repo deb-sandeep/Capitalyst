@@ -6,6 +6,7 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
+import com.sandy.capitalyst.domain.core.AccountingBook.AccountingItemProcessedEventValue ;
 import com.sandy.common.util.StringUtil ;
 
 public abstract class AccountingItem {
@@ -80,6 +81,12 @@ public abstract class AccountingItem {
         
         double amt = computeEntryForMonth( date ) ;
         computedAmtMap.put( date, amt ) ;
+        
+        // Piecewise definitions don't have an associated accounting book
+        if( getAccountingBook() != null ) {
+            getAccountingBook().bus.publishEvent( AccountingBook.ACCOUNTING_ITEM_PROCESSED, 
+                    new AccountingItemProcessedEventValue( date, this, amt ) ) ;
+        }
         
         // We don't want piecewise definitions to start crediting and debiting
         // They are managed by a top level accounting item who will do the

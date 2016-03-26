@@ -13,7 +13,7 @@ import org.junit.Test ;
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
-import com.sandy.capitalyst.domain.util.action.InterAccountTransferAction ;
+import com.sandy.capitalyst.domain.util.instruction.InterAccountTransferInstruction ;
 import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
 import com.sandy.capitalyst.util.Utils ;
 
@@ -28,15 +28,15 @@ public class AccountTriggerTest {
     @Before
     public void setUp() {
         book = new AccountingBook( "Test" ) ;
-        accountA = new Account( "Account A" ) ;
-        accountB = new Account( "Account B" ) ;
+        accountA = new Account( "Account A", book ) ;
+        accountB = new Account( "Account B", book ) ;
     }
     
     @Test
     public void simpleTrigger() throws Exception {
         
         accountA.registerPostCreditTrigger( new BalanceGreaterThanEqualToTrigger( 900 ), 
-                                            new InterAccountTransferAction( accountA, accountB, 50 ) ) ;
+                                            new InterAccountTransferInstruction( accountA, accountB, 50 ) ) ;
         
         book.addAccountingItem( new IncomeItem( "Test", 100, accountA ) ) ;
         book.runSimulation( "01/2015", "12/2015" ) ;

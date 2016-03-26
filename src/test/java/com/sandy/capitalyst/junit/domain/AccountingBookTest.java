@@ -27,7 +27,7 @@ public class AccountingBookTest {
     @Before
     public void setUp() {
         book = new AccountingBook( "Test" ) ;
-        account = new Account( "Test A/C" ) ;
+        account = new Account( "Test A/C", book ) ;
         monthAmounts.clear() ;
     }
     

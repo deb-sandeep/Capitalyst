@@ -17,8 +17,40 @@ public class AccountingBook {
     
     static Logger logger = Logger.getLogger( AccountingBook.class ) ;
     
-    public static final int ACCOUNTING_ITEM_GROUP_ADDED = 1 ;
-    public static final int ACCOUNTING_ITEM_ADDED       = 2 ;
+    public static final int ACCOUNTING_ITEM_GROUP_ADDED  = 1 ;
+    public static final int ACCOUNTING_ITEM_ADDED        = 2 ;
+    public static final int SIMULATION_STARTED           = 3 ;
+    public static final int SIMULATION_ENDED             = 4 ;
+    public static final int MONTH_SIMULATION_STARTED     = 5 ;
+    public static final int MONTH_SIMULATION_ENDED       = 6 ;
+    public static final int ACCOUNTING_ITEM_PROCESSED    = 7 ;
+    public static final int ACCOUNT_INSTRUCTION_EXECUTED = 8 ;
+    
+    public static class AccountingItemProcessedEventValue {
+        public Date date = null ;
+        public AccountingItem accItem = null ;
+        public double amt = 0 ;
+        
+        public AccountingItemProcessedEventValue( Date date, AccountingItem item, 
+                                                  double amt ) {
+            this.date = date ;
+            this.accItem = item ;
+            this.amt = amt ;
+        }
+    }
+    
+    public static class AccountInstructionExecutionEventValue {
+        public Date date = null ;
+        public Account account = null ;
+        public Instruction instruction = null ;
+        
+        public AccountInstructionExecutionEventValue( Date date, Account account,
+                                                      Instruction instruction ) {
+            this.date = date ;
+            this.account = account ;
+            this.instruction = instruction ;
+        }
+    }
     
     public EventBus bus = new EventBus() ;
     
@@ -77,13 +109,17 @@ public class AccountingBook {
         }
         
         Date curMth = startDate ;
+        bus.publishEvent( SIMULATION_STARTED, null ) ;
         while( DateUtils.truncatedCompareTo( curMth, endDate, Calendar.DAY_OF_MONTH ) <= 0 ) {
             
+            bus.publishEvent( MONTH_SIMULATION_STARTED, curMth ) ;
             double amt = root.getEntryForMonth( curMth ) ;
             monthTotal.put( sdf.format( curMth ), amt ) ;
+            bus.publishEvent( MONTH_SIMULATION_ENDED, curMth ) ;
             
             curMth = DateUtils.addMonths( curMth, 1 ) ;
         }
+        bus.publishEvent( SIMULATION_ENDED, null ) ;
     }
     
     public double[] getMonthTotals() {

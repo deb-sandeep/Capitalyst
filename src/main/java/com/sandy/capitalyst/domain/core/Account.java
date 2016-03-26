@@ -43,17 +43,25 @@ public class Account {
     
     private String name = null ;
     private double amount = 0 ;
+    private AccountingBook book = null ;
     
     private Map<Date, List<Entry>> creditEntriesMap = new LinkedHashMap<Date, List<Account.Entry>>() ;
     private Map<Date, List<Entry>> debitEntriesMap  = new LinkedHashMap<Date, List<Account.Entry>>() ;
     
-    private TriggerActionManager triggerActionManager = new TriggerActionManager() ;
+    private AccountInstructionManager instructionManager = null ;
     
     private List<AccountListener> listeners = new ArrayList<Account.AccountListener>() ;
     
-    public Account( String name ) {
+    public Account( String name, AccountingBook book ) {
         this.name = name ;
-        this.addListener( triggerActionManager ) ;
+        this.book = book ;
+        this.instructionManager = new AccountInstructionManager( book ) ;
+        
+        this.addListener( instructionManager ) ;
+    }
+    
+    public AccountingBook getAccountingBook() {
+        return this.book ;
     }
     
     public Account withInitialAmount( double amt ) {
@@ -61,24 +69,24 @@ public class Account {
         return this ;
     }
     
-    public void registerPreCreditTrigger( AccountTrigger trigger, 
-                                          AccountAction action ) {
-        triggerActionManager.registerPreCreditTrigger( trigger, action ) ;
+    public void registerPreCreditTrigger( Trigger trigger, 
+                                          Instruction instruction ) {
+        instructionManager.registerPreCreditTrigger( trigger, instruction ) ;
     }
     
-    public void registerPostCreditTrigger( AccountTrigger trigger, 
-                                           AccountAction action ) {
-        triggerActionManager.registerPostCreditTrigger( trigger, action ) ;
+    public void registerPostCreditTrigger( Trigger trigger, 
+                                           Instruction instruction ) {
+        instructionManager.registerPostCreditTrigger( trigger, instruction ) ;
     }
 
-    public void registerPreDebitTrigger( AccountTrigger trigger, 
-                                         AccountAction action ) {
-        triggerActionManager.registerPreDebitTrigger( trigger, action ) ;
+    public void registerPreDebitTrigger( Trigger trigger, 
+                                         Instruction instruction ) {
+        instructionManager.registerPreDebitTrigger( trigger, instruction ) ;
     }
     
-    public void registerPostDebitTrigger( AccountTrigger trigger, 
-                                          AccountAction action ) {
-        triggerActionManager.registerPostDebitTrigger( trigger, action ) ;
+    public void registerPostDebitTrigger( Trigger trigger, 
+                                          Instruction instruction ) {
+        instructionManager.registerPostDebitTrigger( trigger, instruction ) ;
     }
     
     public double getAmount() {

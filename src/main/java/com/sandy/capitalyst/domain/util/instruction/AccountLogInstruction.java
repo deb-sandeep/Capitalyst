@@ -1,14 +1,18 @@
-package com.sandy.capitalyst.domain.util.action;
+package com.sandy.capitalyst.domain.util.instruction;
 
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.Account.Entry ;
-import com.sandy.capitalyst.domain.core.AccountAction ;
+import com.sandy.capitalyst.domain.core.Instruction ;
 
-public class AccountLogAction extends AccountAction {
+public class AccountLogInstruction extends Instruction {
     
-    private static final Logger logger = Logger.getLogger( AccountLogAction.class ) ;
+    private static final Logger logger = Logger.getLogger( AccountLogInstruction.class ) ;
+    
+    public AccountLogInstruction() {
+        super( "Accoung log instruction" ) ;
+    }
 
     @Override
     public void execute( boolean preUpdate, Account account, Entry entry ) {
