@@ -1,0 +1,3 @@
+# This file lists the attribute paths which contain the application state.
+# This file will be processed by the StateManager component
+#ProjectManager.projectConfigFile

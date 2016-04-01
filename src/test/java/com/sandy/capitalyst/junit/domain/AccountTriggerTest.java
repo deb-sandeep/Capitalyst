@@ -13,9 +13,9 @@ import org.junit.Test ;
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
+import com.sandy.capitalyst.domain.util.DomainUtils ;
 import com.sandy.capitalyst.domain.util.instruction.InterAccountTransferInstruction ;
 import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
-import com.sandy.capitalyst.util.Utils ;
 
 public class AccountTriggerTest {
 
@@ -51,7 +51,7 @@ public class AccountTriggerTest {
         assertThat( accountB.getCreditEntries(), hasSize( 4 ) ) ;
         assertThat( accountA.getCreditEntries(), hasSize( 12 ) ) ;
         
-        assertThat( accountA.getDebitEntriesMap(), hasKey( Utils.parse( "09/2015" ) )) ;
-        assertThat( accountA.getDebitEntriesMap(), not(hasKey( Utils.parse( "08/2015" ) ))) ;
+        assertThat( accountA.getDebitEntriesMap(), hasKey( DomainUtils.parse( "09/2015" ) )) ;
+        assertThat( accountA.getDebitEntriesMap(), not(hasKey( DomainUtils.parse( "08/2015" ) ))) ;
     }
 }

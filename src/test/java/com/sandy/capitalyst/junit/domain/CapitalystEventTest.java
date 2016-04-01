@@ -13,9 +13,9 @@ import com.sandy.capitalyst.domain.core.AccountingBook ;
 import com.sandy.capitalyst.domain.core.AccountingItem ;
 import com.sandy.capitalyst.domain.core.AccountingItemGroup ;
 import com.sandy.capitalyst.domain.util.IncomeItem ;
+import com.sandy.capitalyst.domain.util.DomainUtils ;
 import com.sandy.capitalyst.domain.util.instruction.AccountLogInstruction ;
 import com.sandy.capitalyst.domain.util.trigger.BalanceGreaterThanEqualToTrigger ;
-import com.sandy.capitalyst.util.Utils ;
 import com.sandy.common.bus.Event ;
 import com.sandy.common.bus.EventSubscriber ;
 
@@ -61,11 +61,11 @@ public class CapitalystEventTest {
                         break ;
                         
                     case MONTH_SIMULATION_STARTED:
-                        logger.debug( "Simulation started for month " + Utils.SDF.format( (Date)event.getValue() ) ) ;
+                        logger.debug( "Simulation started for month " + DomainUtils.SDF.format( (Date)event.getValue() ) ) ;
                         break ;
                         
                     case MONTH_SIMULATION_ENDED:
-                        logger.debug( "Simulation ended for month " + Utils.SDF.format( (Date)event.getValue() ) ) ;
+                        logger.debug( "Simulation ended for month " + DomainUtils.SDF.format( (Date)event.getValue() ) ) ;
                         break ;
                         
                     case ACCOUNTING_ITEM_PROCESSED:
@@ -73,7 +73,7 @@ public class CapitalystEventTest {
                         e = ( AccountingItemProcessedEventValue )event.getValue() ;
                         logger.debug( "Accounting item processed" ) ;
                         logger.debug( "\tItem name = " + e.accItem.getQualifiedName() ) ;
-                        logger.debug( "\tDate      = " + Utils.SDF.format( e.date ) ) ;
+                        logger.debug( "\tDate      = " + DomainUtils.SDF.format( e.date ) ) ;
                         logger.debug( "\tAmount    = " + e.amt ) ;
                         break ;
                         
@@ -82,7 +82,7 @@ public class CapitalystEventTest {
                         e1 = ( AccountInstructionExecutionEventValue )event.getValue() ;
                         logger.debug( "Instruction executed" ) ;
                         logger.debug( "\tInstruction = " + e1.instruction.getName() ) ;
-                        logger.debug( "\tDate        = " + Utils.SDF.format( e1.date ) ) ;
+                        logger.debug( "\tDate        = " + DomainUtils.SDF.format( e1.date ) ) ;
                         break ;
                 }
             }

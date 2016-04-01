@@ -1,4 +1,4 @@
-package com.sandy.capitalyst.util;
+package com.sandy.capitalyst.domain.util;
 
 import java.io.OutputStream ;
 import java.io.PrintStream ;
@@ -62,7 +62,7 @@ public class AccountLedgerPrinter {
         ps.println( "Description" ) ;
         ps.println( "----------+----------+----------+---------------------------" ) ;
         
-        while( Utils.compare( curDate, endDate ) <= 0 ) {
+        while( DomainUtils.compare( curDate, endDate ) <= 0 ) {
             
             if( creditEntriesMap.containsKey( curDate ) ) {
                 List<Entry> entries = creditEntriesMap.get( curDate ) ;
@@ -88,7 +88,7 @@ public class AccountLedgerPrinter {
         double amt  = entry.getAmount() ;
         String descr= entry.getDescription() ;
         
-        ps.print( StringUtils.rightPad( Utils.SDF.format( date ), 10 ) ) ;
+        ps.print( StringUtils.rightPad( DomainUtils.SDF.format( date ), 10 ) ) ;
         ps.print( "|" ) ;
         if( amt > 0 ) {
             ps.print( StringUtils.leftPad( DF.format( amt ) + " ", 10 ) ) ;
@@ -108,10 +108,10 @@ public class AccountLedgerPrinter {
     
     private void calculateDateRange( String start, String end ) throws Exception {
         
-        Date creditEntryStartDate = Utils.parse( start ) ;
-        Date debitEntryStartDate  = Utils.parse( start ) ;
-        Date creditEntryEndDate   = Utils.parse( end ) ;
-        Date debitEntryEndDate    = Utils.parse( end ) ;
+        Date creditEntryStartDate = DomainUtils.parse( start ) ;
+        Date debitEntryStartDate  = DomainUtils.parse( start ) ;
+        Date creditEntryEndDate   = DomainUtils.parse( end ) ;
+        Date debitEntryEndDate    = DomainUtils.parse( end ) ;
         
         if( creditEntries.length > 0 ) {
             creditEntryStartDate = creditEntries[0].getDate() ;
@@ -123,14 +123,14 @@ public class AccountLedgerPrinter {
             debitEntryEndDate   = debitEntries[debitEntries.length-1].getDate() ;
         }
         
-        if( Utils.compare( creditEntryStartDate, debitEntryStartDate ) <= 0 ) {
+        if( DomainUtils.compare( creditEntryStartDate, debitEntryStartDate ) <= 0 ) {
             startDate = creditEntryStartDate ;
         }
         else {
             startDate = debitEntryStartDate ;
         }
         
-        if( Utils.compare( creditEntryEndDate, debitEntryEndDate ) > 0 ) {
+        if( DomainUtils.compare( creditEntryEndDate, debitEntryEndDate ) > 0 ) {
             endDate = creditEntryEndDate ;
         }
         else {

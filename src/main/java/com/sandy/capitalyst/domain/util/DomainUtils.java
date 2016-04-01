@@ -1,11 +1,11 @@
-package com.sandy.capitalyst.util;
+package com.sandy.capitalyst.domain.util;
 
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
 import java.util.Calendar ;
 import java.util.Date ;
 
-public class Utils {
+public class DomainUtils {
     
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "MM/yyyy" ) ;
     
