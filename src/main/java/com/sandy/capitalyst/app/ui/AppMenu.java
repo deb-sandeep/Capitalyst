@@ -20,6 +20,7 @@ public class AppMenu extends JMenuBar {
     
     private void setUpMenus() {
         add( buildAppMenu() ) ;
+        add( buildSimulationMenu() ) ;
     }
     
     private JMenu buildAppMenu() {
@@ -27,6 +28,14 @@ public class AppMenu extends JMenuBar {
         menu.setMnemonic( KeyEvent.VK_A ) ;
         
         menu.add( actions.getExitAppAction() ) ;
+        return menu ;
+    }
+    
+    private JMenu buildSimulationMenu() {
+        JMenu menu = new JMenu( "Sim" ) ;
+        menu.setMnemonic( KeyEvent.VK_S ) ;
+        
+        menu.add( actions.getNewSimAppAction() ) ;
         return menu ;
     }
 }

@@ -105,4 +105,8 @@ public abstract class AccountingItem {
     public String getName() {
         return this.itemName ;
     }
+    
+    public String toString() {
+        return getName() ;
+    }
 }

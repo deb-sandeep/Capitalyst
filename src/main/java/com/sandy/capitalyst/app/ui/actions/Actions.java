@@ -1,6 +1,8 @@
 package com.sandy.capitalyst.app.ui.actions;
 
 import static com.sandy.capitalyst.app.util.ObjectRepository.getMainFrame ;
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK ;
+import static java.awt.event.KeyEvent.VK_N ;
 import static java.awt.event.KeyEvent.VK_X ;
 
 import java.awt.event.ActionEvent ;
@@ -17,17 +19,25 @@ public class Actions {
     private static final Logger logger = Logger.getLogger( Actions.class ) ;
     
     private AbstractBaseAction exitAppAction       = null ;
+    private AbstractBaseAction newSimAction        = null ;
     
     private Object[][] menuConfig = {
-        { "exitApp",       "Exit",             null,          VK_X,     -1  , -1 }
+        { "exitApp",       "Exit",             null,          VK_X,     -1  , -1 },
+        
+        { "newSimulation", "New simulation",   null,          VK_N,     VK_N, CTRL_DOWN_MASK}
     } ;
     
     public Actions() {
         exitAppAction       = constructAction( "exitApp"       ) ;
+        newSimAction        = constructAction( "newSimulation" ) ;
     }
     
     public AbstractBaseAction getExitAppAction() {
         return exitAppAction ;
+    }
+    
+    public AbstractBaseAction getNewSimAppAction() {
+        return newSimAction ;
     }
     
     @SuppressWarnings( "serial" )
@@ -84,5 +94,10 @@ public class Actions {
     @SuppressWarnings( "unused" )
     private void exitApp() {
         getMainFrame().handleWindowClosing() ;
+    }
+    
+    @SuppressWarnings( "unused" )
+    private void newSimulation() {
+        getMainFrame().loadNewSimulation() ;
     }
 }
