@@ -11,6 +11,9 @@ import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.DefaultTreeModel ;
 
 import org.apache.log4j.Logger ;
+import org.jdesktop.swingx.JXTreeTable ;
+import org.jdesktop.swingx.treetable.FileSystemModel ;
+import org.jdesktop.swingx.treetable.TreeTableModel ;
 
 import com.sandy.capitalyst.domain.core.Account ;
 import com.sandy.capitalyst.domain.core.AccountingBook ;
@@ -106,6 +109,10 @@ public class SimulationPanel extends JPanel {
     private void setUpUI() {
         setLayout( new BorderLayout() ) ;
         tree.setRootVisible( false ) ;
-        add( new JScrollPane( tree ) ) ;
+        TreeTableModel  treeTableModel = new FileSystemModel(); // any TreeTableModel
+        JXTreeTable     treeTable = new JXTreeTable(treeTableModel);
+        JScrollPane     scrollpane = new JScrollPane(treeTable);
+//        add( new JScrollPane( tree ) ) ;
+        add( scrollpane ) ;
     }
 }
