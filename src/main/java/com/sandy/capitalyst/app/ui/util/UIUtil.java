@@ -1,7 +1,6 @@
 package com.sandy.capitalyst.app.ui.util ;
 
 import static com.sandy.capitalyst.app.util.ObjectRepository.getApp ;
-import static com.sandy.capitalyst.app.util.ObjectRepository.getMainFrame ;
 
 import java.awt.Dimension ;
 import java.awt.Insets ;
@@ -50,9 +49,5 @@ public class UIUtil {
         button.addActionListener( listener ) ;
         
         return button ;
-    }
-    
-    public static void logStatus( String msg ) {
-        getMainFrame().logStatus( msg ) ;
     }
 }

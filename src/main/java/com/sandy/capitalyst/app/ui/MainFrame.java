@@ -4,18 +4,13 @@ import static com.sandy.capitalyst.app.ui.util.UIUtil.getIcon ;
 
 import java.awt.Component ;
 
-import javax.swing.BorderFactory ;
 import javax.swing.JMenuBar ;
-import javax.swing.SwingUtilities ;
-import javax.swing.border.BevelBorder ;
 
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.app.ui.widgets.SimulationPanel ;
 import com.sandy.common.ui.AbstractMainFrame ;
 import com.sandy.common.ui.CloseableTabbedPane ;
-import com.sandy.common.ui.statusbar.MessageSBComponent ;
-import com.sandy.common.ui.statusbar.StatusBar ;
 
 public class MainFrame extends AbstractMainFrame {
 
@@ -23,8 +18,6 @@ public class MainFrame extends AbstractMainFrame {
     
     private static Logger logger = Logger.getLogger( MainFrame.class ) ;
     
-    private StatusBar           statusBar          = null ;
-    private MessageSBComponent  statusMsgComponent = null ;
     private CloseableTabbedPane tabbedPane         = null ;
     
     public MainFrame() throws Exception {
@@ -53,29 +46,9 @@ public class MainFrame extends AbstractMainFrame {
         return new AppMenu() ;
     }
     
-    protected StatusBar getStatusBar() {
-        if( statusBar == null ) {
-            statusBar = new StatusBar() ;
-            statusMsgComponent = new MessageSBComponent() ;
-            statusBar.addStatusBarComponent( statusMsgComponent,
-                                             StatusBar.Direction.WEST ) ;
-            statusBar.setBorder( BorderFactory.createBevelBorder( BevelBorder.LOWERED ) ) ;
-        }
-        return statusBar ;
-    }
-    
-    public void logStatus( String status ) {
-        statusMsgComponent.logMessage( status ) ;
-    }
-    
-    public void loadNewSimulation() {
+    public void addNewSimulation() {
         logger.debug( "Loading new simulation" ) ;
         SimulationPanel simPanel = new SimulationPanel() ;
-        tabbedPane.add( simPanel.getName(), simPanel ) ;
-        SwingUtilities.invokeLater( new Runnable() {
-            @Override public void run() {
-                simPanel.initialize() ;
-            }
-        } ) ;
+        tabbedPane.add( "Sim Panel", simPanel ) ;
     }
 }

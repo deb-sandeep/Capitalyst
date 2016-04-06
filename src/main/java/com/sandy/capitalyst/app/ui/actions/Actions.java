@@ -98,6 +98,6 @@ public class Actions {
     
     @SuppressWarnings( "unused" )
     private void newSimulation() {
-        getMainFrame().loadNewSimulation() ;
+        getMainFrame().addNewSimulation() ;
     }
 }
