@@ -1,7 +1,7 @@
 package com.sandy.cst.domain;
 
 @SuppressWarnings( "serial" )
-public class AccountNotFoundException extends Exception {
+public class AccountNotFoundException extends RuntimeException {
     
     private String accountNumber = null ;
     

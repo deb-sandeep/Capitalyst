@@ -5,14 +5,19 @@ import java.util.List ;
 
 public class Account {
 
+    private Universe universe = null ;
     private String accountNumber ;
     private String name ;
     private double amount ;
     
-    private List<Transaction> ledger = new ArrayList<Transaction>() ;
+    private List<Txn> ledger = new ArrayList<Txn>() ;
     
     public Account( String id, String name ) {
         this( id, name, 0 ) ;
+    }
+    
+    public void setUniverse( Universe universe ) {
+        this.universe = universe ;
     }
 
     public Account( String accNo, String name, double amount ) {
@@ -34,7 +39,7 @@ public class Account {
         return amount ;
     }
     
-    public void postTransaction( Transaction t ) {
+    public void postTransaction( Txn t ) {
         ledger.add( t ) ;
         this.amount += t.getAmount() ;
     }

@@ -1,27 +1,58 @@
 package com.sandy.cst ;
 
-import java.text.SimpleDateFormat ;
+import static com.sandy.cst.CapitalystUtils.parseDate ;
+
+import java.util.ArrayList ;
+import java.util.Calendar ;
+import java.util.Date ;
+import java.util.List ;
+
+import org.apache.commons.lang.time.DateUtils ;
 
 import com.sandy.cst.domain.Account ;
-import com.sandy.cst.domain.AccountManager ;
-import com.sandy.cst.domain.Journal ;
-import com.sandy.cst.domain.Transaction ;
+import com.sandy.cst.domain.CapitalystTimer ;
+import com.sandy.cst.domain.Txn ;
+import com.sandy.cst.domain.TxnGenerator ;
+import com.sandy.cst.domain.Universe ;
 
 public class Test {
     
-    private static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/YYYY" ) ;
-
+    private CapitalystTimer timer = null ;
+    
+    public void testUniverse() {
+        Universe universe = new Universe() ;
+        CapitalystTimer timer = getTimer() ;
+        
+        universe.addAccount( new Account( "5212", "Sandy SB" ) ) ;
+        universe.registerTxnGenerator( new TxnGenerator() {
+            public List<Txn> getTransactionsForDate( Date date ) {
+                
+                if( DateUtils.getFragmentInDays( date, Calendar.MONTH ) == 1 ) {
+                    List<Txn> txnList = new ArrayList<Txn>() ;
+                    Txn txn = new Txn( "5212", 100, date ) ;
+                    txnList.add( txn ) ;
+                    return txnList ;
+                }
+                return null ;
+            }
+        } );
+        
+        timer.registerTimeObserver( universe ) ;
+        timer.run() ;
+        
+        Account acc = universe.getAccount( "5212" ) ;
+        System.out.println( acc.getAmount() ) ;
+    }
+    
+    private CapitalystTimer getTimer() {
+        if( timer == null ) {
+            timer = new CapitalystTimer( parseDate( "01/01/2015" ), 
+                                         parseDate( "31/12/2015" ) ) ;
+        }
+        return timer ;
+    }
+    
     public static void main( String[] args ) throws Exception {
-        
-        AccountManager accMgr = new AccountManager() ;
-        accMgr.addAccount( new Account( "5212", "Sandy SB" ) ) ;
-        accMgr.addAccount( new Account( "5686", "Sweety SB" ) ) ;
-        
-        Journal journal = new Journal( accMgr ) ;
-        
-        Transaction t = new Transaction( "5212", 10, SDF.parse( "10/10/2015" ) ) ;
-        journal.postTransaction( t ) ;
-        
-        System.out.println( accMgr.getAccount( "5212" ).getAmount() ) ;
+        new Test().testUniverse() ;
     }
 }

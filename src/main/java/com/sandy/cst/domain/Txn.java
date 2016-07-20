@@ -2,17 +2,23 @@ package com.sandy.cst.domain;
 
 import java.util.Date ;
 
-public class Transaction {
+public class Txn {
+    
+    public static enum TxnType { CREDIT, DEBIT } ;
 
     private String accountNumber ;
     private double amount ;
     private Date   date ;
     
-    public Transaction( String accountNumber, double amount, Date date ) {
+    public Txn( String accountNumber, double amount, Date date ) {
         super() ;
         this.accountNumber = accountNumber ;
         this.amount = amount ;
         this.date = date ;
+    }
+    
+    public TxnType getTxnType() {
+        return amount > 0 ? TxnType.CREDIT : TxnType.DEBIT ;
     }
 
     public String getAccountNumber() {

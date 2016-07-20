@@ -3,11 +3,13 @@ package com.sandy.cst.domain;
 import java.util.Map ;
 import java.util.concurrent.ConcurrentHashMap ;
 
-public class AccountManager {
+class AccountManager {
 
+    private Universe universe = null ;
     private Map<String, Account> accountMap = null ;
     
-    public AccountManager() {
+    public AccountManager( Universe universe ) {
+        this.universe = universe ;
         accountMap = new ConcurrentHashMap<String, Account>() ;
     }
     

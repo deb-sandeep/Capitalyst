@@ -3,16 +3,18 @@ package com.sandy.cst.domain;
 import java.util.ArrayList ;
 import java.util.List ;
 
-public class Journal {
+class Journal {
 
+    private Universe universe = null ;
     private AccountManager accMgr = null ;
-    private List<Transaction> transactions = new ArrayList<Transaction>() ;
+    private List<Txn> transactions = new ArrayList<Txn>() ;
     
-    public Journal( AccountManager accMgr ) {
+    public Journal( Universe universe, AccountManager accMgr ) {
+        this.universe = universe ;
         this.accMgr = accMgr ;
     }
     
-    public void postTransaction( Transaction t ) 
+    public void addTransaction( Txn t ) 
             throws AccountNotFoundException {
         Account account = accMgr.getAccount( t.getAccountNumber() ) ;
         if( account == null ) {
@@ -21,5 +23,12 @@ public class Journal {
         
         transactions.add( t ) ;
         account.postTransaction( t ) ;
+    }
+    
+    public void addTransactions( List<Txn> txnList ) 
+        throws AccountNotFoundException {
+        for( Txn txn : txnList ) {
+            addTransaction( txn ) ;
+        }
     }
 }
