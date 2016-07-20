@@ -1,4 +1,4 @@
-package com.sandy.cst.domain;
+package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
 import java.util.List ;

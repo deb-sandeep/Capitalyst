@@ -1,4 +1,4 @@
-package com.sandy.cst;
+package com.sandy.capitalyst;
 
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;

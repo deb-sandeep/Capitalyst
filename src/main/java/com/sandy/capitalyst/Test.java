@@ -1,6 +1,6 @@
-package com.sandy.cst ;
+package com.sandy.capitalyst ;
 
-import static com.sandy.cst.CapitalystUtils.parseDate ;
+import static com.sandy.capitalyst.CapitalystUtils.parseDate ;
 
 import java.util.ArrayList ;
 import java.util.Calendar ;
@@ -9,11 +9,11 @@ import java.util.List ;
 
 import org.apache.commons.lang.time.DateUtils ;
 
-import com.sandy.cst.domain.Account ;
-import com.sandy.cst.domain.CapitalystTimer ;
-import com.sandy.cst.domain.Txn ;
-import com.sandy.cst.domain.TxnGenerator ;
-import com.sandy.cst.domain.Universe ;
+import com.sandy.capitalyst.core.Account ;
+import com.sandy.capitalyst.core.CapitalystTimer ;
+import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.TxnGenerator ;
+import com.sandy.capitalyst.core.Universe ;
 
 public class Test {
     

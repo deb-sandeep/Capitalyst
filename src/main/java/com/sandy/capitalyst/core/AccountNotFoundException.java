@@ -1,4 +1,4 @@
-package com.sandy.cst.domain;
+package com.sandy.capitalyst.core;
 
 @SuppressWarnings( "serial" )
 public class AccountNotFoundException extends RuntimeException {
