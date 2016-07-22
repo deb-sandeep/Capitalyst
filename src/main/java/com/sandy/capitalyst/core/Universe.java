@@ -41,8 +41,16 @@ public class Universe implements TimeObserver {
         }
     }
     
+    public void postTransaction( Txn txn ) {
+        journal.addTransaction( txn ) ;
+    }
+    
+    public void postTransactions( List<Txn> txnList ) {
+        journal.addTransactions( txnList ) ;
+    }
+    
     @Override
-    public void handleDateEvent( Date date ) throws Exception {
+    public void handleDateEvent( Date date ) {
         List<Txn> tempList = null ;
         for( TimedTxnGenerator txGen : txnGenerators ) {
             tempList = new ArrayList<Txn>() ;

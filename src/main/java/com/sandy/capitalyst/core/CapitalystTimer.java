@@ -25,7 +25,7 @@ public class CapitalystTimer {
         }
     }
     
-    public void run() throws Exception {
+    public void run() {
         Date now = startDate ;
         while( DateUtils.truncatedCompareTo( now, endDate, Calendar.DATE ) <= 0 ) {
             for( TimeObserver observer : observers ) {
