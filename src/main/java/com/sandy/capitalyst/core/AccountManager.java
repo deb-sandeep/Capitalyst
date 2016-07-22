@@ -1,5 +1,6 @@
 package com.sandy.capitalyst.core;
 
+import java.util.Collection ;
 import java.util.Map ;
 import java.util.concurrent.ConcurrentHashMap ;
 
@@ -17,7 +18,15 @@ class AccountManager {
         accountMap.put( account.getAccountNumber(), account ) ;
     }
     
+    public void removeAccount( Account account ) {
+        accountMap.remove( account.getAccountNumber() ) ;
+    }
+    
     public Account getAccount( String accountNumber ) {
         return accountMap.get( accountNumber ) ;
+    }
+    
+    public Collection<Account> getAllAccounts() {
+        return accountMap.values() ;
     }
 }

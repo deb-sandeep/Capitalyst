@@ -43,4 +43,8 @@ public class Account {
         ledger.add( t ) ;
         this.amount += t.getAmount() ;
     }
+    
+    public boolean isActive() {
+        return true ;
+    }
 }

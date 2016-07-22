@@ -3,6 +3,10 @@ package com.sandy.capitalyst.core;
 import java.util.ArrayList ;
 import java.util.List ;
 
+import javax.security.auth.login.AccountExpiredException ;
+
+import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
+
 class Journal {
 
     private Universe universe = null ;
@@ -15,10 +19,14 @@ class Journal {
     }
     
     public void addTransaction( Txn t ) 
-            throws AccountNotFoundException {
+            throws AccountNotFoundException, AccountExpiredException {
         Account account = accMgr.getAccount( t.getAccountNumber() ) ;
         if( account == null ) {
             throw new AccountNotFoundException( t.getAccountNumber() ) ;
+        }
+        
+        if( !account.isActive() ) {
+            throw new AccountExpiredException( t.getAccountNumber() ) ;
         }
         
         transactions.add( t ) ;
@@ -26,7 +34,7 @@ class Journal {
     }
     
     public void addTransactions( List<Txn> txnList ) 
-        throws AccountNotFoundException {
+        throws AccountNotFoundException, AccountExpiredException {
         for( Txn txn : txnList ) {
             addTransaction( txn ) ;
         }
