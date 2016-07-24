@@ -5,5 +5,5 @@ import java.util.List ;
 
 public interface TxnGenerator {
     
-    public void getTransactionsForDate( Date date, List<Txn> txnList ) ;
+    public void getTransactionsForDate( Date date, List<Txn> txnList, Universe universe ) ;
 }

@@ -4,21 +4,26 @@ import java.util.Date ;
 import java.util.List ;
 
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.Universe ;
 
 public class FixedAmtScheduledTxnGen extends ScheduledTxnGen {
 
     private double amt = 0 ;
     private String acctNo = null ;
+    private String description = null ;
     
     public FixedAmtScheduledTxnGen( String scheduleExpression, 
-                                          double amt, String acctNo ) {
+                                    double amt, String acctNo,
+                                    String description ) {
         super( scheduleExpression ) ;
         this.amt = amt ;
         this.acctNo = acctNo ;
+        this.description = description ;
     }
     
     @Override
-    protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
-        txnList.add( new Txn( acctNo, amt, date ) ) ;
+    protected void generateScheduledTxnForDate( Date date, List<Txn> txnList,
+                                                Universe u ) {
+        txnList.add( new Txn( acctNo, amt, date, description ) ) ;
     }
 }

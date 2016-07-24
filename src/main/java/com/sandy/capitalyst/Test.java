@@ -2,17 +2,12 @@ package com.sandy.capitalyst ;
 
 import static com.sandy.capitalyst.util.Utils.parseDate ;
 
-import java.util.Calendar ;
-import java.util.Date ;
-import java.util.List ;
-
-import org.apache.commons.lang.time.DateUtils ;
-
 import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.CapitalystTimer ;
-import com.sandy.capitalyst.core.TxnGenerator ;
-import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.core.ext.txgen.FixedAmtScheduledTxnGen ;
+import com.sandy.capitalyst.core.ext.txgen.InterAccountTransferScheduledTxnGen ;
+import com.sandy.capitalyst.util.Utils ;
 
 public class Test {
     
@@ -22,20 +17,18 @@ public class Test {
         Universe universe = new Universe() ;
         CapitalystTimer timer = getTimer() ;
         
-        universe.addAccount( new Account( "5212", "Sandy SB" ) ) ;
-        universe.registerTimedTxnGenerator( new TxnGenerator() {
-            public void getTransactionsForDate( Date date, List<Txn> txnList ) {
-                if( DateUtils.getFragmentInDays( date, Calendar.MONTH ) == 1 ) {
-                    txnList.add( new Txn( "5212", 100, date ) ) ;
-                }
-            }
-        } );
+        universe.addAccount( new Account( "5212", "Sandy SB", 1000 ) ) ;
+        universe.addAccount( new Account( "NPS",  "Sandy NPS" ) ) ;
+        universe.registerTimedTxnGenerator( 
+                new FixedAmtScheduledTxnGen( "L * * *", 1000, "5212", "Salary" ) ) ;
+        universe.registerTimedTxnGenerator( 
+                new InterAccountTransferScheduledTxnGen( "7 * * *", 500, "5212", "NPS" ) ) ;
         
         timer.registerTimeObserver( universe ) ;
         timer.run() ;
         
-        Account acc = universe.getAccount( "5212" ) ;
-        System.out.println( acc.getAmount() ) ;
+        System.out.println( Utils.printLedger( universe.getAccount( "5212" ) ) ) ;
+        System.out.println( Utils.printLedger( universe.getAccount( "NPS" ) ) ) ;
     }
     
     private CapitalystTimer getTimer() {

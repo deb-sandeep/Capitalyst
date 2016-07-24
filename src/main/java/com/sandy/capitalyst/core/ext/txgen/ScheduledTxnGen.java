@@ -11,8 +11,9 @@ import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
-import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.TxnGenerator ;
+import com.sandy.capitalyst.core.Universe ;
 
 public abstract class ScheduledTxnGen implements TxnGenerator {
 
@@ -25,6 +26,7 @@ public abstract class ScheduledTxnGen implements TxnGenerator {
                                 .withIntMapping(7, 0) 
                                 .supportsHash().supportsL().supportsW().and()
                                 .withYear().and()
+                                .lastFieldOptional()
                                 .instance() ;
     
     private CronParser    cronParser   = new CronParser( cronDefinition ) ;
@@ -46,13 +48,15 @@ public abstract class ScheduledTxnGen implements TxnGenerator {
     }
     
     @Override
-    public final void getTransactionsForDate( Date date, List<Txn> txnList ) {
+    public final void getTransactionsForDate( Date date, List<Txn> txnList, Universe u ) {
         
         DateTime dateTime = new DateTime( date.getTime() ) ;
         if( execTime.isMatch( dateTime ) ) {
-            generateScheduledTxnForDate( date, txnList ) ;
+            generateScheduledTxnForDate( date, txnList, u ) ;
         }
     }
     
-    protected abstract void generateScheduledTxnForDate( Date date, List<Txn> txnList ) ;
+    protected abstract void generateScheduledTxnForDate( Date date, 
+                                                         List<Txn> txnList,
+                                                         Universe u ) ;
 }
