@@ -6,12 +6,12 @@ import java.util.List ;
 
 public class Universe implements TimeObserver {
 
-    private List<TimedTxnGenerator> txnGenerators = null ;
+    private List<TxnGenerator> txnGenerators = null ;
     private Journal journal = null ;
     private AccountManager accMgr = null ;
     
     public Universe() {
-        txnGenerators = new ArrayList<TimedTxnGenerator>() ;
+        txnGenerators = new ArrayList<TxnGenerator>() ;
         accMgr = new AccountManager( this ) ;
         journal = new Journal( this, accMgr ) ;
     }
@@ -19,13 +19,13 @@ public class Universe implements TimeObserver {
     public void addAccount( Account account ) {
         account.setUniverse( this ) ; 
         accMgr.addAccount( account ) ;
-        if( account instanceof TimedTxnGenerator ) {
-            registerTimedTxnGenerator( ( TimedTxnGenerator )account ) ;
+        if( account instanceof TxnGenerator ) {
+            registerTimedTxnGenerator( ( TxnGenerator )account ) ;
         }
     }
     
     public void removeAccount( Account account ) {
-        if( account instanceof TimedTxnGenerator ) {
+        if( account instanceof TxnGenerator ) {
             txnGenerators.remove( account ) ;
         }
         accMgr.removeAccount( account ) ;
@@ -35,7 +35,7 @@ public class Universe implements TimeObserver {
         return accMgr.getAccount( accNo ) ;
     }
     
-    public void registerTimedTxnGenerator( TimedTxnGenerator txGen ) {
+    public void registerTimedTxnGenerator( TxnGenerator txGen ) {
         if( !txnGenerators.contains( txGen ) ) {
             txnGenerators.add( txGen ) ;
         }
@@ -53,7 +53,7 @@ public class Universe implements TimeObserver {
     public void handleDateEvent( Date date ) {
         
         List<Txn> tempList = null ;
-        for( TimedTxnGenerator txGen : txnGenerators ) {
+        for( TxnGenerator txGen : txnGenerators ) {
             tempList = new ArrayList<Txn>() ;
             txGen.getTransactionsForDate( date, tempList ) ;
             if( tempList != null && !tempList.isEmpty() ) {

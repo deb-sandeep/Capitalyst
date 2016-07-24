@@ -53,9 +53,9 @@
             <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-          <groupId>org.swinglabs.swingx</groupId>
-          <artifactId>swingx-all</artifactId>
-          <version>1.6.5-1</version>
-        </dependency>   
+            <groupId>com.cronutils</groupId>
+            <artifactId>cron-utils</artifactId>
+            <version>4.1.1</version>
+        </dependency>
     </dependencies>
 </project>

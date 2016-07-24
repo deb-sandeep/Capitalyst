@@ -1,8 +1,7 @@
 package com.sandy.capitalyst ;
 
-import static com.sandy.capitalyst.Utils.parseDate ;
+import static com.sandy.capitalyst.util.Utils.parseDate ;
 
-import java.util.ArrayList ;
 import java.util.Calendar ;
 import java.util.Date ;
 import java.util.List ;
@@ -11,8 +10,8 @@ import org.apache.commons.lang.time.DateUtils ;
 
 import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.CapitalystTimer ;
+import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.TimedTxnGenerator ;
 import com.sandy.capitalyst.core.Universe ;
 
 public class Test {
@@ -24,7 +23,7 @@ public class Test {
         CapitalystTimer timer = getTimer() ;
         
         universe.addAccount( new Account( "5212", "Sandy SB" ) ) ;
-        universe.registerTimedTxnGenerator( new TimedTxnGenerator() {
+        universe.registerTimedTxnGenerator( new TxnGenerator() {
             public void getTransactionsForDate( Date date, List<Txn> txnList ) {
                 if( DateUtils.getFragmentInDays( date, Calendar.MONTH ) == 1 ) {
                     txnList.add( new Txn( "5212", 100, date ) ) ;

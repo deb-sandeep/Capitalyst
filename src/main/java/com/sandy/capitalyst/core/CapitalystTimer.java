@@ -29,7 +29,10 @@ public class CapitalystTimer {
         Date now = startDate ;
         while( DateUtils.truncatedCompareTo( now, endDate, Calendar.DATE ) <= 0 ) {
             for( TimeObserver observer : observers ) {
-                observer.handleDateEvent( now ) ;
+                // Make a defensive copy of now to ensure that observers are 
+                // not able to influence each other by changing the instance of
+                // time they receive.
+                observer.handleDateEvent( new Date( now.getTime() ) ) ;
             }
             now = DateUtils.truncate( DateUtils.addDays( now, 1 ), Calendar.DATE ) ; 
         }
