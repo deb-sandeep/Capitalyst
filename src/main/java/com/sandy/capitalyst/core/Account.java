@@ -16,17 +16,20 @@ public class Account {
         this( id, name, 0 ) ;
     }
     
-    public void setUniverse( Universe universe ) {
-        this.universe = universe ;
-    }
-
     public Account( String accNo, String name, double amount ) {
-        super() ;
         this.accountNumber = accNo ;
         this.name = name ;
         this.amount = amount ;
     }
 
+    public void setUniverse( Universe universe ) {
+        this.universe = universe ;
+    }
+    
+    public Universe getUniverse() {
+        return this.universe ;
+    }
+    
     public String getAccountNumber() {
         return accountNumber ;
     }
@@ -36,6 +39,10 @@ public class Account {
     }
 
     public double getAmount() {
+        return amount ;
+    }
+    
+    public double getLiquidableAmount() {
         return amount ;
     }
     

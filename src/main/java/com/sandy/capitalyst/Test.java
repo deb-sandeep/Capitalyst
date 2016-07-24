@@ -1,6 +1,6 @@
 package com.sandy.capitalyst ;
 
-import static com.sandy.capitalyst.CapitalystUtils.parseDate ;
+import static com.sandy.capitalyst.Utils.parseDate ;
 
 import java.util.ArrayList ;
 import java.util.Calendar ;

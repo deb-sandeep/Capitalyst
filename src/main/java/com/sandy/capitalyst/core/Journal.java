@@ -17,6 +17,10 @@ class Journal {
         this.accMgr = accMgr ;
     }
     
+    public Universe getUniverse() {
+        return this.universe ;
+    }
+    
     public void addTransaction( Txn t ) 
             throws AccountNotFoundException, AccountExpiredException {
         Account account = accMgr.getAccount( t.getAccountNumber() ) ;

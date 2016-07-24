@@ -4,7 +4,7 @@ import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
 import java.util.Date ;
 
-public class CapitalystUtils {
+public class Utils {
 
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
     

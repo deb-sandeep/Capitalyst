@@ -14,6 +14,10 @@ class AccountManager {
         accountMap = new ConcurrentHashMap<String, Account>() ;
     }
     
+    public Universe getUniverse() {
+        return this.universe ;
+    }
+    
     public void addAccount( Account account ) {
         accountMap.put( account.getAccountNumber(), account ) ;
     }

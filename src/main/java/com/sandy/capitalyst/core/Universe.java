@@ -51,6 +51,7 @@ public class Universe implements TimeObserver {
     
     @Override
     public void handleDateEvent( Date date ) {
+        
         List<Txn> tempList = null ;
         for( TimedTxnGenerator txGen : txnGenerators ) {
             tempList = new ArrayList<Txn>() ;

@@ -11,7 +11,6 @@ public class Txn {
     private Date   date ;
     
     public Txn( String accountNumber, double amount, Date date ) {
-        super() ;
         this.accountNumber = accountNumber ;
         this.amount = amount ;
         this.date = date ;
