@@ -21,16 +21,16 @@ public class Test {
     private CapitalystTimer timer = null ;
     
     public void testUniverse() throws Exception {
-        Universe universe = new Universe() ;
+        Universe universe = new Universe( "Test" ) ;
         CapitalystTimer timer = getTimer() ;
         
-        universe.addAccount( new SavingAccount( "5212", "Sandy SB", 1000, 4 ) ) ;
+        universe.addAccount( new SavingAccount( "5212", "Sandy SB", 1000, 4, "ICICI" ) ) ;
         universe.addAccount( new Account( "NPS",  "Sandy NPS" ) ) ;
         universe.registerTxnGenerator( 
-                new FixedAmtScheduledTxnGen( "L * * *", 1000, "5212", "Salary" ) ) ;
+                new FixedAmtScheduledTxnGen( "Salary gen", "L * * *", 1000, "5212", "Salary" ) ) ;
         universe.registerTxnGenerator( 
-                new InterAccountTransferScheduledTxnGen( "7 * * *", 500, "5212", "NPS" ) ) ;
-        universe.registerTxnGenerator( new AbstractTxnGen() {
+                new InterAccountTransferScheduledTxnGen( "NPS withdraw", "7 * * *", 500, "5212", "NPS" ) ) ;
+        universe.registerTxnGenerator( new AbstractTxnGen( "PD Txn GEn") {
             
             @Override
             public void getTransactionsForDate( Date date, List<Txn> txnList,

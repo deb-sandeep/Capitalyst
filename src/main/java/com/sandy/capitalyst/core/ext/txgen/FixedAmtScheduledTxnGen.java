@@ -12,10 +12,12 @@ public class FixedAmtScheduledTxnGen extends ScheduledTxnGen {
     private String acctNo = null ;
     private String description = null ;
     
-    public FixedAmtScheduledTxnGen( String scheduleExpression, 
-                                    double amt, String acctNo,
+    public FixedAmtScheduledTxnGen( String name,
+                                    String scheduleExpression, 
+                                    double amt, 
+                                    String acctNo,
                                     String description ) {
-        super( scheduleExpression ) ;
+        super( name, scheduleExpression ) ;
         this.amt = amt ;
         this.acctNo = acctNo ;
         this.description = description ;

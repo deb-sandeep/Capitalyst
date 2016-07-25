@@ -22,6 +22,7 @@ public class Account extends AbstractTxnGen {
     }
     
     public Account( String accNo, String name, double amount ) {
+        super( name ) ;
         this.accountNumber = accNo ;
         this.name = name ;
         this.amount = amount ;

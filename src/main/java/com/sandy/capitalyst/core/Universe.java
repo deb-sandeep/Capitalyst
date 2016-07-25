@@ -6,15 +6,21 @@ import java.util.List ;
 
 public class Universe implements TimeObserver {
 
+    private String name = null ;
     private Journal journal = null ;
     private AccountManager accMgr = null ;
     
     private List<TimeObserver> timeObservers = null ;
     
-    public Universe() {
+    public Universe( String name ) {
+        this.name = name ;
         timeObservers = new ArrayList<TimeObserver>() ;
         accMgr = new AccountManager( this ) ;
         journal = new Journal( this, accMgr ) ;
+    }
+    
+    public String getName() {
+        return this.name ;
     }
     
     public void addAccount( Account account ) {

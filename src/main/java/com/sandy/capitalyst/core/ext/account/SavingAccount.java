@@ -3,23 +3,25 @@ package com.sandy.capitalyst.core.ext.account;
 import java.util.Date ;
 import java.util.List ;
 
-import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.ext.txgen.ScheduledTxnGen ;
 
-public class SavingAccount extends Account {
+public class SavingAccount extends BankAccount {
     
     private double accumulatedInterest  = 0 ;
     private double rateOfInterest       = 0 ;
     private TxnGenerator interestTxnGen = null ;
 
-    public SavingAccount( String id, String name, double amt, double roi ) {
-        super( id, name, amt ) ;
+    public SavingAccount( String id, String name, double amt, double roi, 
+                          String bankName ) {
+        
+        super( id, name, amt, bankName ) ;
         this.rateOfInterest = roi ;
         
-        interestTxnGen = new ScheduledTxnGen( "L 3,6,9,12 * *" ) {
+        interestTxnGen = new ScheduledTxnGen( "SB interest generator",
+                                              "L 3,6,9,12 * *" ) {
             @Override
             protected void generateScheduledTxnForDate( Date date, 
                                                         List<Txn> txnList,
