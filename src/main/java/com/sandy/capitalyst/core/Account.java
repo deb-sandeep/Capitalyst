@@ -2,7 +2,10 @@ package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
 import java.util.Date ;
+import java.util.Iterator ;
 import java.util.List ;
+
+import org.apache.commons.lang.time.DateUtils ;
 
 public class Account extends AbstractTxnGen {
 
@@ -12,6 +15,7 @@ public class Account extends AbstractTxnGen {
     private double amount ;
     
     private List<Txn> ledger = new ArrayList<Txn>() ;
+    private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
     
     public Account( String id, String name ) {
         this( id, name, 0 ) ;
@@ -48,8 +52,13 @@ public class Account extends AbstractTxnGen {
     }
     
     public void postTransaction( Txn t ) {
-        ledger.add( t ) ;
-        this.amount += t.getAmount() ;
+        if( t instanceof PDTxn ) {
+            postDatedTxns.add( t ) ;
+        }
+        else {
+            ledger.add( t ) ;
+            this.amount += t.getAmount() ;
+        }
     }
     
     public boolean isActive() {
@@ -59,10 +68,22 @@ public class Account extends AbstractTxnGen {
     public List<Txn> getLedger() {
         return ledger ;
     }
-
+    
     @Override
-    public void getTransactionsForDate( Date date, List<Txn> txnList,
+    public final void getTransactionsForDate( Date date, List<Txn> txnList,
                                         Universe universe ) {
-        // No operation by default.
+        
+        for( Iterator<Txn> txnIter = postDatedTxns.iterator(); txnIter.hasNext(); ) {
+            Txn tx = txnIter.next() ;
+            if( DateUtils.isSameDay( date, tx.getDate() ) ) {
+                txnList.add( tx ) ;
+                txnIter.remove() ;
+            }
+        }
+        
+        getTxnForDate( date, txnList, universe ) ;
+    }
+    
+    public void getTxnForDate( Date date, List<Txn> txnList, Universe u ) {
     }
 }

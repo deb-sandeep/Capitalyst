@@ -41,13 +41,10 @@ public class SavingAccount extends Account {
     }
 
     @Override
-    public void getTransactionsForDate( Date date, List<Txn> txnList,
-                                        Universe universe ) {
+    public void getTxnForDate( Date date, List<Txn> txnList,
+                               Universe universe ) {
         interestTxnGen.getTransactionsForDate( date, txnList, universe ) ;
     }
-
-    @Override
-    public void handleDayEvent( Date date, Universe universe ) {}
 
     @Override
     public void handleEndOfDayEvent( Date date, Universe universe ) {

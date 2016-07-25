@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat ;
 import java.util.Date ;
 
 import org.apache.commons.lang.StringUtils ;
+import org.apache.commons.lang.time.DateUtils ;
 
 import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.Txn ;
@@ -30,6 +31,10 @@ public class Utils {
     
     public static String formatDate( Date date ) {
         return SDF.format( date ) ;
+    }
+    
+    public static Date addDays( int numDays, Date date ) {
+        return DateUtils.addDays( date, numDays ) ;
     }
 
     public static String printLedger( Account acct ) {

@@ -68,7 +68,7 @@ public class Universe implements TimeObserver {
                 tempList = new ArrayList<Txn>() ;
                 TxnGenerator txGen = ( TxnGenerator )observer ;
                 txGen.getTransactionsForDate( date, tempList, this ) ;
-                
+
                 if( tempList != null && !tempList.isEmpty() ) {
                     journal.addTransactions( tempList ) ;
                 }
