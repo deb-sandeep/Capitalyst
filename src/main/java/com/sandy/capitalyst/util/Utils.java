@@ -1,5 +1,6 @@
 package com.sandy.capitalyst.util;
 
+import java.text.DecimalFormat ;
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
 import java.util.Date ;
@@ -13,6 +14,7 @@ import com.sandy.capitalyst.core.Txn.TxnType ;
 public class Utils {
 
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
+    public static final DecimalFormat     DF = new DecimalFormat( "##.0" ) ;
     
     private static final int HDR_LEN    = 80 ;
     private static final int FIELD_LEN  = 10 ;
@@ -55,21 +57,21 @@ public class Utils {
                   .append( " | " ) ;
             
             if( txn.getTxnType() == TxnType.CREDIT ) {
-                buffer.append( StringUtils.leftPad( "" + txn.getAmount(), FIELD_LEN ) )
+                buffer.append( StringUtils.leftPad( Utils.DF.format( txn.getAmount() ), FIELD_LEN ) )
                       .append( " | " )
                       .append( StringUtils.repeat( " ", FIELD_LEN ) ) ;
             }
             else {
                 buffer.append( StringUtils.repeat( " ", FIELD_LEN ) )
                       .append( " | " )
-                      .append( StringUtils.leftPad( "" + txn.getAmount(), FIELD_LEN ) ) ;
+                      .append( StringUtils.leftPad( Utils.DF.format( txn.getAmount() ), FIELD_LEN ) ) ;
             }
             buffer.append( " | " )
                   .append( txn.getDescription() )
                   .append( "\n" ) ;
         }
         buffer.append( StringUtils.repeat( ".", HDR_LEN ) ).append( "\n" ) ;
-        buffer.append( "Total liquidable amount = " + acct.getLiquidableAmount() ).append( "\n" ) ;
+        buffer.append( "Total liquidable amount = " + Utils.DF.format( acct.getLiquidableAmount() ) ).append( "\n" ) ;
         buffer.append( StringUtils.repeat( "-", HDR_LEN ) ).append( "\n" ) ;
         
         return buffer.toString() ;

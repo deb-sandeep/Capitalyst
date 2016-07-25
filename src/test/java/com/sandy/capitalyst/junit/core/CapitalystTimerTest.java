@@ -7,10 +7,12 @@ import java.util.List ;
 import static org.junit.Assert.* ;
 import static com.sandy.capitalyst.util.Utils.parseDate ;
 import static org.hamcrest.Matchers.* ;
+
 import org.junit.Test ;
 
 import com.sandy.capitalyst.core.CapitalystTimer ;
 import com.sandy.capitalyst.core.TimeObserver ;
+import com.sandy.capitalyst.core.Universe ;
 
 public class CapitalystTimerTest {
 
@@ -20,12 +22,16 @@ public class CapitalystTimerTest {
         private List<Date> dateList = new ArrayList<Date>() ;
         
         @Override
-        public void handleDateEvent( Date date ) {
+        public void handleDayEvent( Date date, Universe u ) {
             dateList.add( date ) ;
         }
         
         public int numDateEventsReceived() {
             return dateList.size() ;
+        }
+
+        @Override
+        public void handleEndOfDayEvent( Date date, Universe u ) {
         }
     } ;
     

@@ -1,9 +1,10 @@
 package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
+import java.util.Date ;
 import java.util.List ;
 
-public class Account {
+public class Account extends AbstractTxnGen {
 
     private Universe universe = null ;
     private String accountNumber ;
@@ -57,5 +58,11 @@ public class Account {
     
     public List<Txn> getLedger() {
         return ledger ;
+    }
+
+    @Override
+    public void getTransactionsForDate( Date date, List<Txn> txnList,
+                                        Universe universe ) {
+        // No operation by default.
     }
 }

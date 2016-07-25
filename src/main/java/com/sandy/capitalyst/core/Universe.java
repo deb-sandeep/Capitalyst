@@ -6,12 +6,13 @@ import java.util.List ;
 
 public class Universe implements TimeObserver {
 
-    private List<TxnGenerator> txnGenerators = null ;
     private Journal journal = null ;
     private AccountManager accMgr = null ;
     
+    private List<TimeObserver> timeObservers = null ;
+    
     public Universe() {
-        txnGenerators = new ArrayList<TxnGenerator>() ;
+        timeObservers = new ArrayList<TimeObserver>() ;
         accMgr = new AccountManager( this ) ;
         journal = new Journal( this, accMgr ) ;
     }
@@ -19,14 +20,14 @@ public class Universe implements TimeObserver {
     public void addAccount( Account account ) {
         account.setUniverse( this ) ; 
         accMgr.addAccount( account ) ;
-        if( account instanceof TxnGenerator ) {
-            registerTimedTxnGenerator( ( TxnGenerator )account ) ;
+        if( account instanceof TimeObserver ) {
+            registerTimeObserver( ( TimeObserver )account ) ;
         }
     }
     
     public void removeAccount( Account account ) {
-        if( account instanceof TxnGenerator ) {
-            txnGenerators.remove( account ) ;
+        if( account instanceof TimeObserver ) {
+            timeObservers.remove( account ) ;
         }
         accMgr.removeAccount( account ) ;
     }
@@ -35,9 +36,13 @@ public class Universe implements TimeObserver {
         return accMgr.getAccount( accNo ) ;
     }
     
-    public void registerTimedTxnGenerator( TxnGenerator txGen ) {
-        if( !txnGenerators.contains( txGen ) ) {
-            txnGenerators.add( txGen ) ;
+    public void registerTxnGenerator( TxnGenerator txGen ) {
+        registerTimeObserver( txGen ) ;
+    }
+    
+    private void registerTimeObserver( TimeObserver txGen ) {
+        if( !timeObservers.contains( txGen ) ) {
+            timeObservers.add( txGen ) ;
         }
     }
     
@@ -50,21 +55,32 @@ public class Universe implements TimeObserver {
     }
     
     @Override
-    public void handleDateEvent( Date date ) {
+    public void handleDayEvent( Date date, Universe universe ) {
         
         List<Txn> tempList = null ;
-        for( TxnGenerator txGen : txnGenerators ) {
-            tempList = new ArrayList<Txn>() ;
-            txGen.getTransactionsForDate( date, tempList, this ) ;
-            if( tempList != null && !tempList.isEmpty() ) {
-                journal.addTransactions( tempList ) ;
+        for( TimeObserver observer : timeObservers ) {
+            observer.handleDayEvent( date, this ) ;
+        }
+
+        for( TimeObserver observer : timeObservers ) {
+
+            if( observer instanceof TxnGenerator ) {
+                tempList = new ArrayList<Txn>() ;
+                TxnGenerator txGen = ( TxnGenerator )observer ;
+                txGen.getTransactionsForDate( date, tempList, this ) ;
+                
+                if( tempList != null && !tempList.isEmpty() ) {
+                    journal.addTransactions( tempList ) ;
+                }
             }
         }
+    }
+
+    @Override
+    public void handleEndOfDayEvent( Date date, Universe universe ) {
         
-        for( Account account : accMgr.getAllAccounts() ) {
-            if( account instanceof TimeObserver ) {
-                ( ( TimeObserver )account ).handleDateEvent( date ) ;
-            }
+        for( TimeObserver observer : timeObservers ) {
+            observer.handleEndOfDayEvent( date, this ) ;
         }
     }
 }

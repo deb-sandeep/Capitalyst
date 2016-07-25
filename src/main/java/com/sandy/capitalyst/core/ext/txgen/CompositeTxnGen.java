@@ -5,11 +5,12 @@ import java.util.Arrays ;
 import java.util.Date ;
 import java.util.List ;
 
+import com.sandy.capitalyst.core.AbstractTxnGen ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Universe ;
 
-public class CompositeTxnGen implements TxnGenerator {
+public class CompositeTxnGen extends AbstractTxnGen {
     
     private List<TxnGenerator> generators = new ArrayList<TxnGenerator>() ;
     

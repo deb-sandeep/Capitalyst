@@ -4,5 +4,6 @@ import java.util.Date ;
 
 public interface TimeObserver {
 
-    public void handleDateEvent( Date date ) ;
+    public void handleDayEvent( Date date, Universe universe ) ;
+    public void handleEndOfDayEvent( Date date, Universe universe ) ;
 }

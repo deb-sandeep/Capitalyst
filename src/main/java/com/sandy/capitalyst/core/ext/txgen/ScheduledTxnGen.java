@@ -11,11 +11,11 @@ import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
+import com.sandy.capitalyst.core.AbstractTxnGen ;
 import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Universe ;
 
-public abstract class ScheduledTxnGen implements TxnGenerator {
+public abstract class ScheduledTxnGen extends AbstractTxnGen {
 
     private final CronDefinition cronDefinition =
                             CronDefinitionBuilder.defineCron()

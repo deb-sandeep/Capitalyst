@@ -32,7 +32,14 @@ public class CapitalystTimer {
                 // Make a defensive copy of now to ensure that observers are 
                 // not able to influence each other by changing the instance of
                 // time they receive.
-                observer.handleDateEvent( new Date( now.getTime() ) ) ;
+                observer.handleDayEvent( new Date( now.getTime() ), null ) ;
+            }
+            
+            for( TimeObserver observer : observers ) {
+                // Make a defensive copy of now to ensure that observers are 
+                // not able to influence each other by changing the instance of
+                // time they receive.
+                observer.handleEndOfDayEvent( new Date( now.getTime() ), null ) ;
             }
             now = DateUtils.truncate( DateUtils.addDays( now, 1 ), Calendar.DATE ) ; 
         }
