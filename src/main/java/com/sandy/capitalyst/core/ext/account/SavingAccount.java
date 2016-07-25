@@ -3,18 +3,13 @@ package com.sandy.capitalyst.core.ext.account;
 import java.util.Date ;
 import java.util.List ;
 
-import org.apache.log4j.Logger ;
-
 import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.TxnGenerator ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.ext.txgen.ScheduledTxnGen ;
-import com.sandy.capitalyst.util.Utils ;
 
 public class SavingAccount extends Account {
-    
-    private static final Logger log = Logger.getLogger( SavingAccount.class ) ;
     
     private double accumulatedInterest  = 0 ;
     private double rateOfInterest       = 0 ;
@@ -29,8 +24,6 @@ public class SavingAccount extends Account {
             protected void generateScheduledTxnForDate( Date date, 
                                                         List<Txn> txnList,
                                                         Universe u ) {
-                log.debug( Utils.formatDate( date ) ) ;
-                
                 Txn txn = new Txn( SavingAccount.this.getAccountNumber(), 
                                    accumulatedInterest, date ) ;
                 txn.setDescription( "SB Interest for quarter" ) ;

@@ -76,7 +76,10 @@ public class Account extends AbstractTxnGen {
         for( Iterator<Txn> txnIter = postDatedTxns.iterator(); txnIter.hasNext(); ) {
             Txn tx = txnIter.next() ;
             if( DateUtils.isSameDay( date, tx.getDate() ) ) {
-                txnList.add( tx ) ;
+                
+                Txn newTx = new Txn( tx.getAccountNumber(), tx.getAmount(), 
+                                     tx.getDate(), tx.getDescription() ) ;
+                txnList.add( newTx ) ;
                 txnIter.remove() ;
             }
         }

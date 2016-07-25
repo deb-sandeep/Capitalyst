@@ -3,6 +3,7 @@ package com.sandy.capitalyst.util;
 import java.text.DecimalFormat ;
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
+import java.util.Calendar ;
 import java.util.Date ;
 
 import org.apache.commons.lang.StringUtils ;
@@ -35,6 +36,27 @@ public class Utils {
     
     public static Date addDays( int numDays, Date date ) {
         return DateUtils.addDays( date, numDays ) ;
+    }
+    
+    public static boolean isBefore( Date toCompare, Date milestone ) {
+        if( DateUtils.truncatedCompareTo( toCompare, milestone, Calendar.DAY_OF_MONTH ) < 0 ) {
+            return true ;
+        }
+        return false ;
+    }
+    
+    public static boolean isSame( Date toCompare, Date milestone ) {
+        if( DateUtils.truncatedCompareTo( toCompare, milestone, Calendar.DAY_OF_MONTH ) == 0 ) {
+            return true ;
+        }
+        return false ;
+    }
+    
+    public static boolean isAfter( Date toCompare, Date milestone ) {
+        if( DateUtils.truncatedCompareTo( toCompare, milestone, Calendar.DAY_OF_MONTH ) > 0 ) {
+            return true ;
+        }
+        return false ;
     }
 
     public static String printLedger( Account acct ) {
