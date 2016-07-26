@@ -39,7 +39,6 @@ public class Test {
             }
         } ) ;
         
-        timer.registerTimeObserver( universe ) ;
         timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "01/3/2016" ) ) ;
         timer.run() ;
         
