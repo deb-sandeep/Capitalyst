@@ -11,7 +11,6 @@ import com.sandy.capitalyst.core.DayClock ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.timeobserver.EndOfDayObserver ;
 import com.sandy.capitalyst.core.timeobserver.EndOfQuarterObserver ;
-import com.sandy.capitalyst.util.Utils ;
 
 public class QuarterlyCompoundingAccount extends BankAccount 
     implements EndOfDayObserver, EndOfQuarterObserver {
