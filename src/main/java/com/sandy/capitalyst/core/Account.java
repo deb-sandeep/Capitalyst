@@ -17,9 +17,10 @@ public class Account extends AbstractTxnGen implements DayObserver {
     private Universe universe = null ;
     private String accountNumber ;
     private String name ;
-    private double amount ;
     
-    private List<Txn> ledger = new ArrayList<Txn>() ;
+    protected double amount ;
+    
+    private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
     
     public Account( String id, String name ) {

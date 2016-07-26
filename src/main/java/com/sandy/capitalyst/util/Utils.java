@@ -70,13 +70,19 @@ public class Utils {
         if( isEndOfMonth( cal ) ) {
             int monthNum  = cal.get( Calendar.MONTH ) ;
             if( monthNum == Calendar.MARCH || 
-                monthNum == Calendar.JUNE || 
-                monthNum == Calendar.SEPTEMBER ||
-                monthNum == Calendar.DECEMBER ) {
+                    monthNum == Calendar.JUNE || 
+                    monthNum == Calendar.SEPTEMBER ||
+                    monthNum == Calendar.DECEMBER ) {
                 return true ;
             }
         }
         return false ;
+    }
+    
+    public static boolean isEndOfQuarter( Date date ) {
+        Calendar cal = Calendar.getInstance() ;
+        cal.setTime( date ) ;
+        return isEndOfQuarter( cal ) ;
     }
     
     public static boolean isEndOfYear( Calendar cal ) {

@@ -41,6 +41,14 @@ public class DayClock {
         this.endDate = end ;
     }
     
+    public Date getStartDate() {
+        return this.startDate ;
+    }
+    
+    public Date getEndDate() {
+        return this.endDate ;
+    }
+    
     public void reset() {
         now = null ;
         startDate = null ;
