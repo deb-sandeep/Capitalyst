@@ -70,7 +70,8 @@ public class CapitalystTimerTest {
         
         timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
-        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) );
+        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/12/2015" ) );
+        timer.run() ;
 
         assertThat( to1.numDateEventsReceived(), is( equalTo( 365 ) ) );
     }
