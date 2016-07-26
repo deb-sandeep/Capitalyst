@@ -1,28 +1,30 @@
 package com.sandy.capitalyst.junit.core;
 
+import static com.sandy.capitalyst.util.Utils.parseDate ;
+import static org.hamcrest.Matchers.equalTo ;
+import static org.hamcrest.Matchers.is ;
+import static org.junit.Assert.assertThat ;
+
 import java.util.ArrayList ;
 import java.util.Date ;
 import java.util.List ;
 
-import static org.junit.Assert.* ;
-import static com.sandy.capitalyst.util.Utils.parseDate ;
-import static org.hamcrest.Matchers.* ;
-
+import org.junit.Before ;
 import org.junit.Test ;
 
-import com.sandy.capitalyst.core.CapitalystTimer ;
-import com.sandy.capitalyst.core.TimeObserver ;
+import com.sandy.capitalyst.core.DayClock ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.core.timeobserver.DayObserver ;
 
 public class CapitalystTimerTest {
 
-    private CapitalystTimer timer = null ;
-    private class Observer implements TimeObserver {
+    private DayClock timer = null ;
+    private class Observer implements DayObserver {
       
         private List<Date> dateList = new ArrayList<Date>() ;
         
         @Override
-        public void handleDayEvent( Date date, Universe u ) {
+        public void handleDayEvent( Date date ) {
             dateList.add( date ) ;
         }
         
@@ -31,9 +33,19 @@ public class CapitalystTimerTest {
         }
 
         @Override
-        public void handleEndOfDayEvent( Date date, Universe u ) {
+        public void setUniverse( Universe u ) {
+        }
+
+        @Override
+        public Universe getUniverse() {
+            return null ;
         }
     } ;
+    
+    @Before
+    public void setUp() {
+        DayClock.instance().reset() ;
+    }
     
     @Test
     public void daysInJan2015() {
@@ -41,10 +53,10 @@ public class CapitalystTimerTest {
         Observer to1 = new Observer() ;
         Observer to2 = new Observer() ;
         
-        timer = new CapitalystTimer( parseDate( "01/01/2015" ), 
-                                     parseDate( "31/01/2015" ) ) ;
+        timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
         timer.registerTimeObserver( to2 ) ;
+        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) );
         timer.run() ;
         
         assertThat( to1.numDateEventsReceived(), is( equalTo( 31 ) ) );
@@ -56,10 +68,9 @@ public class CapitalystTimerTest {
         
         Observer to1 = new Observer() ;
         
-        timer = new CapitalystTimer( parseDate( "01/01/2015" ), 
-                                     parseDate( "31/12/2015" ) ) ;
+        timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
-        timer.run() ;
+        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) );
 
         assertThat( to1.numDateEventsReceived(), is( equalTo( 365 ) ) );
     }

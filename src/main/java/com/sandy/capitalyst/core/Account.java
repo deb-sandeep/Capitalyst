@@ -6,8 +6,13 @@ import java.util.Iterator ;
 import java.util.List ;
 
 import org.apache.commons.lang.time.DateUtils ;
+import org.apache.log4j.Logger ;
 
-public class Account extends AbstractTxnGen {
+import com.sandy.capitalyst.core.timeobserver.DayObserver ;
+
+public class Account extends AbstractTxnGen implements DayObserver {
+    
+    static final Logger log = Logger.getLogger( Account.class ) ;
 
     private Universe universe = null ;
     private String accountNumber ;
@@ -71,8 +76,7 @@ public class Account extends AbstractTxnGen {
     }
     
     @Override
-    public final void getTransactionsForDate( Date date, List<Txn> txnList,
-                                        Universe universe ) {
+    public final void getTransactionsForDate( Date date, List<Txn> txnList ) {
         
         for( Iterator<Txn> txnIter = postDatedTxns.iterator(); txnIter.hasNext(); ) {
             Txn tx = txnIter.next() ;
@@ -85,9 +89,11 @@ public class Account extends AbstractTxnGen {
             }
         }
         
-        getTxnForDate( date, txnList, universe ) ;
+        getTxnForDate( date, txnList ) ;
     }
     
-    public void getTxnForDate( Date date, List<Txn> txnList, Universe u ) {
-    }
+    public void getTxnForDate( Date date, List<Txn> txnList ) {}
+
+    @Override
+    public void handleDayEvent( Date date ) {}
 }

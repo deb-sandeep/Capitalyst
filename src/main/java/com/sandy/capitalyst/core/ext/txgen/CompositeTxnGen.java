@@ -8,7 +8,6 @@ import java.util.List ;
 import com.sandy.capitalyst.core.AbstractTxnGen ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.TxnGenerator ;
-import com.sandy.capitalyst.core.Universe ;
 
 public class CompositeTxnGen extends AbstractTxnGen {
     
@@ -26,9 +25,9 @@ public class CompositeTxnGen extends AbstractTxnGen {
     }
 
     @Override
-    public void getTransactionsForDate( Date date, List<Txn> txnList, Universe u ) {
+    public void getTransactionsForDate( Date date, List<Txn> txnList ) {
         for( TxnGenerator txGen : generators ) {
-            txGen.getTransactionsForDate( date, txnList, u ) ;
+            txGen.getTransactionsForDate( date, txnList ) ;
         }
     }
 }

@@ -5,10 +5,10 @@ import java.util.List ;
 
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.TxnGenerator ;
-import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.ext.txgen.ScheduledTxnGen ;
+import com.sandy.capitalyst.core.timeobserver.EndOfDayObserver ;
 
-public class SavingAccount extends BankAccount {
+public class SavingAccount extends BankAccount implements EndOfDayObserver {
     
     private double accumulatedInterest  = 0 ;
     private double rateOfInterest       = 0 ;
@@ -24,8 +24,7 @@ public class SavingAccount extends BankAccount {
                                               "L 3,6,9,12 * *" ) {
             @Override
             protected void generateScheduledTxnForDate( Date date, 
-                                                        List<Txn> txnList,
-                                                        Universe u ) {
+                                                        List<Txn> txnList ) {
                 Txn txn = new Txn( SavingAccount.this.getAccountNumber(), 
                                    accumulatedInterest, date ) ;
                 txn.setDescription( "SB Interest for quarter" ) ;
@@ -36,13 +35,12 @@ public class SavingAccount extends BankAccount {
     }
 
     @Override
-    public void getTxnForDate( Date date, List<Txn> txnList,
-                               Universe universe ) {
-        interestTxnGen.getTransactionsForDate( date, txnList, universe ) ;
+    public void getTxnForDate( Date date, List<Txn> txnList ) {
+        interestTxnGen.getTransactionsForDate( date, txnList ) ;
     }
 
     @Override
-    public void handleEndOfDayEvent( Date date, Universe universe ) {
+    public void handleEndOfDayEvent( Date date ) {
 
         double dailyInterest = getAmount() * (rateOfInterest/(100*365)) ;
         accumulatedInterest += dailyInterest ;

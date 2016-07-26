@@ -13,7 +13,6 @@ import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
 import com.sandy.capitalyst.core.AbstractTxnGen ;
 import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.util.Utils ;
 
 public abstract class ScheduledTxnGen extends AbstractTxnGen {
@@ -70,7 +69,7 @@ public abstract class ScheduledTxnGen extends AbstractTxnGen {
     }
     
     @Override
-    public final void getTransactionsForDate( Date date, List<Txn> txnList, Universe u ) {
+    public final void getTransactionsForDate( Date date, List<Txn> txnList ) {
         
         if( startDate != null && Utils.isBefore( date, startDate ) ) {
             return ;
@@ -82,11 +81,10 @@ public abstract class ScheduledTxnGen extends AbstractTxnGen {
         
         DateTime dateTime = new DateTime( date.getTime() ) ;
         if( execTime.isMatch( dateTime ) ) {
-            generateScheduledTxnForDate( date, txnList, u ) ;
+            generateScheduledTxnForDate( date, txnList ) ;
         }
     }
     
     protected abstract void generateScheduledTxnForDate( Date date, 
-                                                         List<Txn> txnList,
-                                                         Universe u ) ;
+                                                         List<Txn> txnList ) ;
 }

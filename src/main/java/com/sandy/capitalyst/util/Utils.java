@@ -58,7 +58,37 @@ public class Utils {
         }
         return false ;
     }
-
+    
+    public static boolean isEndOfMonth( Calendar cal ) {
+        int maxDays = cal.getActualMaximum( Calendar.DAY_OF_MONTH ) ;
+        int dayNum  = cal.get( Calendar.DAY_OF_MONTH ) ;
+        
+        return maxDays == dayNum ;
+    }
+    
+    public static boolean isEndOfQuarter( Calendar cal ) {
+        if( isEndOfMonth( cal ) ) {
+            int monthNum  = cal.get( Calendar.MONTH ) ;
+            if( monthNum == Calendar.MARCH || 
+                monthNum == Calendar.JUNE || 
+                monthNum == Calendar.SEPTEMBER ||
+                monthNum == Calendar.DECEMBER ) {
+                return true ;
+            }
+        }
+        return false ;
+    }
+    
+    public static boolean isEndOfYear( Calendar cal ) {
+        if( isEndOfMonth( cal ) ) {
+            int monthNum  = cal.get( Calendar.MONTH ) ;
+            if( monthNum == Calendar.DECEMBER ) {
+                return true ;
+            }
+        }
+        return false ;
+    }
+    
     public static String printLedger( Account acct ) {
         
         StringBuilder buffer = new StringBuilder() ;

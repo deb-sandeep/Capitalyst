@@ -5,7 +5,6 @@ import java.util.List ;
 
 import com.sandy.capitalyst.core.Account ;
 import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.exception.AccountOverdraftException ;
 
 public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
@@ -46,9 +45,9 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
     }
     
     @Override
-    protected void generateScheduledTxnForDate( Date date, List<Txn> txnList, Universe u ) {
+    protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
         
-        Account creditAcct = u.getAccount( creditAcctNo ) ;
+        Account creditAcct = getUniverse().getAccount( creditAcctNo ) ;
         if( !allowOverdraft && ( creditAcct.getLiquidableAmount() < amt ) ) {
             throw new AccountOverdraftException( creditAcctNo ) ;
         }
