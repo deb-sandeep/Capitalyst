@@ -88,7 +88,6 @@ public class QuarterlyCompoundingAccount extends BankAccount
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
         
-//        Date tomorrow = Utils.addDays( 1, date ) ;
         QuantumOfMoney nettedQuantum = new QuantumOfMoney( 0, date ) ;
         
         quantumFragments.forEach( q -> nettedQuantum.addAmount( q.getAmount() ) );
