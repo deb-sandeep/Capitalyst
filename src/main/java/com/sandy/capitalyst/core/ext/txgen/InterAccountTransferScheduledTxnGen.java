@@ -53,8 +53,8 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
         }
         
         txnList.add( new Txn( creditAcctNo, -amt, date, 
-                              "IAT to A/C " + debitAcctNo + " " + description) ) ;
+                              "Transfer to A/C " + debitAcctNo + " " + description) ) ;
         txnList.add( new Txn( debitAcctNo, amt, date, 
-                              "IAT from A/C " + creditAcctNo + " " + description ) ) ;
+                              "Transfer from A/C " + creditAcctNo + " " + description ) ) ;
     }
 }

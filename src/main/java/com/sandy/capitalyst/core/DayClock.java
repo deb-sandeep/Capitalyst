@@ -39,6 +39,7 @@ public class DayClock {
     public void setDateRange( Date start, Date end ) {
         this.startDate = start ;
         this.endDate = end ;
+        this.now = this.startDate ;
     }
     
     public Date getStartDate() {
@@ -47,6 +48,10 @@ public class DayClock {
     
     public Date getEndDate() {
         return this.endDate ;
+    }
+    
+    public Date now() {
+        return this.now ;
     }
     
     public void reset() {

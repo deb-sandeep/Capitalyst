@@ -12,10 +12,10 @@ public class SavingAccount extends BankAccount
     private double accumulatedInterest  = 0 ;
     private double rateOfInterest       = 0 ;
 
-    public SavingAccount( String id, String name, double amt, double roi, 
+    public SavingAccount( String id, String name, double initialAmt, double roi, 
                           String bankName ) {
         
-        super( id, name, amt, bankName ) ;
+        super( id, name, initialAmt, bankName ) ;
         this.rateOfInterest = roi ;
     }
 
@@ -29,10 +29,12 @@ public class SavingAccount extends BankAccount
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
         
-        Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date ) ;
-        txn.setDescription( "SB Interest for quarter" ) ;
-        
-        super.getUniverse().postTransaction( txn ) ;
-        accumulatedInterest = 0 ;
+        if( accumulatedInterest > 0 ) {
+            Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date ) ;
+            txn.setDescription( "SB Interest for quarter" ) ;
+            
+            super.getUniverse().postTransaction( txn ) ;
+            accumulatedInterest = 0 ;
+        }
     }
 }

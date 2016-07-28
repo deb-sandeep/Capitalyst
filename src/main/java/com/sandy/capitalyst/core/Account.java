@@ -1,6 +1,7 @@
 package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
+import java.util.Arrays ;
 import java.util.Date ;
 import java.util.Iterator ;
 import java.util.List ;
@@ -8,6 +9,7 @@ import java.util.List ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.core.action.AccountClosureAction ;
 import com.sandy.capitalyst.core.timeobserver.DayObserver ;
 
 public class Account extends AbstractTxnGen implements DayObserver {
@@ -22,16 +24,23 @@ public class Account extends AbstractTxnGen implements DayObserver {
     
     private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
+    private List<AccountClosureAction> closureActions = new ArrayList<>() ;
     
-    public Account( String id, String name ) {
-        this( id, name, 0 ) ;
+    public Account( String id, String name, 
+                    AccountClosureAction... closeActions ) {
+        this( id, name, 0, closeActions ) ;
     }
     
-    public Account( String accNo, String name, double amount ) {
+    public Account( String accNo, String name, double amount, 
+                    AccountClosureAction... closeActions ) {
         super( name ) ;
         this.accountNumber = accNo ;
         this.name = name ;
         this.amount = amount ;
+        
+        if( closeActions != null ) {
+            closureActions.addAll( Arrays.asList( closeActions ) ) ;
+        }
     }
 
     public void setUniverse( Universe universe ) {
@@ -40,6 +49,10 @@ public class Account extends AbstractTxnGen implements DayObserver {
     
     public Universe getUniverse() {
         return this.universe ;
+    }
+    
+    public void addClosureAction( AccountClosureAction action ) {
+        this.closureActions.add( action ) ;
     }
     
     public String getAccountNumber() {
@@ -74,6 +87,10 @@ public class Account extends AbstractTxnGen implements DayObserver {
     
     public List<Txn> getLedger() {
         return ledger ;
+    }
+    
+    public void closeAccount( Date date ) {
+        closureActions.forEach( a -> a.execute( this, date ) );
     }
     
     @Override

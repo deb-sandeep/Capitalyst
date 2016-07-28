@@ -62,7 +62,9 @@ public class Universe implements DayObserver {
     }
     
     public void postTransaction( Txn txn ) {
-        journal.addTransaction( txn ) ;
+        if( txn.getAmount() != 0 ) {
+            journal.addTransaction( txn ) ;
+        }
     }
     
     public void postTransactions( List<Txn> txnList ) {

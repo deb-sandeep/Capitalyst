@@ -1,6 +1,5 @@
 package com.sandy.capitalyst.core.ext.account;
 
-import java.time.Duration ;
 import java.util.ArrayList ;
 import java.util.Date ;
 import java.util.List ;
@@ -9,8 +8,10 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.core.DayClock ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.action.AccountClosureAction ;
 import com.sandy.capitalyst.core.timeobserver.EndOfDayObserver ;
 import com.sandy.capitalyst.core.timeobserver.EndOfQuarterObserver ;
+import com.sandy.capitalyst.util.Utils ;
 
 public class QuarterlyCompoundingAccount extends BankAccount 
     implements EndOfDayObserver, EndOfQuarterObserver {
@@ -32,10 +33,7 @@ public class QuarterlyCompoundingAccount extends BankAccount
         
         public void computeAndCollateInterestTillDate( Date date ) {
             
-            Duration duration = Duration.between( receiptDate.toInstant(), 
-                                                  date.toInstant() ) ;
-            
-            long numDays = duration.toDays() ;
+            long numDays = Utils.getNumDaysBetween( receiptDate, date ) ;
             interestTillDate = principal*(rateOfInterest/(100*365)) * numDays ;
         }
         
@@ -49,24 +47,76 @@ public class QuarterlyCompoundingAccount extends BankAccount
     }
     
     private double rateOfInterest = 0 ;
+    private Date openingDate = null ;
+    private Date closeDate = null ;
+    private boolean isAccountClosed = false ;
+    
     private List<QuantumOfMoney> quantumFragments = 
                    new ArrayList<QuarterlyCompoundingAccount.QuantumOfMoney>() ;
 
-    public QuarterlyCompoundingAccount( String id, String name, 
-                                        double initialAmt, double roi, 
-                                        String bankName ) {
-        super( id, name, initialAmt, bankName ) ;
+    public QuarterlyCompoundingAccount( String accountNumber, 
+                                        String name, 
+                                        double initialAmt, 
+                                        Date openDate,
+                                        Date closeDate,
+                                        double roi, 
+                                        String bankName,
+                                        AccountClosureAction... closeActions) {
+        
+        super( accountNumber, name, initialAmt, bankName, closeActions ) ;
+        
         this.rateOfInterest = roi ;
+        this.openingDate = openDate ;
+        this.closeDate = closeDate ;
+        
+        if( this.openingDate == null ) {
+            this.openingDate = DayClock.instance().now() ;
+        }
+        
+        if( this.closeDate != null && 
+            Utils.isAfter( this.openingDate, this.closeDate ) ) {
+            throw new IllegalArgumentException( "Opening date is later than " +  
+              "closing date for account " + accountNumber + " [" + name + "]" ) ;
+        }
+        
+        if( initialAmt > 0 ) {
+            computeStartAmount( initialAmt ) ;
+        }
+    }
+    
+    private void computeStartAmount( double initialAmt ) {
         
         if( initialAmt != 0 ) {
+            
+            Date date = DayClock.instance().now() ;
+            if( Utils.isAfter( DayClock.instance().now(), closeDate ) ) {
+                date = closeDate ;
+            }
+            
+            int numDays = Utils.getNumDaysBetween( openingDate, date ) ;
+            
+            if( numDays > 0 ) {
+                float numYears = ((float)numDays)/365 ;
+                initialAmt = initialAmt * Math.pow( ( 1 + (rateOfInterest/400) ), 
+                                                    4*numYears ) ;
+            }
+            
+            super.amount = initialAmt ;
+        }
+
+        if( Utils.isAfter( DayClock.instance().now(), closeDate ) ) {
+            isAccountClosed = true ;
+            super.closeAccount( closeDate ) ;
+        }
+        else if( super.amount > 0 ){
             QuantumOfMoney quantum = null ;
-            quantum = new QuantumOfMoney( initialAmt, 
-                                          DayClock.instance().getStartDate() ) ;
+            quantum = new QuantumOfMoney( super.amount, DayClock.instance().now() ) ;
             quantumFragments.add( quantum ) ;
         }
     }
 
     public void postTransaction( Txn t ) {
+
         super.postTransaction( t ) ;
         QuantumOfMoney quantum = new QuantumOfMoney( t.getAmount(), t.getDate() ) ;
         quantumFragments.add( quantum ) ;
@@ -74,24 +124,34 @@ public class QuarterlyCompoundingAccount extends BankAccount
     
     @Override
     public void handleEndOfDayEvent( Date date ) {
-        
-        double totalAmount = 0 ;
-        
-        for( QuantumOfMoney q : quantumFragments ) {
-            q.computeAndCollateInterestTillDate( date ) ;
-            totalAmount += q.getAmount() ;
+
+        if( !isAccountClosed ) {
+            double totalAmount = 0 ;
+            
+            for( QuantumOfMoney q : quantumFragments ) {
+                q.computeAndCollateInterestTillDate( date ) ;
+                totalAmount += q.getAmount() ;
+            }
+            
+            super.amount = totalAmount ;
+            
+            if( closeDate != null && Utils.isSame( closeDate, date ) ) {
+                isAccountClosed = true ;
+                quantumFragments.clear() ;
+                super.closeAccount( date ) ;
+            }
         }
-        
-        super.amount = totalAmount ;
     }
 
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
         
-        QuantumOfMoney nettedQuantum = new QuantumOfMoney( 0, date ) ;
-        
-        quantumFragments.forEach( q -> nettedQuantum.addAmount( q.getAmount() ) );
-        quantumFragments.clear() ;
-        quantumFragments.add( nettedQuantum ) ;
+        if( !isAccountClosed ) {
+            QuantumOfMoney nettedQuantum = new QuantumOfMoney( 0, date ) ;
+            
+            quantumFragments.forEach( q -> nettedQuantum.addAmount( q.getAmount() ) );
+            quantumFragments.clear() ;
+            quantumFragments.add( nettedQuantum ) ;
+        }
     }
 }
