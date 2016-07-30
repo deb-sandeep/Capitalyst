@@ -36,14 +36,13 @@ public abstract class ScheduledTxnGen extends AbstractTxnGen {
     private Date          startDate    = null ;
     private Date          endDate      = null ;
     
-    public ScheduledTxnGen( String name, String scheduleExpr ) {
-        this( name, scheduleExpr, null, null ) ;
+    public ScheduledTxnGen( String scheduleExpr ) {
+        this( scheduleExpr, null, null ) ;
     }
     
-    public ScheduledTxnGen( String name, String scheduleExpr, Date start, Date end ) {
+    public ScheduledTxnGen( String scheduleExpr, Date start, Date end ) {
         
-        super( name ) ;
-        
+        super() ;
         startDate = start ;
         endDate   = end ;
         

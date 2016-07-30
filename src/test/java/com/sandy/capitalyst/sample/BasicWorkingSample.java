@@ -24,17 +24,16 @@ public class BasicWorkingSample {
         DayClock timer = DayClock.instance() ;
         Universe universe = new Universe( "Test" ) ;
 
-        Account sbAccount = new SavingAccount( "5212", "Sandy SB", 1000, 4, "ICICI" ) ;
-        Account npsAccount= new Account( "NPS", "Sandy NPS" ) ;
+        Account sbAccount = new SavingAccount( "5212", 1000, 4 ) ;
+        Account npsAccount= new Account( "NPS" ) ;
         
-        TxnGenerator salary = new FixedAmtScheduledTxnGen( "Salary gen", 
-                                           "L * * *", 1000, "5212", "Salary" ) ;
+        AbstractTxnGen salary = new FixedAmtScheduledTxnGen( "L * * *", 1000, "5212" ) ;
+        salary.setName( "Salary" ) ;
         
         TxnGenerator interAccTrfr = new InterAccountTransferScheduledTxnGen( 
-                                           "NPS withdraw", 
                                            "7 * * *", 500, "5212", "NPS" ) ; 
         
-        TxnGenerator pdTxnGen = new AbstractTxnGen( "PD Txn GEn") {
+        TxnGenerator pdTxnGen = new AbstractTxnGen() {
             @Override
             public void getTransactionsForDate( Date date, List<Txn> txnList ) {
                 if( Utils.isSame( date, Utils.parseDate( "30/06/2015" ) ) ) {

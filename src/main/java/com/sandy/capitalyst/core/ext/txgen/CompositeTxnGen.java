@@ -13,8 +13,8 @@ public class CompositeTxnGen extends AbstractTxnGen {
     
     private List<TxnGenerator> generators = new ArrayList<TxnGenerator>() ;
     
-    public CompositeTxnGen( String name, TxnGenerator ... txGens ) {
-        super( name ) ;
+    public CompositeTxnGen( TxnGenerator ... txGens ) {
+        super() ;
         if( txGens != null ) {
             generators = Arrays.asList( txGens ) ;
         }

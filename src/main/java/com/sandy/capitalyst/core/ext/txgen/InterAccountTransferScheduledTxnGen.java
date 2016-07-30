@@ -15,21 +15,19 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
     private String description  = null ;
     private boolean allowOverdraft = false ;
     
-    public InterAccountTransferScheduledTxnGen( String name,
-                                                String scheduleExpr, 
+    public InterAccountTransferScheduledTxnGen( String scheduleExpr, 
                                                 double amt,
                                                 String creditAcctNo, 
                                                 String debitAcctNo ) {
-        this( name, scheduleExpr, amt, creditAcctNo, debitAcctNo, "" ) ;
+        this( scheduleExpr, amt, creditAcctNo, debitAcctNo, "" ) ;
     }
 
-    public InterAccountTransferScheduledTxnGen( String name,
-                                                String scheduleExpression, 
+    public InterAccountTransferScheduledTxnGen( String scheduleExpression, 
                                                 double amt, 
                                                 String creditAcctNo,
                                                 String debitAcctNo,
                                                 String description ) {
-        super( name, scheduleExpression ) ;
+        super( scheduleExpression ) ;
         this.amt = amt ;
         this.creditAcctNo = creditAcctNo ;
         this.debitAcctNo  = debitAcctNo ;

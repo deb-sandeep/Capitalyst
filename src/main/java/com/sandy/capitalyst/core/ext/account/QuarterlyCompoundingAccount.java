@@ -55,15 +55,13 @@ public class QuarterlyCompoundingAccount extends BankAccount
                    new ArrayList<QuarterlyCompoundingAccount.QuantumOfMoney>() ;
 
     public QuarterlyCompoundingAccount( String accountNumber, 
-                                        String name, 
                                         double initialAmt, 
                                         Date openDate,
                                         Date closeDate,
                                         double roi, 
-                                        String bankName,
                                         AccountClosureAction... closeActions) {
         
-        super( accountNumber, name, initialAmt, bankName, closeActions ) ;
+        super( accountNumber, initialAmt, closeActions ) ;
         
         this.rateOfInterest = roi ;
         this.openingDate = openDate ;
@@ -76,7 +74,7 @@ public class QuarterlyCompoundingAccount extends BankAccount
         if( this.closeDate != null && 
             Utils.isAfter( this.openingDate, this.closeDate ) ) {
             throw new IllegalArgumentException( "Opening date is later than " +  
-              "closing date for account " + accountNumber + " [" + name + "]" ) ;
+              "closing date for account " + accountNumber + " [" + getName() + "]" ) ;
         }
         
         if( initialAmt > 0 ) {

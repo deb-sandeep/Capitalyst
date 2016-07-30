@@ -5,27 +5,26 @@ import com.sandy.capitalyst.core.action.AccountClosureAction ;
 
 public class BankAccount extends Account {
 
-    private String bankName = null ;
+    private String bankName = "<Bank name not specified>" ;
     
     public BankAccount( String accountNumber, 
-                        String name, 
-                        String bankName, 
                         AccountClosureAction... closeActions ) {
         
-        this( accountNumber, name, 0, bankName, closeActions ) ;
+        this( accountNumber, 0, closeActions ) ;
     }
 
     public BankAccount( String acccountNumber, 
-                        String name, 
                         double amount, 
-                        String bankName, 
                         AccountClosureAction... closeActions ) {
         
-        super( acccountNumber, name, amount, closeActions ) ;
-        this.bankName = bankName ;
+        super( acccountNumber, amount, closeActions ) ;
     }
     
     public String getBankName() {
         return this.bankName ;
+    }
+    
+    public void setBankName( String bankName ) {
+        this.bankName = bankName ;
     }
 }

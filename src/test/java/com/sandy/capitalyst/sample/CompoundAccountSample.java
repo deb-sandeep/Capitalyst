@@ -18,14 +18,14 @@ public class CompoundAccountSample {
         timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "01/01/2017" ) ) ;
         
         
-        Account saving = new SavingAccount( "0000", "Saving A/C", 0, 4, "ICICI" ) ;
+        Account saving = new SavingAccount( "0000", 0, 4 ) ;
 
         Account account = new QuarterlyCompoundingAccount( 
-                                        "5212", "Sandy SB", 
+                                        "5212",
                                         100000, 
                                         parseDate( "28/02/2014" ), 
                                         parseDate( "14/11/2016" ),
-                                        8.75, "ICICI",
+                                        8.75, 
                                         new TransferFullAmtOnClosure( "0000" ) ) ;
 
         Universe universe = new Universe( "Test Universe" ) ;

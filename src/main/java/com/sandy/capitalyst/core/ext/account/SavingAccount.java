@@ -12,10 +12,9 @@ public class SavingAccount extends BankAccount
     private double accumulatedInterest  = 0 ;
     private double rateOfInterest       = 0 ;
 
-    public SavingAccount( String id, String name, double initialAmt, double roi, 
-                          String bankName ) {
+    public SavingAccount( String accountNumber, double initialAmt, double roi ) {
         
-        super( id, name, initialAmt, bankName ) ;
+        super( accountNumber, initialAmt ) ;
         this.rateOfInterest = roi ;
     }
 

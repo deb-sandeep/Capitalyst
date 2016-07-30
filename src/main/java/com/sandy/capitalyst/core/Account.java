@@ -18,7 +18,6 @@ public class Account extends AbstractTxnGen implements DayObserver {
 
     private Universe universe = null ;
     private String accountNumber ;
-    private String name ;
     
     protected double amount ;
     
@@ -26,23 +25,21 @@ public class Account extends AbstractTxnGen implements DayObserver {
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
     private List<AccountClosureAction> closureActions = new ArrayList<>() ;
     
-    public Account( String id, String name, 
-                    AccountClosureAction... closeActions ) {
-        this( id, name, 0, closeActions ) ;
+    public Account( String id, AccountClosureAction... closeActions ) {
+        this( id, 0, closeActions ) ;
     }
     
-    public Account( String accNo, String name, double amount, 
+    public Account( String accNo, double initialAmt, 
                     AccountClosureAction... closeActions ) {
-        super( name ) ;
+        super() ;
         this.accountNumber = accNo ;
-        this.name = name ;
-        this.amount = amount ;
+        this.amount = initialAmt ;
         
         if( closeActions != null ) {
             closureActions.addAll( Arrays.asList( closeActions ) ) ;
         }
     }
-
+    
     public void setUniverse( Universe universe ) {
         this.universe = universe ;
     }
@@ -57,10 +54,6 @@ public class Account extends AbstractTxnGen implements DayObserver {
     
     public String getAccountNumber() {
         return accountNumber ;
-    }
-
-    public String getName() {
-        return name ;
     }
 
     public double getAmount() {
