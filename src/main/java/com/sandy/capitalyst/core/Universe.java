@@ -2,7 +2,9 @@ package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
 import java.util.Date ;
+import java.util.HashMap ;
 import java.util.List ;
+import java.util.Map ;
 
 import com.sandy.capitalyst.core.timeobserver.DayObserver ;
 import com.sandy.capitalyst.core.timeobserver.TimeObserver ;
@@ -14,6 +16,7 @@ public class Universe implements DayObserver {
     private AccountManager accMgr = null ;
     
     private List<TxnGenerator> txnGenerators = new ArrayList<TxnGenerator>() ;
+    private Map<String, UniverseConstituent> context = new HashMap<String, UniverseConstituent>() ;
     
     public Universe( String name ) {
         this.name = name ;
@@ -34,6 +37,18 @@ public class Universe implements DayObserver {
         return this.name ;
     }
     
+    public void addToContext( String alias, UniverseConstituent obj ) {
+        obj.setUniverse( this ) ;
+        context.put( alias, obj ) ;
+        if( obj instanceof TimeObserver ) {
+            DayClock.instance().registerTimeObserver( (TimeObserver)obj ) ;
+        }
+    }
+    
+    public UniverseConstituent getFromContext( String alias ) {
+        return context.get( alias ) ;
+    }
+     
     public void addAccount( Account account ) {
         account.setUniverse( this ) ; 
         accMgr.addAccount( account ) ;
