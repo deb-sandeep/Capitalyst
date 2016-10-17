@@ -1,5 +1,4 @@
-2. Think of income tax accounts - PAN number?
-3. Salary generator with configured components
+Initialize saving account configuration and have a way to build accounts
 
 -------------------------------------------------------------------------------
                                DONE

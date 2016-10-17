@@ -6,6 +6,7 @@ import java.util.Date ;
 import java.util.List ;
 
 import org.apache.commons.lang.time.DateUtils ;
+import org.apache.log4j.Logger;
 
 import com.sandy.capitalyst.core.timeobserver.DayObserver ;
 import com.sandy.capitalyst.core.timeobserver.EndOfDayObserver ;
@@ -17,6 +18,8 @@ import com.sandy.capitalyst.util.Utils ;
 
 public class DayClock {
 
+	private static final Logger log = Logger.getLogger( DayClock.class ) ;
+	
     private static DayClock instance = new DayClock() ;
     
     private Date startDate = null ;
@@ -36,10 +39,20 @@ public class DayClock {
         }
     }
     
+    public void setDateRange( DayClockConfig cfg ) {
+    	setDateRange( cfg.getStartDate(), cfg.getEndDate() ) ;
+    }
+    
     public void setDateRange( Date start, Date end ) {
         this.startDate = start ;
         this.endDate = end ;
         this.now = this.startDate ;
+
+        log.debug( "Creating a timer [" 
+                + Utils.formatDate( this.startDate ) 
+                + " , " 
+                + Utils.formatDate( this.endDate ) 
+                + "]" ) ;
     }
     
     public Date getStartDate() {
