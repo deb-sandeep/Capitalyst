@@ -36,4 +36,15 @@ public class SavingAccount extends BankAccount
             accumulatedInterest = 0 ;
         }
     }
+    
+    public static SavingAccount create( SavingAccountConfig cfg ) {
+        SavingAccount account = null ;
+        
+        account = new SavingAccount( cfg.getAccountNumber(), 
+        		                     cfg.getInitialAmount(), 
+        		                     cfg.getRoi() ) ;
+        account.setName( cfg.getAccountName() ) ;
+        account.setBankName( cfg.getBankName() ) ;
+        return account ;
+    }
 }
