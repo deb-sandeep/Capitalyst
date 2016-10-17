@@ -80,7 +80,8 @@ public class Config extends PropertiesConfiguration {
         return retVal ;
     }
     
-    public Config getNestedConfig( String prefix ) {
+    @SuppressWarnings("unchecked")
+	public Config getNestedConfig( String prefix ) {
         
         Config config = new Config() ;
         Iterator<String> iter = this.getKeys( prefix ) ;
