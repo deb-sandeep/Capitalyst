@@ -11,8 +11,8 @@ import java.util.Date ;
 import org.apache.commons.lang.StringUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 
-import com.sandy.capitalyst.core.Account ;
-import com.sandy.capitalyst.core.DayClock ;
+import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Txn.TxnType ;
 

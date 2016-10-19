@@ -6,8 +6,12 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
-import com.sandy.capitalyst.core.timeobserver.DayObserver ;
-import com.sandy.capitalyst.core.timeobserver.TimeObserver ;
+import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.account.AccountManager ;
+import com.sandy.capitalyst.clock.DayClock ;
+import com.sandy.capitalyst.clock.DayObserver ;
+import com.sandy.capitalyst.clock.TimeObserver ;
+import com.sandy.capitalyst.txgen.TxnGenerator ;
 
 public class Universe implements DayObserver {
 

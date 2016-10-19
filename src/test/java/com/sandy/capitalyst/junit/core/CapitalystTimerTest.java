@@ -12,9 +12,9 @@ import java.util.List ;
 import org.junit.Before ;
 import org.junit.Test ;
 
-import com.sandy.capitalyst.core.DayClock ;
+import com.sandy.capitalyst.clock.DayClock ;
+import com.sandy.capitalyst.clock.DayObserver ;
 import com.sandy.capitalyst.core.Universe ;
-import com.sandy.capitalyst.core.timeobserver.DayObserver ;
 
 public class CapitalystTimerTest {
 
@@ -56,7 +56,8 @@ public class CapitalystTimerTest {
         timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
         timer.registerTimeObserver( to2 ) ;
-        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) );
+        timer.setStartDate( parseDate( "01/01/2015" ) );
+        timer.setEndDate( parseDate( "31/01/2015" ) );
         timer.run() ;
         
         assertThat( to1.numDateEventsReceived(), is( equalTo( 31 ) ) );
@@ -70,7 +71,8 @@ public class CapitalystTimerTest {
         
         timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
-        timer.setDateRange( parseDate( "01/01/2015" ), parseDate( "31/12/2015" ) );
+        timer.setStartDate( parseDate( "01/01/2015" ) );
+        timer.setEndDate( parseDate( "31/01/2015" ) );
         timer.run() ;
 
         assertThat( to1.numDateEventsReceived(), is( equalTo( 365 ) ) );
