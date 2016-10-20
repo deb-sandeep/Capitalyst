@@ -33,6 +33,14 @@ public class Utils {
         }
     }
     
+    public static int getMonth( Date date ) {
+        return DateUtils.toCalendar( date ).get( Calendar.MONTH ) ;
+    }
+    
+    public static int getYear( Date date ) {
+        return DateUtils.toCalendar( date ).get( Calendar.YEAR ) ;
+    }
+    
     public static String formatDate( Date date ) {
         return SDF.format( date ) ;
     }
