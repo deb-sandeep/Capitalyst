@@ -27,9 +27,6 @@ public class Config extends CompositeConfiguration {
         instance.clear() ;
         this.universeName = universeName ;
 
-        PropertiesConfiguration baseConfig = null ;
-        PropertiesConfiguration univConfig = null ;
-        
         URL baseCfgURL = Config.class.getResource( "/cap-base.properties" ) ;
         if( baseCfgURL == null ) {
             throw new IllegalStateException( "Base configuration not found." ) ;
@@ -42,11 +39,12 @@ public class Config extends CompositeConfiguration {
                                              universeName + " not found." ) ;
         }
         
-        baseConfig = new PropertiesConfiguration( baseCfgURL ) ;
-        univConfig = new PropertiesConfiguration( univCfgURL ) ;
+        CompositeConfiguration compConfig = new CompositeConfiguration() ;
         
-        super.addConfiguration( univConfig ) ;
-        super.addConfiguration( baseConfig ) ;
+        compConfig.addConfiguration( new PropertiesConfiguration( baseCfgURL ) ) ;
+        compConfig.addConfiguration( new PropertiesConfiguration( univCfgURL ) ) ;
+        
+        super.addConfiguration( compConfig.interpolatedConfiguration() ) ;
     }
     
     public String getUniverseName() {

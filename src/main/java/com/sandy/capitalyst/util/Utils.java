@@ -140,7 +140,7 @@ public class Utils {
         fromAcc.getUniverse().postTransaction( creditTxn ) ;
     }
     
-    public static String printLedger( Account acct ) {
+    public static String getFormattedLedger( Account acct ) {
         
         StringBuilder buffer = new StringBuilder() ;
         

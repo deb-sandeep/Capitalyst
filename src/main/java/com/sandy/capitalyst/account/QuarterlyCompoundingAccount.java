@@ -6,6 +6,7 @@ import java.util.List ;
 
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.action.TransferFullAmtOnClosure ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.clock.DayClock ;
@@ -56,6 +57,9 @@ public class QuarterlyCompoundingAccount extends BankAccount
     @Cfg
     private Date closingDate = null ;
     
+    @Cfg
+    private String parentAccountNumber = null ;
+    
     private boolean isAccountClosed = false ;
     
     private List<QuantumOfMoney> quantumFragments = 
@@ -104,6 +108,11 @@ public class QuarterlyCompoundingAccount extends BankAccount
 
     public void setRoi( double roi ) {
         this.roi = roi ;
+    }
+    
+    public void setParentAccountNumber( String acctNo ) {
+        this.parentAccountNumber = acctNo ;
+        super.addClosureAction( new TransferFullAmtOnClosure( acctNo ) );
     }
     
     public void setClosingDate( Date date ) {

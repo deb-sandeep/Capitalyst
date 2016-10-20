@@ -11,7 +11,7 @@ import com.sandy.capitalyst.core.exception.AccountOverdraftException ;
 public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
 
     @Cfg
-    private double ammount = 0 ;
+    private double amount = 0 ;
     
     @Cfg
     private String creditAccountNumber = null ;
@@ -25,8 +25,8 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
     @Cfg( mandatory=false )
     private boolean allowOverdraft = false ;
     
-    public void setAmmount( double amt ) {
-        this.ammount = amt ;
+    public void setAmount( double amt ) {
+        this.amount = amt ;
     }
     
     public void setCreditAccountNumber( String acctNo ) {
@@ -49,13 +49,13 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
     protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
         
         Account creditAcct = getUniverse().getAccount( creditAccountNumber ) ;
-        if( !allowOverdraft && ( creditAcct.getLiquidableAmount() < ammount ) ) {
+        if( !allowOverdraft && ( creditAcct.getLiquidableAmount() < amount ) ) {
             throw new AccountOverdraftException( creditAccountNumber ) ;
         }
         
-        txnList.add( new Txn( creditAccountNumber, -ammount, date, 
+        txnList.add( new Txn( creditAccountNumber, -amount, date, 
                               "Transfer to A/C " + debitAccountNumber + " " + description) ) ;
-        txnList.add( new Txn( debitAccountNumber, ammount, date, 
+        txnList.add( new Txn( debitAccountNumber, amount, date, 
                               "Transfer from A/C " + creditAccountNumber + " " + description ) ) ;
     }
 }
