@@ -8,7 +8,8 @@ public abstract class AbstractTxnGen implements TxnGenerator {
     
     private Universe universe = null ;
     
-    @Cfg( mandatory=false ) private String name = "UNNAMED" ;
+    @Cfg( mandatory=false ) 
+    private String name = "<TxGen-UNNAMED>" ;
     
     public void setUniverse( Universe universe ) {
         this.universe = universe ;

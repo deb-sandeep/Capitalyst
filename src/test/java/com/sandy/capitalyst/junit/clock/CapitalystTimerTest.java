@@ -1,4 +1,4 @@
-package com.sandy.capitalyst.junit.core;
+package com.sandy.capitalyst.junit.clock;
 
 import static com.sandy.capitalyst.util.Utils.parseDate ;
 import static org.hamcrest.Matchers.equalTo ;
@@ -72,7 +72,7 @@ public class CapitalystTimerTest {
         timer = DayClock.instance() ;
         timer.registerTimeObserver( to1 ) ;
         timer.setStartDate( parseDate( "01/01/2015" ) );
-        timer.setEndDate( parseDate( "31/01/2015" ) );
+        timer.setEndDate( parseDate( "31/12/2015" ) );
         timer.run() ;
 
         assertThat( to1.numDateEventsReceived(), is( equalTo( 365 ) ) );

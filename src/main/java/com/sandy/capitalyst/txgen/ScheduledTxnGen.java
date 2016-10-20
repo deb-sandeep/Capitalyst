@@ -11,10 +11,14 @@ import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
+import com.sandy.capitalyst.cfg.Cfg ;
+import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.util.Utils ;
 
-public abstract class ScheduledTxnGen extends AbstractTxnGen {
+public abstract class ScheduledTxnGen 
+    extends AbstractTxnGen 
+    implements PostConfigInitializable {
 
     private final CronDefinition cronDefinition =
                             CronDefinitionBuilder.defineCron()
@@ -32,36 +36,38 @@ public abstract class ScheduledTxnGen extends AbstractTxnGen {
     private Cron          cron         = null ;
     private ExecutionTime execTime     = null ;
     private String        scheduleDesc = null ;
-    private Date          startDate    = null ;
-    private Date          endDate      = null ;
     
-    public ScheduledTxnGen( String scheduleExpr ) {
-        this( scheduleExpr, null, null ) ;
+    @Cfg 
+    private String scheduleExpr = null ;
+    
+    @Cfg( mandatory=false ) 
+    private Date startDate = null ;
+    
+    @Cfg( mandatory=false ) 
+    private Date endDate = null ;
+    
+    public void setScheduleExpr( String expr ) {
+        this.scheduleExpr = expr ;
     }
     
-    public ScheduledTxnGen( String scheduleExpr, Date start, Date end ) {
-        
-        super() ;
-        startDate = start ;
-        endDate   = end ;
-        
+    public void setStartDate( Date date ) {
+        this.startDate = date ;
+    }
+    
+    public void setEndDate( Date date ) {
+        this.endDate = date ;
+    }
+    
+    @Override
+    public void initializePostConfig() {
+
         cron = cronParser.parse( scheduleExpr ) ;
         execTime = ExecutionTime.forCron( cron ) ;
         
         scheduleDesc = CronDescriptor.instance().describe( cron ) ;
         scheduleDesc = scheduleDesc.replace( "every minute ", "" ) ;
     }
-    
-    public ScheduledTxnGen startBy( Date date ) {
-        startDate = date ;
-        return this ;
-    }
-    
-    public ScheduledTxnGen endBy( Date date ) {
-        endDate = date ;
-        return this ;
-    }
-    
+
     public String getScheduleDescription() {
         return this.scheduleDesc ;
     }

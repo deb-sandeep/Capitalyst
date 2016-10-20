@@ -53,7 +53,7 @@ public class QuarterlyCompoundingAccount extends BankAccount
     @Cfg( mandatory=false ) 
     private Date openingDate = null ;
     
-    @Cfg( mandatory=false ) 
+    @Cfg
     private Date closingDate = null ;
     
     private boolean isAccountClosed = false ;
@@ -108,6 +108,7 @@ public class QuarterlyCompoundingAccount extends BankAccount
     
     public void setClosingDate( Date date ) {
         
+        this.closingDate = date ;
         if( this.closingDate != null && 
             Utils.isAfter( this.openingDate, this.closingDate ) ) {
             

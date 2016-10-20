@@ -3,23 +3,24 @@ package com.sandy.capitalyst.txgen;
 import java.util.Date ;
 import java.util.List ;
 
+import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.core.Txn ;
 
 public class FixedAmtScheduledTxnGen extends ScheduledTxnGen {
 
-    private double amt = 0 ;
-    private String acctNo = null ;
+    @Cfg private double ammount = 0 ;
+    @Cfg private String accountNumber = null ;
     
-    public FixedAmtScheduledTxnGen( String scheduleExpression, 
-                                    double amt, 
-                                    String acctNo ) {
-        super( scheduleExpression ) ;
-        this.amt = amt ;
-        this.acctNo = acctNo ;
+    public void setAmount( double amt ) {
+        this.ammount = amt ;
+    }
+    
+    public void setAccountNumber( String acctNo ) {
+        this.accountNumber = acctNo ;
     }
     
     @Override
     protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
-        txnList.add( new Txn( acctNo, amt, date, getName() ) ) ;
+        txnList.add( new Txn( accountNumber, ammount, date, getName() ) ) ;
     }
 }
