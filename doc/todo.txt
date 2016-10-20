@@ -1,6 +1,8 @@
-Initialize saving account configuration and have a way to build accounts
+Entities in configuration can inherit attributes from another entity
 
 -------------------------------------------------------------------------------
                                DONE
 
+Bank Accounts need a mandatory PAN number
+Initialize saving account configuration and have a way to build accounts
 1. Removal of optional parameters from Account constructors

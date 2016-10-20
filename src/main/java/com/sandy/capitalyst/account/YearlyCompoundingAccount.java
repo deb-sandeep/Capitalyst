@@ -4,15 +4,15 @@ import java.util.Date ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.capitalyst.clock.EndOfQuarterObserver ;
+import com.sandy.capitalyst.clock.EndOfYearObserver ;
 
-public class QuarterlyCompoundingAccount extends PeriodicallyCompoundingAccount 
-    implements EndOfQuarterObserver {
+public class YearlyCompoundingAccount extends PeriodicallyCompoundingAccount 
+    implements EndOfYearObserver {
     
-    static Logger log = Logger.getLogger( QuarterlyCompoundingAccount.class ) ;
+    static Logger log = Logger.getLogger( YearlyCompoundingAccount.class ) ;
     
     @Override
-    public void handleEndOfQuarterEvent( Date date ) {
+    public void handleEndOfYearEvent( Date date ) {
         
         if( !isAccountClosed ) {
             QuantumOfMoney nettedQuantum = new QuantumOfMoney( 0, date ) ;
