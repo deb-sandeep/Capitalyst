@@ -17,6 +17,10 @@ public class BankAccount extends Account {
     public void setPanNumber( String pan ) {
         this.panNumber = pan ;
     }
+    
+    public String getPanNumber() {
+        return this.panNumber ;
+    }
 
     public String getBankName() {
         return this.bankName ;

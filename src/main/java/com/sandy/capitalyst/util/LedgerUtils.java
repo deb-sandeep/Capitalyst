@@ -39,7 +39,11 @@ public class LedgerUtils {
         
         appendSeparatorLine( buffer ) ;
         
-        buffer.append( StringUtils.center( "Ledger for " + acct.getAccountNumber(), HDR_LEN ) ) 
+        String headerText = "Ledger for " + 
+                            acct.getAccountNumber() +
+                            " (" + acct.getName() + ")" ;
+        
+        buffer.append( StringUtils.center( headerText, HDR_LEN ) ) 
               .append( "\n" ) ;
 
         appendSeparatorLine( buffer ) ;

@@ -8,9 +8,11 @@ import java.util.Map ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AccountManager ;
+import com.sandy.capitalyst.account.BankAccount ;
 import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.clock.DayObserver ;
 import com.sandy.capitalyst.clock.TimeObserver ;
+import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 
 public class Universe implements DayObserver {
@@ -103,5 +105,21 @@ public class Universe implements DayObserver {
                 journal.addTransactions( tempList ) ;
             }
         }
+    }
+    
+    public String getTaxAccount( String targetAccountNo ) {
+        Account tgtAccount = accMgr.getAccount( targetAccountNo ) ;
+        if( ! (tgtAccount instanceof BankAccount) ) {
+            throw new IllegalStateException( "No tax account associated with " + 
+                                             "account " + targetAccountNo ) ;
+        }
+        
+        String pan = (( BankAccount )tgtAccount).getPanNumber() ;
+        String taxACNo = "TAX_AC_" + pan ;
+        if( accMgr.getAccount( taxACNo ) != null ) {
+            return taxACNo ;
+        }
+        throw new AccountNotFoundException( "Tax account not found for " + 
+                                            targetAccountNo ) ;
     }
 }
