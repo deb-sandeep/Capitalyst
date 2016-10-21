@@ -28,10 +28,20 @@ public class SavingAccount extends BankAccount
 
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
+        postAccumulatedInterest( date ) ;
+    }
+
+    @Override
+    public void closeAccount( Date date ) {
+        postAccumulatedInterest( date ) ;
+        super.closeAccount( date ) ;
+    }
+    
+    private void postAccumulatedInterest( Date date ) {
         
         if( accumulatedInterest > 0 ) {
-            Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date ) ;
-            txn.setDescription( "SB Interest for quarter" ) ;
+            Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date,
+                               "SB Interest" ) ;
             
             super.getUniverse().postTransaction( txn ) ;
             accumulatedInterest = 0 ;

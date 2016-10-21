@@ -8,21 +8,16 @@ import java.time.Duration ;
 import java.util.Calendar ;
 import java.util.Date ;
 
-import org.apache.commons.lang.StringUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.Txn.TxnType ;
 
 public class Utils {
 
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
     public static final DecimalFormat     DF = new DecimalFormat( "00.0" ) ;
-    
-    private static final int HDR_LEN    = 80 ;
-    private static final int FIELD_LEN  = 10 ;
     
     public static Date parseDate( String dateStr ) throws IllegalArgumentException {
         try {
@@ -146,50 +141,5 @@ public class Utils {
         
         fromAcc.getUniverse().postTransaction( debitTxn ) ;
         fromAcc.getUniverse().postTransaction( creditTxn ) ;
-    }
-    
-    public static String getFormattedLedger( Account acct ) {
-        
-        StringBuilder buffer = new StringBuilder() ;
-        
-        buffer.append( StringUtils.repeat( "-", HDR_LEN ) ).append( "\n" ) ;
-        buffer.append( StringUtils.center( "Ledger for " + acct.getAccountNumber(), HDR_LEN ) ) 
-              .append( "\n" ) ;
-        buffer.append( StringUtils.repeat( "-", HDR_LEN ) ).append( "\n" ) ;
-        
-        buffer.append( StringUtils.center( "Date", FIELD_LEN ) )
-              .append( " | " )
-              .append( StringUtils.center( "Credit", FIELD_LEN ) )
-              .append( " | " )
-              .append( StringUtils.center( "Debit", FIELD_LEN ) )
-              .append( " | " )
-              .append( "Description" )
-              .append( "\n" ) ;
-        
-        buffer.append( StringUtils.repeat( ".", HDR_LEN ) ).append( "\n" ) ;
-        
-        for( Txn txn : acct.getLedger() ) {
-            buffer.append( StringUtils.rightPad( formatDate( txn.getDate() ), FIELD_LEN ) )
-                  .append( " | " ) ;
-            
-            if( txn.getTxnType() == TxnType.CREDIT ) {
-                buffer.append( StringUtils.leftPad( Utils.DF.format( txn.getAmount() ), FIELD_LEN ) )
-                      .append( " | " )
-                      .append( StringUtils.repeat( " ", FIELD_LEN ) ) ;
-            }
-            else {
-                buffer.append( StringUtils.repeat( " ", FIELD_LEN ) )
-                      .append( " | " )
-                      .append( StringUtils.leftPad( Utils.DF.format( Math.abs( txn.getAmount() ) ), FIELD_LEN ) ) ;
-            }
-            buffer.append( " | " )
-                  .append( txn.getDescription() )
-                  .append( "\n" ) ;
-        }
-        buffer.append( StringUtils.repeat( ".", HDR_LEN ) ).append( "\n" ) ;
-        buffer.append( "Total liquidable amount = " + Utils.DF.format( acct.getLiquidableAmount() ) ).append( "\n" ) ;
-        buffer.append( StringUtils.repeat( "-", HDR_LEN ) ).append( "\n" ) ;
-        
-        return buffer.toString() ;
     }
 }

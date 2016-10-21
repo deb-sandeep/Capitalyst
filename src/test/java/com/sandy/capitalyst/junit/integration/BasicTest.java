@@ -6,7 +6,7 @@ import org.junit.Test ;
 import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
-import com.sandy.capitalyst.util.Utils ;
+import com.sandy.capitalyst.util.LedgerUtils ;
 
 public class BasicTest {
 
@@ -22,7 +22,7 @@ public class BasicTest {
     public void basic() throws Exception {
         setUp( "test-1" ) ;
         DayClock.instance().run() ;
-        log.debug( Utils.getFormattedLedger( universe.getAccount( "1234" ) ) ) ;
-        log.debug( Utils.getFormattedLedger( universe.getAccount( "5678" ) ) ) ;
+        log.debug( LedgerUtils.getFormattedLedger( universe.getAccount( "1234" ) ) ) ;
+        log.debug( LedgerUtils.getFormattedLedger( universe.getAccount( "5678" ) ) ) ;
     }
 }

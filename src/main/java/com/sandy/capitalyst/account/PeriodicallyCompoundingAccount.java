@@ -8,14 +8,13 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.action.TransferFullAmtOnClosure ;
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.clock.EndOfDayObserver ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.util.Utils ;
 
 public class PeriodicallyCompoundingAccount extends BankAccount 
-    implements EndOfDayObserver, PostConfigInitializable {
+    implements EndOfDayObserver {
     
     static Logger log = Logger.getLogger( PeriodicallyCompoundingAccount.class ) ;
     
@@ -27,8 +26,8 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         
         public QuantumOfMoney( double principal, Date receiptDate ) {
             
-            this.principal = principal ;
-            this.receiptDate = receiptDate ;
+            this.principal        = principal ;
+            this.receiptDate      = receiptDate ;
             this.interestTillDate = 0 ;
         }
         
@@ -40,6 +39,14 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         
         public double getAmount() {
             return principal + interestTillDate ;
+        }
+        
+        public double getPrincipal() {
+            return this.principal ;
+        }
+        
+        public double getInterest() {
+            return this.interestTillDate ;
         }
         
         public void addAmount( double amt ) {
@@ -71,7 +78,10 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     @Override
     public void initializePostConfig() {
         
+        super.initializePostConfig() ;
+        
         double initialAmt = super.getAmount() ;
+        
         if( initialAmt != 0 ) {
             
             Date date = DayClock.instance().now() ;
@@ -84,7 +94,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
             if( numDays > 0 ) {
                 float numYears = ((float)numDays)/365 ;
                 initialAmt = initialAmt * Math.pow( ( 1 + (roi/400) ), 
-                                                    4*numYears ) ;
+                                                      4*numYears ) ;
             }
             
             super.amount = initialAmt ;
@@ -138,20 +148,30 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     public void handleEndOfDayEvent( Date date ) {
 
         if( !isAccountClosed ) {
-            double totalAmount = 0 ;
-            
             for( QuantumOfMoney q : quantumFragments ) {
                 q.computeAndCollateInterestTillDate( date ) ;
-                totalAmount += q.getAmount() ;
             }
-            
-            super.amount = totalAmount ;
             
             if( closingDate != null && Utils.isSame( closingDate, date ) ) {
                 isAccountClosed = true ;
-                quantumFragments.clear() ;
+                postAccumulatedInterest( date ) ;
                 super.closeAccount( date ) ;
             }
         }
+    }
+    
+    protected void postAccumulatedInterest( Date date ) {
+        
+        double accumulatedInterest  = 0 ;
+        for( QuantumOfMoney q : quantumFragments ) {
+            accumulatedInterest  += q.getInterest() ;
+        }
+        
+        quantumFragments.clear() ;
+        quantumFragments.add( new QuantumOfMoney( super.getAmount(), date ) ) ;
+        
+        Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date,
+                           "Accumulated Interest" ) ;
+        super.getUniverse().postTransaction( txn ) ;
     }
 }

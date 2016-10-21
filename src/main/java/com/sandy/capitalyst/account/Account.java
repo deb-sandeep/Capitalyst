@@ -10,23 +10,29 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
+import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.clock.DayObserver ;
 import com.sandy.capitalyst.core.PDTxn ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.txgen.AbstractTxnGen ;
 
-public class Account extends AbstractTxnGen implements DayObserver {
+public class Account 
+    extends AbstractTxnGen 
+    implements DayObserver, PostConfigInitializable {
     
     static final Logger log = Logger.getLogger( Account.class ) ;
 
     @Cfg private String accountNumber ;
     @Cfg( mandatory=false ) protected double amount = 0 ;
     
+    private double openingBalance = 0 ;
+    
     private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
     private List<AccountClosureAction> closureActions = new ArrayList<>() ;
     
-    public Account() {
+    public double getOpeningBalance() {
+        return this.openingBalance ;
     }
     
     public void setAccountNumber( String accNo ) {
@@ -96,4 +102,9 @@ public class Account extends AbstractTxnGen implements DayObserver {
 
     @Override
     public void handleDayEvent( Date date ) {}
+
+    @Override
+    public void initializePostConfig() {
+        this.openingBalance = this.amount ;
+    }
 }

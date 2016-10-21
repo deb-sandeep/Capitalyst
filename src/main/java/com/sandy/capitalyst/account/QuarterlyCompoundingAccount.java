@@ -13,13 +13,8 @@ public class QuarterlyCompoundingAccount extends PeriodicallyCompoundingAccount
     
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
-        
         if( !isAccountClosed ) {
-            QuantumOfMoney nettedQuantum = new QuantumOfMoney( 0, date ) ;
-            
-            quantumFragments.forEach( q -> nettedQuantum.addAmount( q.getAmount() ) );
-            quantumFragments.clear() ;
-            quantumFragments.add( nettedQuantum ) ;
+            super.postAccumulatedInterest( date ) ;
         }
     }
 }
