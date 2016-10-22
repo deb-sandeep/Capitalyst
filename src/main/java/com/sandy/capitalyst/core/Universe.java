@@ -6,6 +6,7 @@ import java.util.HashMap ;
 import java.util.List ;
 import java.util.Map ;
 
+import com.sandy.capitalyst.EventType ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AccountManager ;
 import com.sandy.capitalyst.account.BankAccount ;
@@ -16,6 +17,7 @@ import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.timeobservers.TimeObserver ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
+import com.sandy.common.bus.EventBus ;
 
 public class Universe implements DayObserver, PostConfigInitializable {
 
@@ -28,6 +30,8 @@ public class Universe implements DayObserver, PostConfigInitializable {
     private List<TxnGenerator> txnGenerators = new ArrayList<TxnGenerator>() ;
     private Map<String, UniverseConstituent> context = new HashMap<String, UniverseConstituent>() ;
     private DayClock clock = null ;
+    
+    private EventBus bus = new EventBus() ;
     
     @Cfg private Date startDate = null ;
     @Cfg private Date endDate = null ;
@@ -48,6 +52,10 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return this.config ;
     }
     
+    public EventBus getBus() {
+        return this.bus ;
+    }
+    
     public void setStartDate( Date date ) {
         this.startDate = date ;
     }
@@ -62,7 +70,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     @Override
     public void initializePostConfig() {
-        clock = new DayClock( this.startDate, this.endDate ) ;
+        clock = new DayClock( this, this.startDate, this.endDate ) ;
         clock.registerTimeObserver( this ) ;
     }
     
@@ -99,6 +107,8 @@ public class Universe implements DayObserver, PostConfigInitializable {
         accMgr.addAccount( account ) ;
         registerTxnGenerator( account ) ;
         clock.registerTimeObserver( account ) ;
+        
+        bus.publishEvent( EventType.ACCOUNT_CREATED, account ) ;
     }
     
     public void removeAccount( Account account ) {
@@ -151,6 +161,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     }
     
     public String getTaxAccount( String targetAccountNo ) {
+        
         Account tgtAccount = accMgr.getAccount( targetAccountNo ) ;
         if( ! (tgtAccount instanceof BankAccount) ) {
             throw new IllegalStateException( "No tax account associated with " + 

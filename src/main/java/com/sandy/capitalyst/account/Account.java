@@ -8,6 +8,7 @@ import java.util.List ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.EventType ;
 import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
@@ -70,6 +71,7 @@ public class Account
         else {
             ledger.add( t ) ;
             this.amount += t.getAmount() ;
+            getUniverse().getBus().publishEvent( EventType.TXN_POSTED, t ) ;
         }
     }
     
@@ -82,7 +84,8 @@ public class Account
     }
     
     public void closeAccount( Date date ) {
-        closureActions.forEach( a -> a.execute( this, date ) );
+        closureActions.forEach( a -> a.execute( this, date ) ) ;
+        getUniverse().getBus().publishEvent( EventType.ACCOUNT_CLOSED, this ) ;
     }
     
     @Override
@@ -98,7 +101,6 @@ public class Account
                 txnIter.remove() ;
             }
         }
-        
         getTxnForDate( date, txnList ) ;
     }
     

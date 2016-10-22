@@ -47,7 +47,7 @@ public class CapitalystTimerTest {
         Observer to1 = new Observer() ;
         Observer to2 = new Observer() ;
         
-        timer = new DayClock( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) ) ;
+        timer = new DayClock( null, parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) ) ;
         timer.registerTimeObserver( to1 ) ;
         timer.registerTimeObserver( to2 ) ;
         timer.run() ;
@@ -61,7 +61,7 @@ public class CapitalystTimerTest {
         
         Observer to1 = new Observer() ;
         
-        timer = new DayClock( parseDate( "01/01/2015" ), parseDate( "31/12/2015" ) ) ;
+        timer = new DayClock( null, parseDate( "01/01/2015" ), parseDate( "31/12/2015" ) ) ;
         timer.registerTimeObserver( to1 ) ;
         timer.run() ;
 

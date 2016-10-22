@@ -8,6 +8,7 @@ import java.util.List ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.EventType ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.timeobservers.EndOfDayObserver ;
 import com.sandy.capitalyst.timeobservers.EndOfMonthObserver ;
@@ -20,13 +21,15 @@ public class DayClock {
 
     static final Logger log = Logger.getLogger( DayClock.class ) ;
     
+    private Universe universe = null ;
     private Date startDate = null ;
     private Date endDate = null ;
     
     private Date now = null ;
     private List<TimeObserver> observers = new ArrayList<TimeObserver>() ;
     
-    public DayClock( Date start, Date end ) {
+    public DayClock( Universe universe, Date start, Date end ) {
+        this.universe  = universe ;
         this.startDate = start ;
         this.endDate   = end ;
         this.now       = start ;
@@ -59,18 +62,22 @@ public class DayClock {
         
         now = startDate ;
         while( DateUtils.truncatedCompareTo( now, endDate, Calendar.DATE ) <= 0 ) {
+            
+            universe.getBus().publishEvent( EventType.DAY_START, now) ;
 
             observers.stream()
                      .filter( p -> p instanceof DayObserver ) 
                      .forEach( p -> {
                          DayObserver o = ( DayObserver )p ;
-                         o.handleDayEvent( now ) ;                         
+                         o.handleDayEvent( now ) ;
                      }) ;
 
             Calendar cal = Calendar.getInstance() ;
             cal.setTime( now ) ;
             
             if( Utils.isEndOfMonth( cal ) ) {
+                
+                universe.getBus().publishEvent( EventType.MONTH_END, now ) ;
                 observers.stream()
                          .filter( p -> p instanceof EndOfMonthObserver ) 
                          .forEach( p -> { 
@@ -80,6 +87,7 @@ public class DayClock {
             }
             
             if( Utils.isEndOfQuarter( cal ) ) {
+                universe.getBus().publishEvent( EventType.QUARTER_END, now ) ;
                 observers.stream()
                          .filter( p -> p instanceof EndOfQuarterObserver ) 
                          .forEach( p -> { 
@@ -89,11 +97,12 @@ public class DayClock {
             }
             
             if( Utils.isEndOfYear( cal ) ) {
+                universe.getBus().publishEvent( EventType.YEAR_END, now ) ;
                 observers.stream()
                          .filter( p -> p instanceof EndOfYearObserver ) 
                          .forEach( p -> {
                              EndOfYearObserver o = ( EndOfYearObserver )p ;
-                             o.handleEndOfYearEvent( now ) ;                             
+                             o.handleEndOfYearEvent( now ) ;
                          }) ;
             }
             
@@ -101,8 +110,10 @@ public class DayClock {
                      .filter( p -> p instanceof EndOfDayObserver ) 
                      .forEach( p -> {
                          EndOfDayObserver o = ( EndOfDayObserver )p ;
-                         o.handleEndOfDayEvent( now ) ;                         
+                         o.handleEndOfDayEvent( now ) ;
                      }) ;
+
+            universe.getBus().publishEvent( EventType.DAY_END, now ) ;
 
             now = DateUtils.truncate( DateUtils.addDays( now, 1 ), Calendar.DATE ) ;
             
