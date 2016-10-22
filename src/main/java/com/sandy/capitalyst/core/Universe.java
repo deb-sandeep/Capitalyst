@@ -68,7 +68,11 @@ public class Universe implements DayObserver {
     }
     
     public Account getAccount( String accNo ) {
-        return accMgr.getAccount( accNo ) ;
+        Account acc = accMgr.getAccount( accNo ) ;
+        if( acc == null ) {
+            throw new AccountNotFoundException( accNo ) ;
+        }
+        return acc ;
     }
     
     public void registerTxnGenerator( TxnGenerator txGen ) {

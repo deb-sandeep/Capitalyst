@@ -49,13 +49,18 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
     protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
         
         Account creditAcct = getUniverse().getAccount( creditAccountNumber ) ;
-        if( !allowOverdraft && ( creditAcct.getLiquidableAmount() < amount ) ) {
+        Account debitAcct  = getUniverse().getAccount( debitAccountNumber ) ;
+        
+        if( !allowOverdraft && ( debitAcct.getLiquidableAmount() < amount ) ) {
             throw new AccountOverdraftException( creditAccountNumber ) ;
         }
         
-        txnList.add( new Txn( creditAccountNumber, -amount, date, 
-                              "Transfer to A/C " + debitAccountNumber + " " + description) ) ;
-        txnList.add( new Txn( debitAccountNumber, amount, date, 
-                              "Transfer from A/C " + creditAccountNumber + " " + description ) ) ;
+        txnList.add( new Txn( debitAccountNumber, -amount, date, 
+                              "Transfer to A/C " + creditAccountNumber + " - " + 
+                              creditAcct.getName() ) ) ;
+        
+        txnList.add( new Txn( creditAccountNumber, amount, date, 
+                              "Transfer from A/C " + debitAccountNumber + " - " + 
+                              debitAcct.getName() ) ) ;
     }
 }
