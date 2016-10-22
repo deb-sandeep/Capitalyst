@@ -6,8 +6,8 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.clock.EndOfMonthObserver ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.timeobservers.EndOfMonthObserver ;
 
 public class SuperannuationAccount extends YearlyCompoundingAccount 
     implements EndOfMonthObserver {

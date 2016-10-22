@@ -4,7 +4,7 @@ import java.util.Date ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.capitalyst.clock.EndOfYearObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfYearObserver ;
 
 public class YearlyCompoundingAccount extends PeriodicallyCompoundingAccount 
     implements EndOfYearObserver {

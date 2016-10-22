@@ -9,12 +9,11 @@ import java.util.ArrayList ;
 import java.util.Date ;
 import java.util.List ;
 
-import org.junit.Before ;
 import org.junit.Test ;
 
-import com.sandy.capitalyst.clock.DayClock ;
-import com.sandy.capitalyst.clock.DayObserver ;
+import com.sandy.capitalyst.core.DayClock ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.timeobservers.DayObserver ;
 
 public class CapitalystTimerTest {
 
@@ -42,22 +41,15 @@ public class CapitalystTimerTest {
         }
     } ;
     
-    @Before
-    public void setUp() {
-        DayClock.instance().reset() ;
-    }
-    
     @Test
     public void daysInJan2015() {
         
         Observer to1 = new Observer() ;
         Observer to2 = new Observer() ;
         
-        timer = DayClock.instance() ;
+        timer = new DayClock( parseDate( "01/01/2015" ), parseDate( "31/01/2015" ) ) ;
         timer.registerTimeObserver( to1 ) ;
         timer.registerTimeObserver( to2 ) ;
-        timer.setStartDate( parseDate( "01/01/2015" ) );
-        timer.setEndDate( parseDate( "31/01/2015" ) );
         timer.run() ;
         
         assertThat( to1.numDateEventsReceived(), is( equalTo( 31 ) ) );
@@ -69,10 +61,8 @@ public class CapitalystTimerTest {
         
         Observer to1 = new Observer() ;
         
-        timer = DayClock.instance() ;
+        timer = new DayClock( parseDate( "01/01/2015" ), parseDate( "31/12/2015" ) ) ;
         timer.registerTimeObserver( to1 ) ;
-        timer.setStartDate( parseDate( "01/01/2015" ) );
-        timer.setEndDate( parseDate( "31/12/2015" ) );
         timer.run() ;
 
         assertThat( to1.numDateEventsReceived(), is( equalTo( 365 ) ) );

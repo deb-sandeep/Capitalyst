@@ -11,7 +11,6 @@ import java.util.Date ;
 import org.apache.commons.lang.time.DateUtils ;
 
 import com.sandy.capitalyst.account.Account ;
-import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.core.Txn ;
 
 public class Utils {
@@ -65,6 +64,14 @@ public class Utils {
         return false ;
     }
     
+    public static boolean isEndOfMonth( Date date ) {
+        return isEndOfMonth( DateUtils.toCalendar( date ) ) ;
+    }
+    
+    public static boolean isEndOfYear( Date date ) {
+        return isEndOfYear( DateUtils.toCalendar( date ) ) ;
+    }
+    
     public static boolean isEndOfMonth( Calendar cal ) {
         int maxDays = cal.getActualMaximum( Calendar.DAY_OF_MONTH ) ;
         int dayNum  = cal.get( Calendar.DAY_OF_MONTH ) ;
@@ -110,7 +117,7 @@ public class Utils {
     
     public static void transfer( Account fromAcc, Account toAcc ) {
         
-        transfer( fromAcc, toAcc, DayClock.instance().now(), "" ) ;
+        transfer( fromAcc, toAcc, fromAcc.getUniverse().now(), "" ) ;
     }
 
     public static void transfer( Account fromAcc, Account toAcc, 

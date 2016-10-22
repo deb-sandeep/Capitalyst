@@ -8,9 +8,8 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.action.TransferFullAmtOnClosure ;
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.clock.DayClock ;
-import com.sandy.capitalyst.clock.EndOfDayObserver ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.timeobservers.EndOfDayObserver ;
 import com.sandy.capitalyst.util.Utils ;
 
 public class PeriodicallyCompoundingAccount extends BankAccount 
@@ -71,21 +70,29 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     protected List<QuantumOfMoney> quantumFragments = 
                    new ArrayList<PeriodicallyCompoundingAccount.QuantumOfMoney>() ;
 
-    public PeriodicallyCompoundingAccount() {
-        this.openingDate = DayClock.instance().now() ;
-    }
-    
     @Override
     public void initializePostConfig() {
         
         super.initializePostConfig() ;
         
-        double initialAmt = super.getAmount() ;
+        if( this.openingDate == null ) {
+            this.openingDate = getUniverse().now() ;
+        }
         
+        if( this.closingDate != null && 
+            Utils.isAfter( this.openingDate, this.closingDate ) ) {
+            
+            throw new IllegalArgumentException( 
+                  "Opening date is later than closing date for account " + 
+                  super.getAccountNumber() + " [" + getName() + "]" 
+            ) ;
+        }
+        
+        double initialAmt = super.getAmount() ;
         if( initialAmt != 0 ) {
             
-            Date date = DayClock.instance().now() ;
-            if( Utils.isAfter( DayClock.instance().now(), closingDate ) ) {
+            Date date = getUniverse().now() ;
+            if( Utils.isAfter( getUniverse().now(), closingDate ) ) {
                 date = closingDate ;
             }
             
@@ -100,13 +107,13 @@ public class PeriodicallyCompoundingAccount extends BankAccount
             super.amount = initialAmt ;
         }
 
-        if( Utils.isAfter( DayClock.instance().now(), closingDate ) ) {
+        if( Utils.isAfter( getUniverse().now(), closingDate ) ) {
             isAccountClosed = true ;
             closeAccount( closingDate ) ;
         }
         else if( super.amount > 0 ){
             QuantumOfMoney quantum = null ;
-            quantum = new QuantumOfMoney( super.amount, DayClock.instance().now() ) ;
+            quantum = new QuantumOfMoney( super.amount, getUniverse().now() ) ;
             quantumFragments.add( quantum ) ;
         }
     }
@@ -115,6 +122,10 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         this.openingDate = date ;
     }
 
+    public void setClosingDate( Date date ) {
+        this.closingDate = date ;
+    }
+    
     public void setRoi( double roi ) {
         this.roi = roi ;
     }
@@ -126,19 +137,6 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     
     public String getParentAccountNumber() {
         return this.parentAccountNumber ;
-    }
-    
-    public void setClosingDate( Date date ) {
-        
-        this.closingDate = date ;
-        if( this.closingDate != null && 
-            Utils.isAfter( this.openingDate, this.closingDate ) ) {
-            
-            throw new IllegalArgumentException( 
-                  "Opening date is later than closing date for account " + 
-                  super.getAccountNumber() + " [" + getName() + "]" 
-            ) ;
-        }
     }
     
     public void postTransaction( Txn t ) {

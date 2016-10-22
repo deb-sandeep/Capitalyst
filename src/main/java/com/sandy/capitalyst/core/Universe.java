@@ -9,28 +9,67 @@ import java.util.Map ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AccountManager ;
 import com.sandy.capitalyst.account.BankAccount ;
-import com.sandy.capitalyst.clock.DayClock ;
-import com.sandy.capitalyst.clock.DayObserver ;
-import com.sandy.capitalyst.clock.TimeObserver ;
+import com.sandy.capitalyst.cfg.Cfg ;
+import com.sandy.capitalyst.cfg.Config ;
+import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
+import com.sandy.capitalyst.timeobservers.DayObserver ;
+import com.sandy.capitalyst.timeobservers.TimeObserver ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 
-public class Universe implements DayObserver {
+public class Universe implements DayObserver, PostConfigInitializable {
 
+    private Config config = null ;
+    
     private String name = null ;
     private Journal journal = null ;
     private AccountManager accMgr = null ;
     
     private List<TxnGenerator> txnGenerators = new ArrayList<TxnGenerator>() ;
     private Map<String, UniverseConstituent> context = new HashMap<String, UniverseConstituent>() ;
+    private DayClock clock = null ;
+    
+    @Cfg private Date startDate = null ;
+    @Cfg private Date endDate = null ;
     
     public Universe( String name ) {
+        
         this.name = name ;
-        accMgr = new AccountManager( this ) ;
+        
+        accMgr  = new AccountManager( this ) ;
         journal = new Journal( this, accMgr ) ;
-        DayClock.instance().registerTimeObserver( this ) ;
     }
     
+    public void setConfig( Config cfg ) {
+        this.config = cfg ;
+    }
+    
+    public Config getConfig() {
+        return this.config ;
+    }
+    
+    public void setStartDate( Date date ) {
+        this.startDate = date ;
+    }
+    
+    public void setEndDate( Date date ) {
+        this.endDate = date ;
+    }
+    
+    public Date now() {
+        return clock.now() ;
+    }
+    
+    @Override
+    public void initializePostConfig() {
+        clock = new DayClock( this.startDate, this.endDate ) ;
+        clock.registerTimeObserver( this ) ;
+    }
+    
+    public void run() {
+        clock.run() ;
+    }
+
     @Override
     public void setUniverse( Universe u ) {}
 
@@ -47,7 +86,7 @@ public class Universe implements DayObserver {
         obj.setUniverse( this ) ;
         context.put( alias, obj ) ;
         if( obj instanceof TimeObserver ) {
-            DayClock.instance().registerTimeObserver( (TimeObserver)obj ) ;
+            clock.registerTimeObserver( (TimeObserver)obj ) ;
         }
     }
     
@@ -59,11 +98,11 @@ public class Universe implements DayObserver {
         account.setUniverse( this ) ; 
         accMgr.addAccount( account ) ;
         registerTxnGenerator( account ) ;
-        DayClock.instance().registerTimeObserver( account ) ;
+        clock.registerTimeObserver( account ) ;
     }
     
     public void removeAccount( Account account ) {
-        DayClock.instance().removeTimeObserver( account ) ;
+        clock.removeTimeObserver( account ) ;
         accMgr.removeAccount( account ) ;
     }
     
@@ -82,7 +121,7 @@ public class Universe implements DayObserver {
         }
         
         if( txGen instanceof TimeObserver ) {
-            DayClock.instance().registerTimeObserver( (TimeObserver)txGen ) ;
+            clock.registerTimeObserver( (TimeObserver)txGen ) ;
         }
     }
     

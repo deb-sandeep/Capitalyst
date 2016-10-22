@@ -5,6 +5,7 @@ import java.util.Date ;
 import java.util.Iterator ;
 
 import org.apache.commons.configuration.CompositeConfiguration ;
+import org.apache.commons.configuration.ConfigurationException ;
 import org.apache.commons.configuration.PropertiesConfiguration ;
 import org.apache.log4j.Logger ;
 
@@ -15,16 +16,21 @@ public class Config extends CompositeConfiguration {
     static Logger log = Logger.getLogger( Config.class ) ;
     
     private String universeName = null ;
-    private static Config instance = new Config() ;
     
-    public static Config instance() {
-        return instance ;
+    private Config() {
     }
     
-    public void initialize( String universeName ) 
-        throws Exception {
+    public Config( String universeName ) throws ConfigurationException {
+        initialize( universeName ) ;
+    }
+    
+    public void setUniverseName( String newName ) {
+        this.universeName = newName ;
+    }
+    
+    private void initialize( String universeName ) 
+        throws ConfigurationException {
         
-        instance.clear() ;
         this.universeName = universeName ;
 
         URL baseCfgURL = Config.class.getResource( "/cap-base.properties" ) ;
@@ -48,26 +54,26 @@ public class Config extends CompositeConfiguration {
     }
     
     public String getUniverseName() {
-    	return this.universeName ;
+        return this.universeName ;
     }
     
     public Date getDate( String key ) {
-    	
-        String val = instance.getString( key ) ;
+        
+        String val = getString( key ) ;
         Date retVal = null ;
         if( val != null ) {
             try {
-				retVal = Utils.parseDate( val ) ;
-			} 
+                retVal = Utils.parseDate( val ) ;
+            } 
             catch ( IllegalArgumentException e ) {
-            	throw new InvalidConfigException( key ) ;
-			}
+                throw new InvalidConfigException( key ) ;
+            }
         }
         return retVal ;
     }
     
     @SuppressWarnings("unchecked")
-	public Config getNestedConfig( String prefix ) {
+    public Config getNestedConfig( String prefix ) {
         
         Config config = new Config() ;
         Iterator<String> iter = this.getKeys( prefix ) ;

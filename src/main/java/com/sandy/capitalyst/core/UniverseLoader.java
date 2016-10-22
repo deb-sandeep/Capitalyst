@@ -22,7 +22,6 @@ import com.sandy.capitalyst.cfg.Config ;
 import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
-import com.sandy.capitalyst.clock.DayClock ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 
 public class UniverseLoader {
@@ -35,72 +34,84 @@ public class UniverseLoader {
         ConvertUtils.register( converter, Date.class );
     }
     
-    private UniverseLoader(){}
+    private String univName = null ;
+    private Config univCfg  = null ;
+    private Universe universe = null ;
     
-    public static Universe loadUniverse( String universeName ) throws Exception {
-        
-        Config config = Config.instance() ;
-        config.initialize( universeName ) ;
-        
-        return new UniverseLoader().loadUniverse( config ) ;
+    public UniverseLoader( String name ) {
+        this.univName = name ;
     }
     
-    private Universe loadUniverse( Config config ) throws Exception {
+    public UniverseLoader( Config config ) {
+        this.univCfg = config ;
+    }
+    
+    public Universe loadUniverse() throws Exception {
         
-        log.debug( "Loading universe " + config.getUniverseName() ) ;
-        log.debug( "---------------------------------------------" );
-        
-        initializeTimer() ;
-        
-        Universe universe = new Universe( config.getUniverseName() ) ;
-        
-        loadContextObjects( universe, config ) ;
-        loadAccounts( universe, config ) ;
-        loadTxGenerators( universe, config ) ;
+        try {
+            if( this.univCfg == null ) {
+                this.univCfg  = new Config( this.univName ) ;
+            }
+            
+            log.debug( "Loading universe " + univCfg.getUniverseName() ) ;
+            log.debug( "---------------------------------------------" );
+            
+            universe = new Universe( univCfg.getUniverseName() ) ;
+            
+            configureUniverse( universe ) ;
+            loadContextObjects( universe ) ;
+            loadAccounts( universe ) ;
+            loadTxGenerators( universe ) ;
+            
+            universe.setConfig( univCfg ) ;
+        }
+        catch( Exception e ) {
+            log.error( "Loading universe " + univName + " failed.", e ) ;
+            throw e ;
+        }
         
         return universe ;
     }
     
-    private void initializeTimer() throws Exception {
+    private void configureUniverse( Universe universe ) throws Exception {
         
-        log.debug( "Initializing DayClock" ) ;
-        DayClock instance = DayClock.instance() ;
-        Config   attrCfg  = Config.instance().getNestedConfig( "DayClock.attr" ) ;
-        injectFieldValues( instance, attrCfg ) ;
+        log.debug( "Configuring universe" ) ;
+        Config attrCfg  = univCfg.getNestedConfig( "DayClock.attr" ) ;
+        injectFieldValues( universe, attrCfg ) ;
     }
     
-    private void loadContextObjects( Universe universe, Config config ) 
+    private void loadContextObjects( Universe universe ) 
         throws Exception {
         
-        for( String beanAlias : getUniqueEntityAliases( config, "Bean" ) ) {
+        for( String beanAlias : getUniqueEntityAliases( univCfg, "Ctx" ) ) {
             
             log.debug( "Loading context bean :: " + beanAlias ) ;
-            Config beanCfg = config.getNestedConfig( "Bean." + beanAlias ) ;
+            Config beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
             UniverseConstituent uc = ( UniverseConstituent )loadObject( beanCfg ) ;
 
             universe.addToContext( beanAlias, uc ) ;        }
     }
 
-    private void loadAccounts( Universe universe, Config config ) 
+    private void loadAccounts( Universe universe ) 
             throws Exception {
         
-        for( String accAlias : getUniqueEntityAliases( config, "Account") ) {
+        for( String accAlias : getUniqueEntityAliases( univCfg, "Account") ) {
             
             log.debug( "Loading account :: " + accAlias ) ;
-            Config  accCfg = config.getNestedConfig( "Account." + accAlias ) ;
+            Config  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
             Account acc    = (Account)loadObject( accCfg ) ;
             
             universe.addAccount( acc ) ;
         }
     }
     
-    private void loadTxGenerators( Universe universe, Config config ) 
+    private void loadTxGenerators( Universe universe ) 
         throws Exception {
         
-        for( String txgenAlias : getUniqueEntityAliases( config, "TxGen") ) {
+        for( String txgenAlias : getUniqueEntityAliases( univCfg, "TxGen") ) {
             
             log.debug( "Loading tx generator :: " + txgenAlias ) ;
-            Config       tgCfg = config.getNestedConfig( "TxGen." + txgenAlias ) ;
+            Config       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
             TxnGenerator txgen = ( TxnGenerator )loadObject( tgCfg ) ;
             
             universe.registerTxnGenerator( txgen ) ;
@@ -115,7 +126,7 @@ public class UniverseLoader {
             throw new MissingConfigException( "type" ) ;
         }
         
-        String clsName = Config.instance().getString( "_typeClassMap." + type ) ;
+        String clsName = univCfg.getString( "_typeClassMap." + type ) ;
         if( clsName == null ) {
             clsName = type ;
         }
@@ -142,6 +153,10 @@ public class UniverseLoader {
         
         for( Field field :  fields ) {
             populateField( obj, field, attrCfg );
+        }
+        
+        if( obj instanceof UniverseConstituent ) {
+            ((UniverseConstituent)obj).setUniverse( universe ) ; 
         }
         
         if( obj instanceof PostConfigInitializable ) {
@@ -196,6 +211,8 @@ public class UniverseLoader {
                 BeanUtils.setProperty( obj, fieldName, fieldRawVal ) ;
             }
             catch( Exception e ) {
+                log.error( "Unable to set property - " + fieldName + 
+                           " = " + fieldRawVal, e ) ;
                 throw new InvalidConfigException( fieldName ) ;
             }
         }

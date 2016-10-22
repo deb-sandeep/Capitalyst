@@ -1,4 +1,4 @@
-package com.sandy.capitalyst.clock;
+package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
 import java.util.Calendar ;
@@ -8,56 +8,34 @@ import java.util.List ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
-import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.PostConfigInitializable ;
+import com.sandy.capitalyst.timeobservers.DayObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfDayObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfMonthObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfQuarterObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfYearObserver ;
+import com.sandy.capitalyst.timeobservers.TimeObserver ;
 import com.sandy.capitalyst.util.Utils ;
 
-public class DayClock implements PostConfigInitializable {
+public class DayClock {
 
-	static final Logger log = Logger.getLogger( DayClock.class ) ;
-	
-    private static DayClock instance = new DayClock() ;
+    static final Logger log = Logger.getLogger( DayClock.class ) ;
     
-    @Cfg
     private Date startDate = null ;
-    
-    @Cfg
     private Date endDate = null ;
     
     private Date now = null ;
     private List<TimeObserver> observers = new ArrayList<TimeObserver>() ;
     
-    private DayClock() {}
-    
-    public static DayClock instance() {
-        return instance ;
+    public DayClock( Date start, Date end ) {
+        this.startDate = start ;
+        this.endDate   = end ;
+        this.now       = start ;
     }
     
-    public void setStartDate( Date date ) {
-        this.startDate = date ;
-    }
-    
-    public void setEndDate( Date date ) {
-        this.endDate = date ;
-    }
-    
-    @Override
-    public void initializePostConfig() {
-        this.now = this.startDate ;
-    }
-
     public void registerTimeObserver( TimeObserver to ) {
         if( !observers.contains( to ) ) {
             observers.add( to ) ;
         }
-    }
-    
-    public Date getStartDate() {
-        return this.startDate ;
-    }
-    
-    public Date getEndDate() {
-        return this.endDate ;
     }
     
     public Date now() {
@@ -76,6 +54,8 @@ public class DayClock implements PostConfigInitializable {
     }
     
     public void run() {
+        
+        log.debug( "Running simulation...\n" ) ;
         
         now = startDate ;
         while( DateUtils.truncatedCompareTo( now, endDate, Calendar.DATE ) <= 0 ) {
@@ -124,7 +104,15 @@ public class DayClock implements PostConfigInitializable {
                          o.handleEndOfDayEvent( now ) ;                         
                      }) ;
 
-            now = DateUtils.truncate( DateUtils.addDays( now, 1 ), Calendar.DATE ) ; 
+            now = DateUtils.truncate( DateUtils.addDays( now, 1 ), Calendar.DATE ) ;
+            
+            if( Utils.isEndOfMonth( now ) ) {
+                System.out.print( "." ) ;
+            }
+            
+            if( Utils.isEndOfYear( now ) ) {
+                System.out.println( " " + Utils.getYear( now ) ) ;
+            }
         }
     }
 }

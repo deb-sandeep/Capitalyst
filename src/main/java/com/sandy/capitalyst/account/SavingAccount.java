@@ -3,9 +3,9 @@ package com.sandy.capitalyst.account;
 import java.util.Date ;
 
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.clock.EndOfDayObserver ;
-import com.sandy.capitalyst.clock.EndOfQuarterObserver ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.timeobservers.EndOfDayObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfQuarterObserver ;
 
 public class SavingAccount extends BankAccount 
     implements EndOfDayObserver, EndOfQuarterObserver {

@@ -1,4 +1,4 @@
-package com.sandy.capitalyst.clock;
+package com.sandy.capitalyst.timeobservers;
 
 import com.sandy.capitalyst.core.UniverseConstituent ;
 

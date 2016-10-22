@@ -4,7 +4,7 @@ import java.util.Date ;
 
 import org.apache.log4j.Logger ;
 
-import com.sandy.capitalyst.clock.EndOfQuarterObserver ;
+import com.sandy.capitalyst.timeobservers.EndOfQuarterObserver ;
 
 public class QuarterlyCompoundingAccount extends PeriodicallyCompoundingAccount 
     implements EndOfQuarterObserver {
