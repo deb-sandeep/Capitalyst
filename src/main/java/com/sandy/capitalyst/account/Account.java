@@ -55,6 +55,10 @@ public class Account
         this.closureActions.add( action ) ;
     }
     
+    public void removeAllClosureActions() {
+        this.closureActions.clear() ;
+    }
+    
     public double getLiquidableAmount() {
         return amount ;
     }

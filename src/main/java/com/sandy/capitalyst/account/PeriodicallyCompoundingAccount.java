@@ -102,7 +102,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
 
         if( Utils.isAfter( DayClock.instance().now(), closingDate ) ) {
             isAccountClosed = true ;
-            super.closeAccount( closingDate ) ;
+            closeAccount( closingDate ) ;
         }
         else if( super.amount > 0 ){
             QuantumOfMoney quantum = null ;
@@ -122,6 +122,10 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     public void setParentAccountNumber( String acctNo ) {
         this.parentAccountNumber = acctNo ;
         super.addClosureAction( new TransferFullAmtOnClosure( acctNo ) );
+    }
+    
+    public String getParentAccountNumber() {
+        return this.parentAccountNumber ;
     }
     
     public void setClosingDate( Date date ) {
@@ -155,7 +159,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
             if( closingDate != null && Utils.isSame( closingDate, date ) ) {
                 isAccountClosed = true ;
                 postAccumulatedInterest( date ) ;
-                super.closeAccount( date ) ;
+                closeAccount( date ) ;
             }
         }
     }
