@@ -11,38 +11,23 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.util.Utils ;
 
-public class Config extends CompositeConfiguration {
+public class UniverseConfig extends CompositeConfiguration {
 
-    static Logger log = Logger.getLogger( Config.class ) ;
+    static Logger log = Logger.getLogger( UniverseConfig.class ) ;
     
-    private String universeName = null ;
-    
-    private Config() {
+    private UniverseConfig() {
     }
     
-    public Config( String universeName ) throws ConfigurationException {
-        initialize( universeName ) ;
+    public UniverseConfig( URL configURL ) throws ConfigurationException {
+        initialize( configURL ) ;
     }
     
-    public void setUniverseName( String newName ) {
-        this.universeName = newName ;
-    }
-    
-    private void initialize( String universeName ) 
+    private void initialize( URL univCfgURL ) 
         throws ConfigurationException {
         
-        this.universeName = universeName ;
-
-        URL baseCfgURL = Config.class.getResource( "/cap-base.properties" ) ;
+        URL baseCfgURL = UniverseConfig.class.getResource( "/cap-base.properties" ) ;
         if( baseCfgURL == null ) {
             throw new IllegalStateException( "Base configuration not found." ) ;
-        }
-        
-        String univCfgName = "/cap-" + universeName + ".properties" ;
-        URL univCfgURL = Config.class.getResource( univCfgName ) ;
-        if( univCfgURL == null ) {
-            throw new IllegalStateException( "Config for universe " + 
-                                             universeName + " not found." ) ;
         }
         
         CompositeConfiguration compConfig = new CompositeConfiguration() ;
@@ -51,10 +36,6 @@ public class Config extends CompositeConfiguration {
         compConfig.addConfiguration( new PropertiesConfiguration( univCfgURL ) ) ;
         
         super.addConfiguration( compConfig.interpolatedConfiguration() ) ;
-    }
-    
-    public String getUniverseName() {
-        return this.universeName ;
     }
     
     public Date getDate( String key ) {
@@ -73,9 +54,9 @@ public class Config extends CompositeConfiguration {
     }
     
     @SuppressWarnings("unchecked")
-    public Config getNestedConfig( String prefix ) {
+    public UniverseConfig getNestedConfig( String prefix ) {
         
-        Config config = new Config() ;
+        UniverseConfig config = new UniverseConfig() ;
         Iterator<String> iter = this.getKeys( prefix ) ;
         
         while( iter.hasNext() ) {

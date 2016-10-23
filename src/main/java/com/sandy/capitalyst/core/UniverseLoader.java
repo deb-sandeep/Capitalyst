@@ -2,6 +2,7 @@ package com.sandy.capitalyst.core;
 
 import java.lang.annotation.Annotation ;
 import java.lang.reflect.Field ;
+import java.net.URL ;
 import java.util.ArrayList ;
 import java.util.Collection ;
 import java.util.Comparator ;
@@ -18,7 +19,7 @@ import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
-import com.sandy.capitalyst.cfg.Config ;
+import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
@@ -34,29 +35,49 @@ public class UniverseLoader {
         ConvertUtils.register( converter, Date.class );
     }
     
-    private String univName = null ;
-    private Config univCfg  = null ;
+    private static int nextUnnamedUniverseID = 0 ;
+    
+    private String univName   = null ;
+    private UniverseConfig univCfg    = null ;
+    private URL    univCfgURL = null ;
+    
     private Universe universe = null ;
     
     public UniverseLoader( String name ) {
+        if( name == null ) {
+            throw new IllegalArgumentException( "Universe name is null" ) ;
+        }
         this.univName = name ;
     }
     
-    public UniverseLoader( Config config ) {
+    public UniverseLoader( UniverseConfig config ) {
+        this.univName = "Unnamed Universe " + nextUnnamedUniverseID++ ;
         this.univCfg = config ;
+    }
+    
+    public UniverseLoader( URL configURL, String name ) {
+        if( configURL == null ) {
+            throw new IllegalArgumentException( "Universe config URL is null" ) ;
+        }
+        this.univName = name ;
+        this.univCfgURL = configURL ;
+    }
+    
+    public UniverseLoader( URL cfgURL ) {
+        this( cfgURL, "Unnamed Universe " + nextUnnamedUniverseID++ ) ;
     }
     
     public Universe loadUniverse() throws Exception {
         
         try {
             if( this.univCfg == null ) {
-                this.univCfg  = new Config( this.univName ) ;
+                this.univCfg  = new UniverseConfig( getConfigURL() ) ;
             }
             
-            log.debug( "Loading universe " + univCfg.getUniverseName() ) ;
+            log.debug( "Loading universe " + this.univName ) ;
             log.debug( "---------------------------------------------" );
             
-            universe = new Universe( univCfg.getUniverseName() ) ;
+            universe = new Universe( univName ) ;
             
             configureUniverse( universe ) ;
             loadContextObjects( universe ) ;
@@ -73,10 +94,29 @@ public class UniverseLoader {
         return universe ;
     }
     
+    private URL getConfigURL() {
+        
+        if( univName == null && univCfgURL == null ) {
+            throw new IllegalStateException( 
+                    "Both universe name and configural URL are null" ) ;
+        }
+        else if( univCfgURL == null ) {
+            
+            String univCfgName = "/cap-" + this.univName + ".properties" ;
+            univCfgURL = UniverseConfig.class.getResource( univCfgName ) ;
+            if( univCfgURL == null ) {
+                throw new IllegalStateException( "Config for universe " + 
+                                                 univName + " not found." ) ;
+            }
+        }
+        
+        return univCfgURL ;
+    }
+    
     private void configureUniverse( Universe universe ) throws Exception {
         
         log.debug( "Configuring universe" ) ;
-        Config attrCfg  = univCfg.getNestedConfig( "DayClock.attr" ) ;
+        UniverseConfig attrCfg  = univCfg.getNestedConfig( "DayClock.attr" ) ;
         injectFieldValues( universe, attrCfg ) ;
     }
     
@@ -86,7 +126,7 @@ public class UniverseLoader {
         for( String beanAlias : getUniqueEntityAliases( univCfg, "Ctx" ) ) {
             
             log.debug( "Loading context bean :: " + beanAlias ) ;
-            Config beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
+            UniverseConfig beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
             UniverseConstituent uc = ( UniverseConstituent )loadObject( beanCfg ) ;
 
             universe.addToContext( beanAlias, uc ) ;        }
@@ -98,7 +138,7 @@ public class UniverseLoader {
         for( String accAlias : getUniqueEntityAliases( univCfg, "Account") ) {
             
             log.debug( "Loading account :: " + accAlias ) ;
-            Config  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
+            UniverseConfig  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
             Account acc    = (Account)loadObject( accCfg ) ;
             
             universe.addAccount( acc ) ;
@@ -111,14 +151,14 @@ public class UniverseLoader {
         for( String txgenAlias : getUniqueEntityAliases( univCfg, "TxGen") ) {
             
             log.debug( "Loading tx generator :: " + txgenAlias ) ;
-            Config       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
+            UniverseConfig       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
             TxnGenerator txgen = ( TxnGenerator )loadObject( tgCfg ) ;
             
             universe.registerTxnGenerator( txgen ) ;
         }
     }
     
-    private Object loadObject( Config objCfg ) 
+    private Object loadObject( UniverseConfig objCfg ) 
         throws Exception {
         
         String type = objCfg.getString( "type" ) ;
@@ -135,14 +175,14 @@ public class UniverseLoader {
         
         Class<?> objCls  = Class.forName( clsName ) ;
         Object   obj     = objCls.newInstance() ;
-        Config   attrCfg = objCfg.getNestedConfig( "attr" ) ;
+        UniverseConfig   attrCfg = objCfg.getNestedConfig( "attr" ) ;
         
         injectFieldValues( obj, attrCfg ) ;
         
         return obj ;
     }
     
-    private void injectFieldValues( Object obj, Config attrCfg ) {
+    private void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
         
         List<Field> fields = getAllConfigurableFields( obj.getClass() ) ;
         fields.sort( new Comparator<Field>() {
@@ -187,7 +227,7 @@ public class UniverseLoader {
         return allFields ;
     }
     
-    private void populateField( Object obj, Field f, Config attrValues ) {
+    private void populateField( Object obj, Field f, UniverseConfig attrValues ) {
         
         
         boolean mandatory   = true ;
@@ -219,11 +259,11 @@ public class UniverseLoader {
     }
     
     @SuppressWarnings("unchecked")
-    private Collection<String> getUniqueEntityAliases( Config config, 
+    private Collection<String> getUniqueEntityAliases( UniverseConfig config, 
                                                        String type ) {
         
         Set<String>      uniqueAliases = new LinkedHashSet<String>() ;
-        Config           allCfgs       = config.getNestedConfig( type ) ;
+        UniverseConfig           allCfgs       = config.getNestedConfig( type ) ;
         Iterator<String> keys          = allCfgs.getKeys() ;
         
         while(  keys.hasNext() ) {

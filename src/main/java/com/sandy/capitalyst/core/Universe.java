@@ -11,7 +11,7 @@ import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AccountManager ;
 import com.sandy.capitalyst.account.BankAccount ;
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.Config ;
+import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
@@ -21,7 +21,7 @@ import com.sandy.common.bus.EventBus ;
 
 public class Universe implements DayObserver, PostConfigInitializable {
 
-    private Config config = null ;
+    private UniverseConfig config = null ;
     
     private String name = null ;
     private Journal journal = null ;
@@ -44,11 +44,11 @@ public class Universe implements DayObserver, PostConfigInitializable {
         journal = new Journal( this, accMgr ) ;
     }
     
-    public void setConfig( Config cfg ) {
+    public void setConfig( UniverseConfig cfg ) {
         this.config = cfg ;
     }
     
-    public Config getConfig() {
+    public UniverseConfig getConfig() {
         return this.config ;
     }
     
