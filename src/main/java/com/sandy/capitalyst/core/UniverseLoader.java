@@ -35,6 +35,7 @@ public class UniverseLoader {
         ConvertUtils.register( converter, Date.class );
     }
     
+    private static final String UNNAMED_UNIVERSE_PREFIX = "Unnamed Universe" ;
     private static int nextUnnamedUniverseID = 0 ;
     
     private String univName   = null ;
@@ -51,7 +52,7 @@ public class UniverseLoader {
     }
     
     public UniverseLoader( UniverseConfig config ) {
-        this.univName = "Unnamed Universe " + nextUnnamedUniverseID++ ;
+        this.univName = UNNAMED_UNIVERSE_PREFIX + nextUnnamedUniverseID++ ;
         this.univCfg = config ;
     }
     
@@ -64,7 +65,7 @@ public class UniverseLoader {
     }
     
     public UniverseLoader( URL cfgURL ) {
-        this( cfgURL, "Unnamed Universe " + nextUnnamedUniverseID++ ) ;
+        this( cfgURL, UNNAMED_UNIVERSE_PREFIX + nextUnnamedUniverseID++ ) ;
     }
     
     public Universe loadUniverse() throws Exception {
@@ -72,6 +73,12 @@ public class UniverseLoader {
         try {
             if( this.univCfg == null ) {
                 this.univCfg  = new UniverseConfig( getConfigURL() ) ;
+            }
+            
+            if( univName.startsWith( UNNAMED_UNIVERSE_PREFIX ) ) {
+                if( this.univCfg.getString( "Universe.name" ) != null ) {
+                    this.univName = this.univCfg.getString( "Universe.name" ) ;
+                }
             }
             
             log.debug( "Loading universe " + this.univName ) ;
