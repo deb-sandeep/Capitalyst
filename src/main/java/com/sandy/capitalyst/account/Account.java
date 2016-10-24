@@ -113,4 +113,8 @@ public class Account
     public void initializePostConfig() {
         this.openingBalance = this.amount ;
     }
+    
+    public String toString() {
+        return this.getName() ;
+    }
 }

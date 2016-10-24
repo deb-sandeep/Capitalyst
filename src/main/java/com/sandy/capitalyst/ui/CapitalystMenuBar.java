@@ -16,8 +16,9 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     
     private CapitalystMainFrame mainFrame = null ;
     
-    private JMenuItem openProjectMI = null ;
-    private JMenuItem exitMI = null ;
+    private JMenuItem newProjectMI   = null ;
+    private JMenuItem loadUniverseMI = null ;
+    private JMenuItem exitMI         = null ;
     
     private JMenuItem runSimulation = null ;
     
@@ -33,14 +34,18 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     
     private JMenu createFileMenu() {
         
-        openProjectMI = new JMenuItem( "Open project" ) ;
-        openProjectMI.addActionListener( this ) ;
+        newProjectMI = new JMenuItem( "New project" ) ;
+        newProjectMI.addActionListener( this ) ;
+        
+        loadUniverseMI = new JMenuItem( "Load universe" ) ;
+        loadUniverseMI.addActionListener( this ) ;
 
         exitMI = new JMenuItem( "Exit" ) ;
         exitMI.addActionListener( this ) ;
         
         JMenu menu = new JMenu( "File" ) ;
-        menu.add( openProjectMI ) ;
+        menu.add( newProjectMI ) ;
+        menu.add( loadUniverseMI ) ;
         menu.addSeparator() ;
         menu.add( exitMI ) ;
         
@@ -61,12 +66,20 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     @Override
     public void actionPerformed( ActionEvent e ) {
         JMenuItem mi = ( JMenuItem )e.getSource() ;
-        if( mi == openProjectMI ) {
+        if( mi == newProjectMI ) {
             try {
-                mainFrame.openProject() ;
+                mainFrame.newProject() ;
             }
             catch( Exception e1 ) {
                 log.error( "Could not open project", e1 ) ;
+            }
+        }
+        else if( mi == loadUniverseMI ) {
+            try {
+                mainFrame.loadAndAddUniverse() ;
+            }
+            catch( Exception e1 ) {
+                log.error( "Could not load universe", e1 ) ;
             }
         }
         else if( mi == exitMI ) {

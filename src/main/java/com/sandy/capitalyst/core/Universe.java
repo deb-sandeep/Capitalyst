@@ -1,6 +1,7 @@
 package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
+import java.util.Collection ;
 import java.util.Date ;
 import java.util.HashMap ;
 import java.util.List ;
@@ -11,8 +12,8 @@ import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AccountManager ;
 import com.sandy.capitalyst.account.BankAccount ;
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
+import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.timeobservers.TimeObserver ;
@@ -122,6 +123,10 @@ public class Universe implements DayObserver, PostConfigInitializable {
             throw new AccountNotFoundException( accNo ) ;
         }
         return acc ;
+    }
+    
+    public Collection<Account> getAllAccounts() {
+        return accMgr.getAllAccounts() ;
     }
     
     public void registerTxnGenerator( TxnGenerator txGen ) {
