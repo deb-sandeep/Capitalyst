@@ -1,6 +1,8 @@
 package com.sandy.capitalyst.ui ;
 
 import java.awt.BorderLayout ;
+import java.awt.event.WindowAdapter ;
+import java.awt.event.WindowEvent ;
 import java.io.File ;
 
 import javax.swing.JFileChooser ;
@@ -31,6 +33,11 @@ public class CapitalystMainFrame extends JFrame {
         menuBar = new CapitalystMenuBar( this ) ;
         super.setJMenuBar( menuBar ) ;
         super.getContentPane().setLayout( new BorderLayout() ) ;
+        super.addWindowListener( new WindowAdapter() {
+            public void windowClosing( WindowEvent e ) {
+                exit() ;
+            }
+        } );
         
         setExtendedState( getExtendedState()|JFrame.MAXIMIZED_BOTH );
         setVisible( true ) ;

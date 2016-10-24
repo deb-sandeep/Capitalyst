@@ -8,6 +8,9 @@ public abstract class AbstractTxnGen implements TxnGenerator {
     
     private Universe universe = null ;
     
+    @Cfg( mandatory=false )
+    private String classifiers = null ;
+    
     @Cfg( mandatory=false ) 
     private String name = "<TxGen-UNNAMED>" ;
     
@@ -25,5 +28,13 @@ public abstract class AbstractTxnGen implements TxnGenerator {
     
     public void setName( String name ) {
         this.name = name ;
+    }
+
+    public void setClassifiers( String classifiers ) {
+        this.classifiers = classifiers ;
+    }
+    
+    public String getClassifiers() {
+        return this.classifiers ;
     }
 }

@@ -19,10 +19,10 @@ import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
-import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
+import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 
 public class UniverseLoader {

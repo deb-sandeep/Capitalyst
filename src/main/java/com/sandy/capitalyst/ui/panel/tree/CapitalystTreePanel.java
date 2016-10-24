@@ -1,6 +1,7 @@
 package com.sandy.capitalyst.ui.panel.tree;
 
 import java.awt.BorderLayout ;
+import java.awt.Font ;
 
 import javax.swing.JPanel ;
 import javax.swing.JTree ;
@@ -21,6 +22,7 @@ public class CapitalystTreePanel extends JPanel {
         treeModel = new CapitalystProjectTreeModel() ;
         tree = new JTree( treeModel ) ;
         tree.setRootVisible( false ) ;
+        tree.setFont( new Font( "Helvetica", Font.PLAIN, 11 ) ) ;
         
         super.setLayout( new BorderLayout() ) ;
         add( tree, BorderLayout.CENTER ) ;
