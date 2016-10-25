@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileFilter ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.ui.panel.CapitalystProjectPanel ;
+import com.sandy.common.ui.SwingUtils ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystMainFrame extends JFrame {
@@ -38,9 +39,11 @@ public class CapitalystMainFrame extends JFrame {
                 exit() ;
             }
         } );
-        
+
+        SwingUtils.centerOnScreen( this, 600, 500 ) ;
         setExtendedState( getExtendedState()|JFrame.MAXIMIZED_BOTH );
         setVisible( true ) ;
+        newProject() ;
     }
     
     private void createOpenFileChooser() {

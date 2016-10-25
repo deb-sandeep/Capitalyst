@@ -10,7 +10,7 @@ import javax.swing.JPanel ;
 public class CapitalystChartPanel extends JPanel {
 
     private List<CapitalystChart> charts = new ArrayList<CapitalystChart>() ;
-    private GridLayout            layout = new GridLayout( 1, 1 ) ;
+    private GridLayout            layout = new GridLayout( 1, 1, 1, 1 ) ;
     
     private int numColsInLayout = 1 ;
     

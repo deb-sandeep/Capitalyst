@@ -6,6 +6,7 @@ import java.util.LinkedHashMap ;
 import java.util.Map ;
 
 import javax.swing.JPanel ;
+import javax.swing.TransferHandler ;
 
 import org.jfree.chart.ChartFactory ;
 import org.jfree.chart.ChartPanel ;
@@ -29,13 +30,15 @@ public class CapitalystChart extends JPanel {
     private Map<String, TimeSeriesWrapper> timeSeriesMap    = null ;
     private TimeSeriesCollection           seriesCollection = null ;
     private CapitalystChartPanel           parent           = null ;
+    private TransferHandler                transferHandler  = null ;
     
     private String     title = null ;
     private JFreeChart chart = null ;
     private XYPlot     plot  = null ;
     
-    public CapitalystChart() {
+    public CapitalystChart( TransferHandler th ) {
         
+        transferHandler  = th ;
         timeSeriesMap    = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
         seriesCollection = new TimeSeriesCollection() ;
         
@@ -45,6 +48,7 @@ public class CapitalystChart extends JPanel {
     
     private void setUpUI() {
         setLayout( new BorderLayout() ) ;
+        setTransferHandler( transferHandler );
         add( new ChartPanel( chart ) ) ;
     }
     

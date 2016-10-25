@@ -5,6 +5,7 @@ import javax.swing.tree.DefaultTreeModel ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystProjectTreeModel extends DefaultTreeModel {
@@ -19,10 +20,13 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         this.rootNode = ( DefaultMutableTreeNode )super.getRoot() ;
     }
     
-    public void addUniverse( Universe universe ) {
+    public DefaultMutableTreeNode addUniverse( Universe universe ) {
         
-        this.rootNode.add( createUniverseNode( universe ) ) ;
+        DefaultMutableTreeNode universeNode = createUniverseNode( universe ) ;
+        this.rootNode.add( universeNode ) ;
         super.reload() ;
+        
+        return universeNode ;
     }
     
     private DefaultMutableTreeNode createUniverseNode( Universe u ) {
@@ -52,7 +56,7 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         
         DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers ) ;
         DefaultMutableTreeNode node = new DefaultMutableTreeNode( a.getName() ) ;
-        node.setUserObject( a ) ;
+        node.setUserObject( new AccountWrapper( a ) ) ;
         holdingNode.add( node ) ;
     }
     

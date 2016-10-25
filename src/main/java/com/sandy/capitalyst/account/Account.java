@@ -2,8 +2,10 @@ package com.sandy.capitalyst.account;
 
 import java.util.ArrayList ;
 import java.util.Date ;
+import java.util.HashSet ;
 import java.util.Iterator ;
 import java.util.List ;
+import java.util.Set ;
 
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
@@ -30,7 +32,9 @@ public class Account
     
     private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
-    private List<AccountClosureAction> closureActions = new ArrayList<>() ;
+    
+    private Set<AccountClosureAction> closureActions = new HashSet<AccountClosureAction>() ;
+    private Set<AccountListener>      listeners      = new HashSet<AccountListener>() ;
     
     public double getOpeningBalance() {
         return this.openingBalance ;
@@ -50,6 +54,14 @@ public class Account
 
     public double getAmount() {
         return amount ;
+    }
+    
+    public void addListener( AccountListener l ) {
+        listeners.add( l ) ;
+    }
+    
+    public void removeAllListeners() {
+        listeners.clear() ;
     }
     
     public void addClosureAction( AccountClosureAction action ) {
@@ -72,6 +84,7 @@ public class Account
             ledger.add( t ) ;
             this.amount += t.getAmount() ;
             getUniverse().getBus().publishEvent( EventType.TXN_POSTED, t ) ;
+            listeners.stream().forEach( l -> l.txnPosted( t, this ) ) ;
         }
     }
     
@@ -112,9 +125,5 @@ public class Account
     @Override
     public void initializePostConfig() {
         this.openingBalance = this.amount ;
-    }
-    
-    public String toString() {
-        return this.getName() ;
     }
 }
