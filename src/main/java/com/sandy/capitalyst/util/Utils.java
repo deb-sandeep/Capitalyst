@@ -130,7 +130,10 @@ public class Utils {
                                  Account fromAcc, Account toAcc, 
                                  Date date, String preamble ) {
         
-        if( !(preamble == null || preamble.trim().equals( "" )) ) {
+        if( preamble == null ) {
+            preamble = "" ;
+        }
+        else if( !(preamble == null || preamble.trim().equals( "" )) ) {
             preamble = preamble + ". " ;
         }
         

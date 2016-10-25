@@ -8,6 +8,7 @@ import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.timeobservers.EndOfMonthObserver ;
+import com.sandy.capitalyst.util.Utils ;
 
 public class SuperannuationAccount extends YearlyCompoundingAccount 
     implements EndOfMonthObserver {
@@ -36,9 +37,10 @@ public class SuperannuationAccount extends YearlyCompoundingAccount
             
             annuityPayoutPerMonth = (annuityCorpus/1000)*annuityPer1000PerYear/12 ;
             
-            Txn txn = new Txn( getParentAccountNumber(), withdrawalAmt, date,
-                               "Partial tax free withdrawal from " + getName() ) ;
-            getUniverse().postTransaction( txn ) ; 
+            Utils.transfer( withdrawalAmt, 
+                            SuperannuationAccount.this, 
+                            getUniverse().getAccount( getParentAccountNumber() ),
+                            date, "" ) ;
         }
     }
     
