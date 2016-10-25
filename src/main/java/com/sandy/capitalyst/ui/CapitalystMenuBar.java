@@ -20,6 +20,10 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     private JMenuItem loadUniverseMI = null ;
     private JMenuItem exitMI         = null ;
     
+    private JMenuItem newChartMI     = null ;
+    private JMenuItem increaseNumColMI = null ;
+    private JMenuItem decreaseNumColMI = null ;
+
     private JMenuItem runSimulation = null ;
     
     public CapitalystMenuBar( CapitalystMainFrame frame ) {
@@ -30,6 +34,7 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     private void setUpUI() {
         super.add( createFileMenu() ) ;
         super.add( createSimulationMenu() ) ;
+        super.add( createChartMenu() ) ;
     }
     
     private JMenu createFileMenu() {
@@ -62,25 +67,43 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         
         return menu ;
     }
+    
+    private JMenu createChartMenu() {
+        
+        newChartMI = new JMenuItem( "New chart" ) ;
+        newChartMI.addActionListener( this ) ;
+        
+        increaseNumColMI = new JMenuItem( "Columns +" ) ;
+        increaseNumColMI.addActionListener( this ) ;
+        
+        decreaseNumColMI = new JMenuItem( "Columns -" ) ;
+        decreaseNumColMI.addActionListener( this ) ;
+        
+        JMenu menu = new JMenu( "Chart" ) ;
+        menu.add( newChartMI ) ;
+        menu.add( increaseNumColMI ) ;
+        menu.add( decreaseNumColMI ) ;
+        
+        return menu ;
+    }
 
     @Override
     public void actionPerformed( ActionEvent e ) {
         JMenuItem mi = ( JMenuItem )e.getSource() ;
         if( mi == newProjectMI ) {
-            try {
-                mainFrame.newProject() ;
-            }
-            catch( Exception e1 ) {
-                log.error( "Could not open project", e1 ) ;
-            }
+            mainFrame.newProject() ;
         }
         else if( mi == loadUniverseMI ) {
-            try {
-                mainFrame.loadAndAddUniverse() ;
-            }
-            catch( Exception e1 ) {
-                log.error( "Could not load universe", e1 ) ;
-            }
+            mainFrame.loadAndAddUniverse() ;
+        }
+        else if( mi == newChartMI ) {
+            mainFrame.newChart() ;
+        }
+        else if( mi == increaseNumColMI ) {
+            mainFrame.changeNumChartCols(1) ;
+        }
+        else if( mi == decreaseNumColMI ) {
+            mainFrame.changeNumChartCols(-1) ;
         }
         else if( mi == exitMI ) {
             mainFrame.exit() ;

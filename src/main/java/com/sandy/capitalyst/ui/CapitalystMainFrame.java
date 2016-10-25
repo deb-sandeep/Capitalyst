@@ -62,7 +62,7 @@ public class CapitalystMainFrame extends JFrame {
         } ) ;
     }
 
-    public void newProject() throws Exception {
+    public void newProject() {
         if( projectPanel != null ) {
             super.remove( projectPanel ) ;
         }
@@ -73,21 +73,34 @@ public class CapitalystMainFrame extends JFrame {
         loadAndAddUniverse() ;
     }
     
-    public void loadAndAddUniverse() throws Exception {
+    public void loadAndAddUniverse()  {
         
-        int choice = openFileChooser.showOpenDialog( this ) ;
-        if( choice == JFileChooser.APPROVE_OPTION ) {
-            File file = openFileChooser.getSelectedFile() ;
-            projectPanel.loadUniverse( file ) ;
+        try {
+            int choice = openFileChooser.showOpenDialog( this ) ;
+            if( choice == JFileChooser.APPROVE_OPTION ) {
+                File file = openFileChooser.getSelectedFile() ;
+                projectPanel.loadUniverse( file ) ;
+            }
+        }
+        catch( Exception e ) {
+            log.error( "Could not load universe", e ) ;
         }
     }
 
     public void runSimulation() {
         projectPanel.runSimulation() ;
     }
+    
+    public void newChart() {
+        projectPanel.newChart() ;
+    }
 
     public void exit() {
         super.dispose() ;
         System.exit( 0 ) ;
+    }
+
+    public void changeNumChartCols( int i ) {
+        projectPanel.getChartPanel().changeNumChartCols( i ) ;
     }
 }

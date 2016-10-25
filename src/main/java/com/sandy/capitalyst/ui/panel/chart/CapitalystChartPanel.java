@@ -63,6 +63,13 @@ public class CapitalystChartPanel extends JPanel {
         
         layout.setRows( numRows );
         layout.setColumns( numColsInLayout ) ;
+        super.doLayout() ;
         super.validate() ;
+    }
+
+    public void changeNumChartCols( int i ) {
+        if( numColsInLayout + i > 0 ) {
+            setLayoutColumns( numColsInLayout + i ) ;
+        }
     }
 }
