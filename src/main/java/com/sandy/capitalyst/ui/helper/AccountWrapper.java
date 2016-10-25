@@ -21,7 +21,8 @@ public class AccountWrapper implements AccountListener {
 
     @Override
     public void txnPosted( Txn txn, Account a ) {
-        balanceHistory.addOrUpdate( new Day( txn.getDate() ), a.getAmount() ) ;
+        balanceHistory.addOrUpdate( new Day( txn.getDate() ), 
+                                    a.getAmount()/100000 ) ;
     }
     
     public Account getAccount() {
