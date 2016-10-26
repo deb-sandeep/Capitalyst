@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent ;
 import java.util.Enumeration ;
 
 import javax.swing.JMenuItem ;
+import javax.swing.JOptionPane ;
 import javax.swing.JPanel ;
 import javax.swing.JPopupMenu ;
 import javax.swing.JScrollPane ;
@@ -23,6 +24,7 @@ import org.apache.log4j.Logger ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
+import com.sandy.capitalyst.ui.panel.CapitalystProjectPanel ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystTreePanel extends JPanel 
@@ -30,15 +32,18 @@ public class CapitalystTreePanel extends JPanel
 
     static final Logger log = Logger.getLogger( CapitalystTreePanel.class ) ;
     
+    private CapitalystProjectPanel     parent = null ;
     private CapitalystProjectTreeModel treeModel = null ;
-    private JTree tree = null ;
-    private TransferHandler transferHandler = null ;
+    private JTree                      tree = null ;
+    private TransferHandler            transferHandler = null ;
     
     private JPopupMenu popupMenu = null ;
     private JMenuItem  runSimulationMI = null ;
     private JMenuItem  cloneUniverseMI = null ;
+    private JMenuItem  removeUniverseMI= null ;
     
-    public CapitalystTreePanel( TransferHandler th ) {
+    public CapitalystTreePanel( TransferHandler th, CapitalystProjectPanel parent ) {
+        this.parent = parent ;
         this.transferHandler = th ;
         setUpUI() ;
         setUpListeners() ;
@@ -72,9 +77,13 @@ public class CapitalystTreePanel extends JPanel
         cloneUniverseMI = new JMenuItem( "Clone Universe" ) ;
         cloneUniverseMI.addActionListener( this ) ;
         
+        removeUniverseMI = new JMenuItem( "Remove Universe" ) ;
+        removeUniverseMI.addActionListener( this ) ;
+        
         popupMenu = new JPopupMenu() ;
         popupMenu.add( runSimulationMI ) ;
         popupMenu.add( cloneUniverseMI ) ;
+        popupMenu.add( removeUniverseMI ) ;
     }
     
     private void setUpListeners() {
@@ -131,14 +140,17 @@ public class CapitalystTreePanel extends JPanel
     public void actionPerformed( ActionEvent e ) {
         JMenuItem mi = ( JMenuItem )e.getSource() ;
         if( mi == runSimulationMI ) {
-            runSimulation() ;
+            simulateSelectedUniverse() ;
         }
         else if( mi == cloneUniverseMI ) {
-            cloneUniverse() ;
+            cloneSelectedUniverse( true ) ;
+        }
+        else if( mi == removeUniverseMI ) {
+            removeSelectedUniverse() ;
         }
     }
     
-    private void runSimulation() {
+    private void simulateSelectedUniverse() {
         
         final Universe u = getSelectedUniverse() ;
         if( u != null ) {
@@ -151,21 +163,26 @@ public class CapitalystTreePanel extends JPanel
         }
     }
     
-    private void cloneUniverse() {
+    private void cloneSelectedUniverse( boolean seekNewName ) {
         
         final Universe u = getSelectedUniverse() ;
         if( u != null ) {
             UniverseConfig config      = u.getConfig().clone() ;
             UniverseLoader loader      = new UniverseLoader( config ) ;
             Universe       newUniverse = null ;
+            String         newName     = u.getName() ;
             
-            try {
-                newUniverse = loader.loadUniverse() ;
-                newUniverse.setName( u.getName() + "(clone)" );
-                addUniverse( newUniverse ) ;
-            }
-            catch( Exception e ) {
-                log.error( "Could not create new universe", e ) ;
+            newName = JOptionPane.showInputDialog( "Name of the cloned universe?",
+                                                   u.getName() + "(clone)" ) ;
+            if( newName != null ) {
+                try {
+                    newUniverse = loader.loadUniverse() ;
+                    newUniverse.setName( newName );
+                    addUniverse( newUniverse ) ;
+                }
+                catch( Exception e ) {
+                    log.error( "Could not create new universe", e ) ;
+                }
             }
         }
     }
@@ -181,5 +198,19 @@ public class CapitalystTreePanel extends JPanel
             return ( Universe )treeNode.getUserObject() ;
         }
         return null ;
+    }
+    
+    private void removeSelectedUniverse() {
+        
+        TreePath selPath = tree.getSelectionPath() ;
+        Universe u       = getSelectedUniverse() ;
+        
+        if( u != null ) {
+            DefaultMutableTreeNode lastNode = null ;
+            
+            lastNode = ( DefaultMutableTreeNode ) selPath.getLastPathComponent() ;
+            treeModel.removeNodeFromParent( lastNode ) ;
+            parent.removeUniverse( u ) ;
+        }
     }
 }

@@ -19,23 +19,30 @@ import org.jfree.chart.title.LegendTitle ;
 import org.jfree.data.time.TimeSeries ;
 import org.jfree.data.time.TimeSeriesCollection ;
 
+import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.ui.helper.AccountWrapper ;
+
 @SuppressWarnings( "serial" )
 public class CapitalystChart extends JPanel {
     
     static final Logger log = Logger.getLogger( CapitalystChart.class ) ;
 
     private class TimeSeriesWrapper {
+        
+        AccountWrapper acWrapper = null ;
         TimeSeries series ;
         boolean isHidden = false ;
         
-        public TimeSeriesWrapper( TimeSeries series ) {
-            this.series = series ;
+        public TimeSeriesWrapper( AccountWrapper accountWrapper ) {
+            this.acWrapper = accountWrapper ;
+            this.series = accountWrapper.getTimeSeries() ;
         }
     }
     
     private static final Font AXIS_FONT = new Font( "Helvetica", Font.PLAIN, 11 ) ;
     
-    private Map<String, TimeSeriesWrapper> timeSeriesMap    = null ;
+    private Map<String, TimeSeriesWrapper> accountWrapperMap    = null ;
     private TimeSeriesCollection           seriesCollection = null ;
     private CapitalystChartPanel           parent           = null ;
     private TransferHandler                transferHandler  = null ;
@@ -47,7 +54,7 @@ public class CapitalystChart extends JPanel {
     public CapitalystChart( TransferHandler th ) {
         
         transferHandler  = th ;
-        timeSeriesMap    = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
+        accountWrapperMap    = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
         seriesCollection = new TimeSeriesCollection() ;
         
         createChart() ;
@@ -112,29 +119,30 @@ public class CapitalystChart extends JPanel {
         parent.removeChartFromPanel( this ) ;
     }
     
-    public void addSeries( TimeSeries series ) {
+    public void addSeries( AccountWrapper accountWrapper ) {
         
-        if( !timeSeriesMap.containsKey( (String)series.getKey() ) ) {
-            timeSeriesMap.put( (String)series.getKey(), 
-                    new TimeSeriesWrapper( series ) ) ;
+        TimeSeries series = accountWrapper.getTimeSeries() ;
+        if( !accountWrapperMap.containsKey( (String)series.getKey() ) ) {
+            accountWrapperMap.put( (String)series.getKey(), 
+                                   new TimeSeriesWrapper( accountWrapper ) ) ;
             seriesCollection.addSeries( series ) ;
         }
     }
     
     public void removeSeries( TimeSeries series ) {
-        timeSeriesMap.remove( series.getKey() ) ;
+        accountWrapperMap.remove( series.getKey() ) ;
         seriesCollection.removeSeries( series ) ;
     }
     
     public void removeSeries( String key ) {
-        TimeSeriesWrapper wrapper = timeSeriesMap.remove( key ) ;
+        TimeSeriesWrapper wrapper = accountWrapperMap.remove( key ) ;
         if( wrapper != null ) {
             seriesCollection.removeSeries( wrapper.series ) ;
         }
     }
     
     public void hideSeries( String key ) {
-        TimeSeriesWrapper wrapper = timeSeriesMap.get( key ) ;
+        TimeSeriesWrapper wrapper = accountWrapperMap.get( key ) ;
         if( wrapper != null ) {
             seriesCollection.removeSeries( wrapper.series ) ;
             wrapper.isHidden = true ;
@@ -142,10 +150,22 @@ public class CapitalystChart extends JPanel {
     }
     
     public void unhideSeries( String key ) {
-        TimeSeriesWrapper wrapper = timeSeriesMap.get( key ) ;
+        TimeSeriesWrapper wrapper = accountWrapperMap.get( key ) ;
         if( wrapper != null && wrapper.isHidden ) {
             wrapper.isHidden = false ;
             seriesCollection.addSeries( wrapper.series ) ;
+        }
+    }
+    
+    public void removeUniverse( Universe u ) {
+        for( TimeSeriesWrapper wrapper : accountWrapperMap.values() ) {
+            Account  wrapperAccount  = wrapper.acWrapper.getAccount() ;
+            Universe wrapperUniverse = wrapperAccount.getUniverse() ;
+            
+            if( wrapperUniverse == u ) {
+                seriesCollection.removeSeries( wrapper.series ) ;
+                accountWrapperMap.remove( (String)wrapper.series.getKey() ) ;
+            }
         }
     }
 }

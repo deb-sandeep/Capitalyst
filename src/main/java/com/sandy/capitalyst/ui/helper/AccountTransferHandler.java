@@ -54,7 +54,7 @@ public class AccountTransferHandler extends TransferHandler {
         try {
             accountWrapper = ( AccountWrapper )transferable.getTransferData( 
                                              AccountTransferable.DATA_FLAVOR ) ;
-            chart.addSeries( accountWrapper.getTimeSeries() ) ;
+            chart.addSeries( accountWrapper ) ;
         }
         catch( Exception e ) {
             log.error( "Error extracting account from drop.", e ) ;

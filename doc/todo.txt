@@ -1,11 +1,11 @@
-Removal of universes - removes all series from charts
 Editing of properties of universe entities
-Specifying a new name for clone
 Rerunning of the same simulation
 
 -------------------------------------------------------------------------------
                                DONE
 
+Removal of universes - removes all series from charts
+Specifying a new name for cloned universe
 Bank Accounts need a mandatory PAN number
 Initialize saving account configuration and have a way to build accounts
 1. Removal of optional parameters from Account constructors

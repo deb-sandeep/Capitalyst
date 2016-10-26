@@ -31,7 +31,7 @@ public class CapitalystProjectPanel extends JPanel {
     private void setUpUI() {
         
         chartPanel = new CapitalystChartPanel() ;
-        treePanel  = new CapitalystTreePanel( accountTransferHandler ) ;
+        treePanel  = new CapitalystTreePanel( accountTransferHandler, this ) ;
         
         newChart() ;
         
@@ -61,5 +61,12 @@ public class CapitalystProjectPanel extends JPanel {
     
     public CapitalystChartPanel getChartPanel() {
         return chartPanel ;
+    }
+    
+    // Note that the tree calls on this method after the universe has been
+    // removed from the tree and hence this method removes the universe from
+    // all components except the tree.
+    public void removeUniverse( Universe u ) {
+        chartPanel.removeUniverse( u ) ;
     }
 }

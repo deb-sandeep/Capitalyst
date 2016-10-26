@@ -6,6 +6,8 @@ import java.util.List ;
 
 import javax.swing.JPanel ;
 
+import com.sandy.capitalyst.core.Universe ;
+
 @SuppressWarnings( "serial" )
 public class CapitalystChartPanel extends JPanel {
 
@@ -70,6 +72,12 @@ public class CapitalystChartPanel extends JPanel {
     public void changeNumChartCols( int i ) {
         if( numColsInLayout + i > 0 ) {
             setLayoutColumns( numColsInLayout + i ) ;
+        }
+    }
+    
+    public void removeUniverse( Universe u ) {
+        for( CapitalystChart chart : charts ) {
+            chart.removeUniverse( u ) ;
         }
     }
 }
