@@ -29,22 +29,42 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
         this.amount = amt ;
     }
     
+    public double getAmount() {
+        return this.amount ;
+    }
+    
     public void setCreditAccountNumber( String acctNo ) {
         this.creditAccountNumber = acctNo ;
     }
     
+    public String getCreditAccountNumber() {
+        return creditAccountNumber ;
+    }
+
+    public String getDescription() {
+        return description ;
+    }
+
+    public void setDescription( String description ) {
+        this.description = description ;
+    }
+
     public void setDebitAccountNumber( String acctNo ) {
         this.debitAccountNumber = acctNo ;
     }
     
+    public String getDebitAccountNumber() {
+        return debitAccountNumber ;
+    }
+
     public void setAllowOverdraft( boolean allowOverdraft ) {
         this.allowOverdraft = allowOverdraft ;
     }
     
-    public void setDesciption( String descr ) {
-        this.description = descr ;
+    public boolean isAllowOverdraft() {
+        return allowOverdraft ;
     }
-    
+
     @Override
     protected void generateScheduledTxnForDate( Date date, List<Txn> txnList ) {
         

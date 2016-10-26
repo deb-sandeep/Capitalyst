@@ -46,11 +46,13 @@ public class Universe implements DayObserver, PostConfigInitializable {
         journal = new Journal( this, accMgr ) ;
     }
     
-    public void setConfig( UniverseConfig cfg ) {
-        this.config = cfg ;
+    @Override
+    public void setConfiguration( UniverseConfig config ) {
+        this.config = config ;
     }
-    
-    public UniverseConfig getConfig() {
+
+    @Override
+    public UniverseConfig getConfiguration() {
         return this.config ;
     }
     
@@ -137,6 +139,10 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     public Collection<Account> getAllAccounts() {
         return accMgr.getAllAccounts() ;
+    }
+    
+    public Collection<TxnGenerator> getAllTxGens() {
+        return this.txnGenerators ;
     }
     
     public void registerTxnGenerator( TxnGenerator txGen ) {

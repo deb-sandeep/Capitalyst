@@ -50,12 +50,24 @@ public abstract class ScheduledTxnGen
         this.scheduleExpr = expr ;
     }
     
+    public String getScheduleExpr() {
+        return this.scheduleExpr ;
+    }
+    
     public void setStartDate( Date date ) {
         this.startDate = date ;
     }
     
+    public Date getStartDate() {
+        return this.startDate ;
+    }
+    
     public void setEndDate( Date date ) {
         this.endDate = date ;
+    }
+    
+    public Date getEndDate() {
+        return this.endDate ;
     }
     
     @Override

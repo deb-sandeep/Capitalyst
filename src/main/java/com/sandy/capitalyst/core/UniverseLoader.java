@@ -114,7 +114,7 @@ public class UniverseLoader {
             loadAccounts( universe ) ;
             loadTxGenerators( universe ) ;
             
-            universe.setConfig( univCfg ) ;
+            universe.setConfiguration( univCfg ) ;
         }
         catch( Exception e ) {
             log.error( "Loading universe " + univName + " failed.", e ) ;

@@ -98,8 +98,12 @@ public class PropertiesTableModel extends DefaultTableModel {
                     log.error( "Error gettign property value", e ) ;
                     val = "EXCEPTION" ;
                 }
-                return val.toString() ;
+                return val == null ? "" : val.toString() ;
         }
         return "UNDEFINED" ;
+    }
+
+    @Override
+    public void setValueAt( Object aValue, int row, int column ) {
     }
 }

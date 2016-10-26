@@ -27,6 +27,7 @@ import org.apache.log4j.Logger ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
+import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
 import com.sandy.capitalyst.ui.panel.property.EntityPropertyEditPanel ;
@@ -230,9 +231,9 @@ public class CapitalystTreePanel extends JPanel
         Universe newUniverse = null ;
         
         if( u != null ) {
-            UniverseConfig config      = u.getConfig().clone() ;
-            UniverseLoader loader      = new UniverseLoader( config ) ;
-            String         newName     = u.getName() ;
+            UniverseConfig config  = u.getConfiguration().clone() ;
+            UniverseLoader loader  = new UniverseLoader( config ) ;
+            String         newName = u.getName() ;
             
             if( seekNewName )  {
                 newName = JOptionPane.showInputDialog( "Name of the cloned universe?",
@@ -284,14 +285,17 @@ public class CapitalystTreePanel extends JPanel
     public void valueChanged( TreeSelectionEvent e ) {
         
         Object newEntity = null ;
-        
         DefaultMutableTreeNode lastNode = null ; 
+        Object userObj = null ;
+        
         TreePath selPath = e.getNewLeadSelectionPath() ;
         if( selPath != null ) {
             lastNode = ( DefaultMutableTreeNode )selPath.getLastPathComponent() ;
-            if( lastNode.getUserObject() instanceof AccountWrapper ) {
-                AccountWrapper wrapper = ( AccountWrapper )lastNode.getUserObject() ;
-                newEntity = wrapper.getAccount() ;
+            userObj  = lastNode.getUserObject() ;
+            
+            if( (userObj instanceof AccountWrapper) ||
+                (userObj instanceof TxnGenerator )) {
+                newEntity = userObj ;
             }
         }
         propPanel.refreshEntity( newEntity ) ;

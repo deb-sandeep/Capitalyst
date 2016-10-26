@@ -8,5 +8,7 @@ import com.sandy.capitalyst.core.UniverseConstituent ;
 
 public interface TxnGenerator extends UniverseConstituent {
     
+    public String getName() ;
+    public String getClassifiers() ;
     public void getTransactionsForDate( Date date, List<Txn> txnList ) ;
 }

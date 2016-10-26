@@ -19,8 +19,16 @@ public class FixedAmtScheduledTxnGen extends ScheduledTxnGen {
         this.amount = amt ;
     }
     
+    public double getAmount() {
+        return this.amount ;
+    }
+    
     public void setAccountNumber( String acctNo ) {
         this.accountNumber = acctNo ;
+    }
+    
+    public String getAccountNumber() {
+        return this.accountNumber ;
     }
     
     @Override

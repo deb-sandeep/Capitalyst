@@ -5,12 +5,14 @@ import javax.swing.tree.DefaultTreeModel ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystProjectTreeModel extends DefaultTreeModel {
 
     private static final String ACCOUNT_NODE_NAME = "Accounts" ;
+    private static final String TXGENS_NODE_NAME  = "Txn Generators" ;
     
     private DefaultMutableTreeNode rootNode = null ;
     
@@ -35,6 +37,7 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         node = new DefaultMutableTreeNode( u.getName() ) ;
         node.setUserObject( u ) ;
         node.add( createAccountsNode( u ) );
+        node.add( createTxGensNode( u ) );
         return node ;
     }
     
@@ -58,6 +61,31 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers ) ;
         DefaultMutableTreeNode node = new DefaultMutableTreeNode( a.getName() ) ;
         node.setUserObject( new AccountWrapper( a ) ) ;
+        holdingNode.add( node ) ;
+    }
+    
+    private DefaultMutableTreeNode createTxGensNode( Universe u ) {
+        
+        DefaultMutableTreeNode node = null ;
+        node = new DefaultMutableTreeNode( TXGENS_NODE_NAME ) ;
+        for( TxnGenerator txGen : u.getAllTxGens() ) {
+            if( !(txGen instanceof Account) ) {
+                addTxGenNode( node, txGen ) ;
+            }
+        }
+        return node ;
+    }
+    
+    private void addTxGenNode( DefaultMutableTreeNode root, TxnGenerator g ) {
+        
+        String[] classifiers = null ;
+        if( g.getClassifiers() != null ) {
+            classifiers = g.getClassifiers().split( ">" ) ;
+        }
+        
+        DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers ) ;
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode( g.getName() ) ;
+        node.setUserObject( g ) ;
         holdingNode.add( node ) ;
     }
     

@@ -1,9 +1,9 @@
 Editing of properties of universe entities
-Remove specific series from chart
 
 -------------------------------------------------------------------------------
                                DONE
 
+Remove specific series from chart
 Properties of selected accounts are now being shown
 Rerunning of the same simulation
 Removal of universes - removes all series from charts
