@@ -3,17 +3,29 @@ package com.sandy.capitalyst.ui.panel.chart;
 import java.awt.BorderLayout ;
 import java.awt.Color ;
 import java.awt.Font ;
+import java.awt.event.ActionEvent ;
+import java.awt.event.ActionListener ;
+import java.awt.event.MouseEvent ;
+import java.util.ArrayList ;
+import java.util.Collection ;
 import java.util.LinkedHashMap ;
 import java.util.Map ;
 
+import javax.swing.JMenuItem ;
 import javax.swing.JPanel ;
+import javax.swing.JPopupMenu ;
+import javax.swing.SwingUtilities ;
 import javax.swing.TransferHandler ;
 
 import org.apache.log4j.Logger ;
 import org.jfree.chart.ChartFactory ;
+import org.jfree.chart.ChartMouseEvent ;
+import org.jfree.chart.ChartMouseListener ;
 import org.jfree.chart.ChartPanel ;
 import org.jfree.chart.JFreeChart ;
 import org.jfree.chart.axis.ValueAxis ;
+import org.jfree.chart.entity.ChartEntity ;
+import org.jfree.chart.entity.LegendItemEntity ;
 import org.jfree.chart.plot.XYPlot ;
 import org.jfree.chart.title.LegendTitle ;
 import org.jfree.data.time.TimeSeries ;
@@ -24,7 +36,8 @@ import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 
 @SuppressWarnings( "serial" )
-public class CapitalystChart extends JPanel {
+public class CapitalystChart extends JPanel 
+    implements ChartMouseListener, ActionListener {
     
     static final Logger log = Logger.getLogger( CapitalystChart.class ) ;
 
@@ -51,11 +64,18 @@ public class CapitalystChart extends JPanel {
     private String     title = null ;
     private JFreeChart chart = null ;
     private XYPlot     plot  = null ;
+    private ChartPanel chartPanel = null ;
+    
+    private JPopupMenu legendPopupMenu = null ;
+    private JMenuItem  removeSeriesMI = null ;
+    private JMenuItem  removeAllSeriesMI = null ;
+    
+    private String seriesMarkedForRemoval = null ;
     
     public CapitalystChart( TransferHandler th ) {
         
         transferHandler  = th ;
-        accountWrapperMap    = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
+        accountWrapperMap = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
         seriesCollection = new TimeSeriesCollection() ;
         
         createChart() ;
@@ -65,7 +85,12 @@ public class CapitalystChart extends JPanel {
     private void setUpUI() {
         setLayout( new BorderLayout() ) ;
         setTransferHandler( transferHandler );
-        add( new ChartPanel( chart ) ) ;
+
+        chartPanel = new ChartPanel( chart ) ;
+        chartPanel.addChartMouseListener( this ) ;
+        
+        add( chartPanel ) ;
+        configureLegendPopup() ;
     }
     
     private void createChart() {
@@ -87,6 +112,19 @@ public class CapitalystChart extends JPanel {
         plot.setBackgroundPaint( Color.BLACK ) ;
         plot.setDomainGridlinePaint( Color.DARK_GRAY ) ;
         plot.setRangeGridlinePaint( Color.DARK_GRAY ) ;
+    }
+    
+    private void configureLegendPopup() {
+        
+        removeSeriesMI = new JMenuItem( "Remove legend" ) ;
+        removeSeriesMI.addActionListener( this )  ;
+        
+        removeAllSeriesMI = new JMenuItem( "Remove all legends" ) ;
+        removeAllSeriesMI.addActionListener( this ) ;
+        
+        legendPopupMenu = new JPopupMenu() ;
+        legendPopupMenu.add( removeSeriesMI ) ;
+        legendPopupMenu.add( removeAllSeriesMI ) ;
     }
     
     private void configureAxes() {
@@ -142,6 +180,17 @@ public class CapitalystChart extends JPanel {
         }
     }
     
+    public void removeAllSeries() {
+        Collection<String> seriesNames = new ArrayList<>() ;
+        for( String key : accountWrapperMap.keySet() ) {
+            seriesNames.add( key ) ;
+        }
+        
+        for( String key : seriesNames ) {
+            removeSeries( key ) ;
+        }
+    }
+    
     public void hideSeries( String key ) {
         TimeSeriesWrapper wrapper = accountWrapperMap.get( key ) ;
         if( wrapper != null ) {
@@ -174,7 +223,14 @@ public class CapitalystChart extends JPanel {
         
         TimeSeries newTimeSeries = newACWrapper.getTimeSeries() ;
         
+        Collection<TimeSeriesWrapper> wrappers = null ;
+        wrappers = new ArrayList<CapitalystChart.TimeSeriesWrapper>() ;
         for( TimeSeriesWrapper wrapper : accountWrapperMap.values() ) {
+            wrappers.add( wrapper ) ;
+        }
+        
+        for( TimeSeriesWrapper wrapper : wrappers ) {
+            
             String oldSeriesName = (String)wrapper.series.getKey() ;
             String newSeriesName = (String)newTimeSeries.getKey() ;
             
@@ -185,4 +241,35 @@ public class CapitalystChart extends JPanel {
             }
         }
     }
+
+    @Override
+    public void chartMouseClicked( ChartMouseEvent event ) {
+        ChartEntity entity = event.getEntity() ;
+        MouseEvent  mouse  = event.getTrigger() ;
+        
+        if( entity instanceof LegendItemEntity ) {
+            LegendItemEntity legend = ( LegendItemEntity )entity ;
+            String seriesKey = ( String )legend.getSeriesKey() ;
+            
+            if( SwingUtilities.isRightMouseButton( mouse ) && 
+                mouse.isControlDown() ) {
+                seriesMarkedForRemoval = seriesKey ;
+                legendPopupMenu.show( this, mouse.getX(), mouse.getY() );
+            }
+        }
+    }
+
+    @Override
+    public void chartMouseMoved( ChartMouseEvent event ) { /* NOOP */ }
+
+    @Override
+    public void actionPerformed( ActionEvent e ) {
+        JMenuItem menu = ( JMenuItem )e.getSource() ;
+        if( menu == removeSeriesMI ) {
+            removeSeries( seriesMarkedForRemoval ) ;
+        }
+        else if( menu == removeAllSeriesMI ) {
+            removeAllSeries() ;
+        }
+    } ;
 }

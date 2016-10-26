@@ -277,7 +277,6 @@ public class CapitalystTreePanel extends JPanel
             treeModel.removeNodeFromParent( lastNode ) ;
             chartPanel.removeUniverse( u ) ;
         }
-        
         return u ;
     }
 
@@ -295,7 +294,6 @@ public class CapitalystTreePanel extends JPanel
                 newEntity = wrapper.getAccount() ;
             }
         }
-        
         propPanel.refreshEntity( newEntity ) ;
     }
 }
