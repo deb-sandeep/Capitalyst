@@ -1,8 +1,10 @@
-Editing of properties of universe entities
+The series need to be of the same color across charts.
+Saving configurations of universes
 
 -------------------------------------------------------------------------------
                                DONE
 
+Editing of properties of universe entities
 Remove specific series from chart
 Properties of selected accounts are now being shown
 Rerunning of the same simulation

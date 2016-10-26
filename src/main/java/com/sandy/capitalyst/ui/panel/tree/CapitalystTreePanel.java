@@ -1,7 +1,6 @@
 package com.sandy.capitalyst.ui.panel.tree;
 
 import java.awt.BorderLayout ;
-import java.awt.Font ;
 import java.awt.event.ActionEvent ;
 import java.awt.event.ActionListener ;
 import java.awt.event.MouseAdapter ;
@@ -26,9 +25,11 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.core.UniverseConstituent ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
+import com.sandy.capitalyst.ui.helper.UIConstants ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
 import com.sandy.capitalyst.ui.panel.property.EntityPropertyEditPanel ;
 
@@ -68,7 +69,7 @@ public class CapitalystTreePanel extends JPanel
         
         tree = new JTree( treeModel ) ;
         tree.setRootVisible( false ) ;
-        tree.setFont( new Font( "Helvetica", Font.PLAIN, 11 ) ) ;
+        tree.setFont( UIConstants.TREE_FONT ) ;
         tree.setDragEnabled( true ) ;
         tree.setTransferHandler( transferHandler ) ;
         tree.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION ) ;
@@ -293,11 +294,13 @@ public class CapitalystTreePanel extends JPanel
             lastNode = ( DefaultMutableTreeNode )selPath.getLastPathComponent() ;
             userObj  = lastNode.getUserObject() ;
             
-            if( (userObj instanceof AccountWrapper) ||
-                (userObj instanceof TxnGenerator )) {
+            if( userObj instanceof AccountWrapper ) {
+                newEntity = (( AccountWrapper )userObj).getAccount() ;
+            }
+            else if( userObj instanceof TxnGenerator ) {
                 newEntity = userObj ;
             }
         }
-        propPanel.refreshEntity( newEntity ) ;
+        propPanel.refreshEntity( (UniverseConstituent)newEntity ) ;
     }
 }

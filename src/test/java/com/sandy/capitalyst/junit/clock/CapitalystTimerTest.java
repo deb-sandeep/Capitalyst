@@ -11,7 +11,6 @@ import java.util.List ;
 
 import org.junit.Test ;
 
-import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.DayClock ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
@@ -34,8 +33,9 @@ public class CapitalystTimerTest {
 
         @Override public void setUniverse( Universe u ) { }
         @Override public Universe getUniverse() { return null ; }
-        @Override public void setConfiguration( UniverseConfig config ) {}
-        @Override public UniverseConfig getConfiguration() { return null ; }
+        @Override public void setId( String id ) {}
+        @Override public String getId() { return null ; }
+        
     } ;
     
     @Test

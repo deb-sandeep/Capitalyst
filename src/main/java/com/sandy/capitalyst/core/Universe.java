@@ -46,12 +46,10 @@ public class Universe implements DayObserver, PostConfigInitializable {
         journal = new Journal( this, accMgr ) ;
     }
     
-    @Override
     public void setConfiguration( UniverseConfig config ) {
         this.config = config ;
     }
 
-    @Override
     public UniverseConfig getConfiguration() {
         return this.config ;
     }
@@ -199,6 +197,16 @@ public class Universe implements DayObserver, PostConfigInitializable {
     }
     
     public String toString() {
+        return getName() ;
+    }
+
+    @Override
+    public void setId( String id ) {
+        setName( id ) ;
+    }
+
+    @Override
+    public String getId() {
         return getName() ;
     }
 }

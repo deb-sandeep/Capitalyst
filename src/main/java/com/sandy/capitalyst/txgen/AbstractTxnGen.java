@@ -9,6 +9,7 @@ public abstract class AbstractTxnGen implements TxnGenerator {
     
     private Universe universe = null ;
     private UniverseConfig config = null ;
+    private String id = null ;
     
     @Cfg( mandatory=false )
     private String classifiers = null ;
@@ -48,6 +49,10 @@ public abstract class AbstractTxnGen implements TxnGenerator {
         return this.classifiers ;
     }
     
+    @Override public void setId( String id ) { this.id = id ; }
+
+    @Override public String getId() { return this.id ; }
+
     public String toString() {
         return this.name ;
     }

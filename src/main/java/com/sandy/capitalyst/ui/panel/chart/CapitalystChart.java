@@ -34,6 +34,7 @@ import org.jfree.data.time.TimeSeriesCollection ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
+import com.sandy.capitalyst.ui.helper.UIConstants ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystChart extends JPanel 
@@ -53,8 +54,8 @@ public class CapitalystChart extends JPanel
         }
     }
     
-    private static final Font AXIS_FONT   = new Font( "Helvetica", Font.PLAIN, 11 ) ;
-    private static final Font LEGEND_FONT = new Font( "Helvetica", Font.PLAIN, 10 ) ;
+    private static final Font AXIS_FONT   = UIConstants.CHART_AXIS_FONT ;
+    private static final Font LEGEND_FONT = UIConstants.CHART_LEGEND_FONT ;
     
     private Map<String, TimeSeriesWrapper> accountWrapperMap    = null ;
     private TimeSeriesCollection           seriesCollection = null ;

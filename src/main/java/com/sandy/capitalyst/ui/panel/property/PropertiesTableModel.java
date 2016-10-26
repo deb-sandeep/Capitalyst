@@ -3,11 +3,15 @@ package com.sandy.capitalyst.ui.panel.property;
 import java.util.Date ;
 import java.util.List ;
 
+import javax.swing.JOptionPane ;
 import javax.swing.table.DefaultTableModel ;
 
+import org.apache.commons.beanutils.BeanUtils ;
 import org.apache.commons.beanutils.PropertyUtils ;
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.core.UniverseConstituent ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.core.UniverseLoader.ConfigurableField ;
 import com.sandy.capitalyst.util.Utils ;
@@ -18,21 +22,30 @@ public class PropertiesTableModel extends DefaultTableModel {
     static Logger log = Logger.getLogger( PropertiesTableModel.class ) ;
     
     private List<ConfigurableField> fieldCfgs = null ;
-    private Object instance = null ;
+    private UniverseConstituent instance = null ;
+    private String ucType = null ;
+    private String ucId = null ;
     
     public PropertiesTableModel() {
         this( null ) ;
     }
     
-    public PropertiesTableModel( Object instance ) {
+    public PropertiesTableModel( UniverseConstituent instance ) {
         setModelDataSource( instance ) ;
     }
     
-    public void setModelDataSource( Object instance ) {
+    public void setModelDataSource( UniverseConstituent instance ) {
         this.instance = instance ;
         if( instance != null ) {
+            
+            this.ucType = ( instance instanceof Account ) ? "Account" : "TxGen" ;
+            this.ucId = instance.getId() ;
             this.fieldCfgs = UniverseLoader.getAllConfigurableFields( instance.getClass() ) ;
             this.instance = instance ;
+        }
+        else {
+            this.ucId = null ;
+            this.ucType = null ;
         }
         super.fireTableDataChanged() ;
     }
@@ -105,5 +118,19 @@ public class PropertiesTableModel extends DefaultTableModel {
 
     @Override
     public void setValueAt( Object aValue, int row, int column ) {
+        
+        ConfigurableField fieldCfg = fieldCfgs.get( row ) ;
+        String fieldName = fieldCfg.getField().getName() ; 
+        String cfgKey = this.ucType + "." + this.ucId + ".attr." + fieldName ; 
+        
+        try {
+            BeanUtils.setProperty( instance, fieldName, aValue.toString() ) ;
+            instance.getUniverse().getConfiguration().setProperty( cfgKey, aValue ) ;
+        }
+        catch( Exception e ) {
+            String msg = "Incompatible value. Need value of type " + 
+                         fieldCfg.getField().getType().getName() ;
+            JOptionPane.showMessageDialog( null, msg ) ;
+        }
     }
 }

@@ -16,6 +16,7 @@ import java.util.Map ;
 import java.util.Set ;
 
 import org.apache.commons.beanutils.BeanUtils ;
+import org.apache.commons.beanutils.BeanUtilsBean ;
 import org.apache.commons.beanutils.ConvertUtils ;
 import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
 import org.apache.log4j.Logger ;
@@ -32,6 +33,7 @@ public class UniverseLoader {
     private static final Logger log = Logger.getLogger( UniverseLoader.class ) ;
     
     static {
+        BeanUtilsBean.getInstance().getConvertUtils().register( true, false, 0 ) ;
         DateLocaleConverter converter = null ;
         converter = new DateLocaleConverter( Locale.getDefault(), "dd/MM/yyyy" ) ;
         ConvertUtils.register( converter, Date.class );
@@ -115,6 +117,7 @@ public class UniverseLoader {
             loadTxGenerators( universe ) ;
             
             universe.setConfiguration( univCfg ) ;
+            universe.setId( univName ) ;
         }
         catch( Exception e ) {
             log.error( "Loading universe " + univName + " failed.", e ) ;
@@ -157,7 +160,7 @@ public class UniverseLoader {
             
             log.debug( "Loading context bean :: " + beanAlias ) ;
             UniverseConfig beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
-            UniverseConstituent uc = ( UniverseConstituent )loadObject( beanCfg ) ;
+            UniverseConstituent uc = ( UniverseConstituent )loadObject( beanAlias, beanCfg ) ;
 
             universe.addToContext( beanAlias, uc ) ;        }
     }
@@ -169,7 +172,7 @@ public class UniverseLoader {
             
             log.debug( "Loading account :: " + accAlias ) ;
             UniverseConfig  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
-            Account acc    = (Account)loadObject( accCfg ) ;
+            Account acc    = (Account)loadObject( accAlias, accCfg ) ;
             
             universe.addAccount( acc ) ;
         }
@@ -182,13 +185,13 @@ public class UniverseLoader {
             
             log.debug( "Loading tx generator :: " + txgenAlias ) ;
             UniverseConfig       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
-            TxnGenerator txgen = ( TxnGenerator )loadObject( tgCfg ) ;
+            TxnGenerator txgen = ( TxnGenerator )loadObject( txgenAlias, tgCfg ) ;
             
             universe.registerTxnGenerator( txgen ) ;
         }
     }
     
-    private Object loadObject( UniverseConfig objCfg ) 
+    private Object loadObject( String objId, UniverseConfig objCfg ) 
         throws Exception {
         
         String type = objCfg.getString( "type" ) ;
@@ -203,11 +206,16 @@ public class UniverseLoader {
         
         log.debug( "\t[ " + clsName + " ]" ) ;
         
-        Class<?> objCls  = Class.forName( clsName ) ;
-        Object   obj     = objCls.newInstance() ;
-        UniverseConfig   attrCfg = objCfg.getNestedConfig( "attr" ) ;
+        Class<?>       objCls  = Class.forName( clsName ) ;
+        Object         obj     = objCls.newInstance() ;
+        UniverseConfig attrCfg = objCfg.getNestedConfig( "attr" ) ;
         
         injectFieldValues( obj, attrCfg ) ;
+        
+        if( obj instanceof UniverseConstituent ) {
+            UniverseConstituent uc = ( UniverseConstituent )obj ;
+            uc.setId( objId ) ;
+        }
         
         return obj ;
     }
@@ -220,7 +228,8 @@ public class UniverseLoader {
         }
         
         if( obj instanceof UniverseConstituent ) {
-            ((UniverseConstituent)obj).setUniverse( universe ) ; 
+            UniverseConstituent uc = ( UniverseConstituent )obj ;
+            uc.setUniverse( universe ) ;
         }
         
         if( obj instanceof PostConfigInitializable ) {
@@ -288,12 +297,11 @@ public class UniverseLoader {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private Collection<String> getUniqueEntityAliases( UniverseConfig config, 
                                                        String type ) {
         
         Set<String>      uniqueAliases = new LinkedHashSet<String>() ;
-        UniverseConfig           allCfgs       = config.getNestedConfig( type ) ;
+        UniverseConfig   allCfgs       = config.getNestedConfig( type ) ;
         Iterator<String> keys          = allCfgs.getKeys() ;
         
         while(  keys.hasNext() ) {

@@ -29,6 +29,7 @@ public class Account
     @Cfg( mandatory=false ) protected double amount = 0 ;
     
     private double openingBalance = 0 ;
+    private String id = null ;
     
     private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
@@ -126,4 +127,8 @@ public class Account
     public void initializePostConfig() {
         this.openingBalance = this.amount ;
     }
+
+    @Override public void setId( String id ) { this.id = id ; }
+
+    @Override public String getId() { return this.id ; }
 }

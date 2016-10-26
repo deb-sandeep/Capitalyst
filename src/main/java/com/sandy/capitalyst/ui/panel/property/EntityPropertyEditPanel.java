@@ -8,6 +8,9 @@ import javax.swing.JTable ;
 import javax.swing.table.TableColumn ;
 import javax.swing.table.TableColumnModel ;
 
+import com.sandy.capitalyst.core.UniverseConstituent ;
+import com.sandy.capitalyst.ui.helper.UIConstants ;
+
 @SuppressWarnings( "serial" )
 public class EntityPropertyEditPanel extends JPanel {
 
@@ -22,6 +25,7 @@ public class EntityPropertyEditPanel extends JPanel {
         setLayout( new BorderLayout() ) ;
         tableModel = new PropertiesTableModel() ;
         table = new JTable( tableModel ) ;
+        table.setFont( UIConstants.TABLE_FONT );
         
         JScrollPane sp = new JScrollPane( table ) ;
         configureTable() ;
@@ -39,7 +43,7 @@ public class EntityPropertyEditPanel extends JPanel {
         tcMandatory.setMaxWidth( 20 ) ;
     }
 
-    public void refreshEntity( Object entity ) {
+    public void refreshEntity( UniverseConstituent entity ) {
         tableModel.setModelDataSource( entity ) ;
     }
 }

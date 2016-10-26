@@ -53,7 +53,6 @@ public class UniverseConfig extends CompositeConfiguration {
         return retVal ;
     }
     
-    @SuppressWarnings("unchecked")
     public UniverseConfig getNestedConfig( String prefix ) {
         
         UniverseConfig config = new UniverseConfig() ;
