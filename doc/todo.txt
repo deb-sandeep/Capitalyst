@@ -1,4 +1,7 @@
-Entities in configuration can inherit attributes from another entity
+Removal of universes - removes all series from charts
+Editing of properties of universe entities
+Specifying a new name for clone
+Rerunning of the same simulation
 
 -------------------------------------------------------------------------------
                                DONE
