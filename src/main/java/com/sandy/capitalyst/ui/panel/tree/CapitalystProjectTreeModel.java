@@ -33,6 +33,7 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         
         DefaultMutableTreeNode node = null ;
         node = new DefaultMutableTreeNode( u.getName() ) ;
+        node.setUserObject( u ) ;
         node.add( createAccountsNode( u ) );
         return node ;
     }

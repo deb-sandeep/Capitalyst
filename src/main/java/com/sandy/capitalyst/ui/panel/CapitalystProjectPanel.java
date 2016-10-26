@@ -3,8 +3,6 @@ package com.sandy.capitalyst.ui.panel;
 import java.awt.BorderLayout ;
 import java.io.File ;
 import java.net.URL ;
-import java.util.ArrayList ;
-import java.util.List ;
 
 import javax.swing.JPanel ;
 import javax.swing.JSplitPane ;
@@ -23,12 +21,9 @@ public class CapitalystProjectPanel extends JPanel {
     private CapitalystTreePanel  treePanel  = null ;
     private CapitalystChartPanel chartPanel = null ;
     
-    private List<Universe> universes = null ;
-    
     private TransferHandler accountTransferHandler = null ;
     
     public CapitalystProjectPanel() {
-        universes = new ArrayList<Universe>() ;
         accountTransferHandler = new AccountTransferHandler() ;
         setUpUI() ;
     }
@@ -57,7 +52,6 @@ public class CapitalystProjectPanel extends JPanel {
         UniverseLoader loader = new UniverseLoader( url ) ;
         Universe universe = loader.loadUniverse() ;
         
-        universes.add( universe ) ;
         treePanel.addUniverse( universe ) ;
     }
     
@@ -65,17 +59,6 @@ public class CapitalystProjectPanel extends JPanel {
         chartPanel.addChart( new CapitalystChart( accountTransferHandler ) ) ;
     }
     
-    public void runSimulation() {
-        for( Universe u : universes ) {
-            Thread t = new Thread() {
-                public void run() {
-                    u.run() ;
-                }
-            } ;
-            t.start() ;
-        }
-    }
-
     public CapitalystChartPanel getChartPanel() {
         return chartPanel ;
     }

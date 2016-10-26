@@ -33,6 +33,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     private DayClock clock = null ;
     
     private EventBus bus = new EventBus() ;
+    private boolean  virgin = true ;
     
     @Cfg private Date startDate = null ;
     @Cfg private Date endDate = null ;
@@ -75,8 +76,13 @@ public class Universe implements DayObserver, PostConfigInitializable {
         clock.registerTimeObserver( this ) ;
     }
     
-    public void run() {
+    public void runSimulation() {
+        virgin = false ;
         clock.run() ;
+    }
+    
+    public boolean isVirgin() {
+        return virgin ;
     }
 
     @Override
@@ -89,6 +95,10 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     public String getName() {
         return this.name ;
+    }
+    
+    public void setName( String name ) {
+        this.name = name ;
     }
     
     public void addToContext( String alias, UniverseConstituent obj ) {
@@ -180,5 +190,9 @@ public class Universe implements DayObserver, PostConfigInitializable {
         }
         throw new AccountNotFoundException( "Tax account not found for " + 
                                             targetAccountNo ) ;
+    }
+    
+    public String toString() {
+        return getName() ;
     }
 }

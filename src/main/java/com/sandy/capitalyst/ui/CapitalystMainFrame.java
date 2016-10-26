@@ -90,10 +90,6 @@ public class CapitalystMainFrame extends JFrame {
         }
     }
 
-    public void runSimulation() {
-        projectPanel.runSimulation() ;
-    }
-    
     public void newChart() {
         projectPanel.newChart() ;
     }

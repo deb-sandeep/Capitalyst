@@ -23,8 +23,6 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     private JMenuItem newChartMI     = null ;
     private JMenuItem increaseNumColMI = null ;
     private JMenuItem decreaseNumColMI = null ;
-
-    private JMenuItem runSimulation = null ;
     
     public CapitalystMenuBar( CapitalystMainFrame frame ) {
         this.mainFrame = frame ;
@@ -33,7 +31,6 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     
     private void setUpUI() {
         super.add( createFileMenu() ) ;
-        super.add( createSimulationMenu() ) ;
         super.add( createChartMenu() ) ;
     }
     
@@ -53,17 +50,6 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         menu.add( loadUniverseMI ) ;
         menu.addSeparator() ;
         menu.add( exitMI ) ;
-        
-        return menu ;
-    }
-    
-    private JMenu createSimulationMenu() {
-        
-        runSimulation = new JMenuItem( "Run" ) ;
-        runSimulation.addActionListener( this ) ;
-        
-        JMenu menu = new JMenu( "Simulation" ) ;
-        menu.add( runSimulation ) ;
         
         return menu ;
     }
@@ -107,9 +93,6 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         }
         else if( mi == exitMI ) {
             mainFrame.exit() ;
-        }
-        else if( mi == runSimulation ) {
-            mainFrame.runSimulation() ;
         }
     }
 }

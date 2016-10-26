@@ -21,7 +21,7 @@ public class BasicTest {
     @Test
     public void basic() throws Exception {
         setUp( "test-1" ) ;
-        universe.run() ;
+        universe.runSimulation() ;
         log.debug( LedgerUtils.getFormattedLedger( universe.getAccount( "1234" ) ) ) ;
         log.debug( LedgerUtils.getFormattedLedger( universe.getAccount( "5678" ) ) ) ;
     }

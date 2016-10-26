@@ -71,4 +71,10 @@ public class UniverseConfig extends CompositeConfiguration {
         
         return config ;
     }
+    
+    public UniverseConfig clone() {
+        UniverseConfig clone = new UniverseConfig() ;
+        clone.copy( this ) ;
+        return clone ;
+    }
 }
