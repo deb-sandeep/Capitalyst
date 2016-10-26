@@ -16,8 +16,11 @@ import javax.swing.JScrollPane ;
 import javax.swing.JTree ;
 import javax.swing.SwingUtilities ;
 import javax.swing.TransferHandler ;
+import javax.swing.event.TreeSelectionEvent ;
+import javax.swing.event.TreeSelectionListener ;
 import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.TreePath ;
+import javax.swing.tree.TreeSelectionModel ;
 
 import org.apache.log4j.Logger ;
 
@@ -25,15 +28,18 @@ import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
-import com.sandy.capitalyst.ui.panel.CapitalystProjectPanel ;
+import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
+import com.sandy.capitalyst.ui.panel.property.EntityPropertyEditPanel ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystTreePanel extends JPanel 
-    implements ActionListener {
+    implements ActionListener, TreeSelectionListener {
 
     static final Logger log = Logger.getLogger( CapitalystTreePanel.class ) ;
     
-    private CapitalystProjectPanel     parent = null ;
+    private CapitalystChartPanel    chartPanel = null ;
+    private EntityPropertyEditPanel propPanel  = null ;
+    
     private CapitalystProjectTreeModel treeModel = null ;
     private JTree                      tree = null ;
     private TransferHandler            transferHandler = null ;
@@ -44,8 +50,12 @@ public class CapitalystTreePanel extends JPanel
     private JMenuItem  removeUniverseMI= null ;
     private JMenuItem  resetSimulationMI = null ;
     
-    public CapitalystTreePanel( TransferHandler th, CapitalystProjectPanel parent ) {
-        this.parent = parent ;
+    public CapitalystTreePanel( TransferHandler th, 
+                                CapitalystChartPanel chartPanel,
+                                EntityPropertyEditPanel propPanel ) {
+        
+        this.chartPanel = chartPanel ;
+        this.propPanel = propPanel ;
         this.transferHandler = th ;
         setUpUI() ;
         setUpListeners() ;
@@ -60,6 +70,8 @@ public class CapitalystTreePanel extends JPanel
         tree.setFont( new Font( "Helvetica", Font.PLAIN, 11 ) ) ;
         tree.setDragEnabled( true ) ;
         tree.setTransferHandler( transferHandler ) ;
+        tree.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION ) ;
+        tree.addTreeSelectionListener( this ) ;
         
         super.setLayout( new BorderLayout() ) ;
         
@@ -180,15 +192,20 @@ public class CapitalystTreePanel extends JPanel
     @SuppressWarnings( "unchecked" )
     private void resetSimulationOfSelectedUniverse() {
         
+        // Get references to old and new universes
         Universe oldUniverse = getSelectedUniverse() ;
         Universe newUniverse = cloneUniverse( oldUniverse, false ) ;
         
+        // Save the tree node of the old universe
         TreePath selPath = tree.getSelectionPath() ;
         DefaultMutableTreeNode oldUnivNode = null ;
         oldUnivNode = ( DefaultMutableTreeNode ) selPath.getLastPathComponent() ;
         
+        // Add the new universe
         DefaultMutableTreeNode newUnivNode = addUniverse( newUniverse ) ;
         
+        // Iterate through the descendants of the new universe and update
+        // any existing time series with that from the new universe.
         Enumeration<DefaultMutableTreeNode> descendents = null ;
         descendents = newUnivNode.depthFirstEnumeration() ;
         
@@ -197,12 +214,15 @@ public class CapitalystTreePanel extends JPanel
             Object userObj = c.getUserObject() ;
             if( userObj instanceof AccountWrapper ) {
                 AccountWrapper wrapper = ( AccountWrapper )userObj ;
-                parent.updateTimeSeries( wrapper ) ;
+                chartPanel.updateTimeSeries( wrapper ) ;
             }
         }
 
+        // Now remove the old universe node from the tree and instruct the 
+        // chart panel to remove any associated time series from the old
+        // universe.
         treeModel.removeNodeFromParent( oldUnivNode ) ;
-        parent.removeUniverse( oldUniverse ) ;
+        chartPanel.removeUniverse( oldUniverse ) ;
     }
     
     private Universe cloneUniverse( Universe u, boolean seekNewName ) {
@@ -255,9 +275,27 @@ public class CapitalystTreePanel extends JPanel
             
             lastNode = ( DefaultMutableTreeNode ) selPath.getLastPathComponent() ;
             treeModel.removeNodeFromParent( lastNode ) ;
-            parent.removeUniverse( u ) ;
+            chartPanel.removeUniverse( u ) ;
         }
         
         return u ;
+    }
+
+    @Override
+    public void valueChanged( TreeSelectionEvent e ) {
+        
+        Object newEntity = null ;
+        
+        DefaultMutableTreeNode lastNode = null ; 
+        TreePath selPath = e.getNewLeadSelectionPath() ;
+        if( selPath != null ) {
+            lastNode = ( DefaultMutableTreeNode )selPath.getLastPathComponent() ;
+            if( lastNode.getUserObject() instanceof AccountWrapper ) {
+                AccountWrapper wrapper = ( AccountWrapper )lastNode.getUserObject() ;
+                newEntity = wrapper.getAccount() ;
+            }
+        }
+        
+        propPanel.refreshEntity( newEntity ) ;
     }
 }

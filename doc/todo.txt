@@ -1,9 +1,11 @@
 Editing of properties of universe entities
-Rerunning of the same simulation
+Remove specific series from chart
 
 -------------------------------------------------------------------------------
                                DONE
 
+Properties of selected accounts are now being shown
+Rerunning of the same simulation
 Removal of universes - removes all series from charts
 Specifying a new name for cloned universe
 Bank Accounts need a mandatory PAN number

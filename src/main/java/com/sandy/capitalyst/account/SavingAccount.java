@@ -19,6 +19,10 @@ public class SavingAccount extends BankAccount
         this.roi = roi ;
     }
     
+    public double getRoi() {
+        return this.roi ;
+    }
+    
     @Override
     public void handleEndOfDayEvent( Date date ) {
 

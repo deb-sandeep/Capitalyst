@@ -40,7 +40,8 @@ public class CapitalystChart extends JPanel {
         }
     }
     
-    private static final Font AXIS_FONT = new Font( "Helvetica", Font.PLAIN, 11 ) ;
+    private static final Font AXIS_FONT   = new Font( "Helvetica", Font.PLAIN, 11 ) ;
+    private static final Font LEGEND_FONT = new Font( "Helvetica", Font.PLAIN, 10 ) ;
     
     private Map<String, TimeSeriesWrapper> accountWrapperMap    = null ;
     private TimeSeriesCollection           seriesCollection = null ;
@@ -106,7 +107,7 @@ public class CapitalystChart extends JPanel {
     private void configureLegends() {
         
         LegendTitle legend = chart.getLegend() ;
-        legend.setItemFont( AXIS_FONT ) ;
+        legend.setItemFont( LEGEND_FONT ) ;
         legend.setItemPaint( Color.LIGHT_GRAY.darker() ) ;
         legend.setBackgroundPaint( Color.BLACK );
     }

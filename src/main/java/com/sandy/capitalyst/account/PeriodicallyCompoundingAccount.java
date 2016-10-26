@@ -121,13 +121,25 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     public void setOpeningDate( Date date ) {
         this.openingDate = date ;
     }
+    
+    public Date getOpeningDate() {
+        return this.openingDate ;
+    }
 
     public void setClosingDate( Date date ) {
         this.closingDate = date ;
     }
     
+    public Date getClosingDate() {
+        return this.closingDate ;
+    }
+    
     public void setRoi( double roi ) {
         this.roi = roi ;
+    }
+    
+    public double getRoi() {
+        return this.roi ;
     }
     
     public void setParentAccountNumber( String acctNo ) {

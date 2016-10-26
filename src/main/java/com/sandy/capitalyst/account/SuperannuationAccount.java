@@ -20,12 +20,20 @@ public class SuperannuationAccount extends YearlyCompoundingAccount
     
     private double annuityPayoutPerMonth = 0 ;
     
+    public double getAnnuityPer1000PerYear() {
+        return annuityPer1000PerYear ;
+    }
+    
     public void setMaxTaxFreeWithdrawalPct( double pct ) {
         this.maxTaxFreeWithdrawalPct = pct/100 ;
     }
     
     public void setAnnuityPer1000PerYear( double amt ){
         this.annuityPer1000PerYear = amt ;
+    }
+    
+    public double getMaxTaxFreeWithdrawalPct() {
+        return maxTaxFreeWithdrawalPct ;
     }
     
     private class SAClosureAction implements AccountClosureAction {

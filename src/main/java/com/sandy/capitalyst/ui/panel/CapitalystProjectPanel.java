@@ -4,6 +4,7 @@ import java.awt.BorderLayout ;
 import java.io.File ;
 import java.net.URL ;
 
+import javax.swing.JComponent ;
 import javax.swing.JPanel ;
 import javax.swing.JSplitPane ;
 import javax.swing.TransferHandler ;
@@ -11,16 +12,18 @@ import javax.swing.TransferHandler ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.ui.helper.AccountTransferHandler ;
-import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChart ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
+import com.sandy.capitalyst.ui.panel.property.EntityPropertyEditPanel ;
 import com.sandy.capitalyst.ui.panel.tree.CapitalystTreePanel ;
+import com.sandy.common.ui.SwingUtils ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystProjectPanel extends JPanel {
     
-    private CapitalystTreePanel  treePanel  = null ;
-    private CapitalystChartPanel chartPanel = null ;
+    private CapitalystTreePanel     treePanel  = null ;
+    private CapitalystChartPanel    chartPanel = null ;
+    private EntityPropertyEditPanel propPanel  = null ;
     
     private TransferHandler accountTransferHandler = null ;
     
@@ -32,12 +35,14 @@ public class CapitalystProjectPanel extends JPanel {
     private void setUpUI() {
         
         chartPanel = new CapitalystChartPanel() ;
-        treePanel  = new CapitalystTreePanel( accountTransferHandler, this ) ;
+        propPanel  = new EntityPropertyEditPanel() ;
+        treePanel  = new CapitalystTreePanel( accountTransferHandler, 
+                                              chartPanel, propPanel ) ;
         
         newChart() ;
         
         JSplitPane splitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT ) ;
-        splitPane.add( treePanel ) ;
+        splitPane.add( getLeftSidePanel() ) ;
         splitPane.add( chartPanel ) ;
         splitPane.setDividerLocation( 250 ) ;
         splitPane.setDividerSize( 5 ) ;
@@ -45,6 +50,18 @@ public class CapitalystProjectPanel extends JPanel {
         
         super.setLayout( new BorderLayout() ) ;
         super.add( splitPane ) ;
+    }
+    
+    private JComponent getLeftSidePanel() {
+        
+        JSplitPane splitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT ) ;
+        splitPane.add( treePanel ) ;
+        splitPane.add( propPanel ) ;
+        splitPane.setDividerLocation( (int)(SwingUtils.getScreenHeight()*0.7) ) ;
+        splitPane.setDividerSize( 2 ) ;
+        splitPane.setOneTouchExpandable( false ) ;
+        
+        return splitPane ;
     }
     
     public void loadUniverse( File file ) throws Exception {
@@ -62,16 +79,5 @@ public class CapitalystProjectPanel extends JPanel {
     
     public CapitalystChartPanel getChartPanel() {
         return chartPanel ;
-    }
-    
-    // Note that the tree calls on this method after the universe has been
-    // removed from the tree and hence this method removes the universe from
-    // all components except the tree.
-    public void removeUniverse( Universe u ) {
-        chartPanel.removeUniverse( u ) ;
-    }
-
-    public void updateTimeSeries( AccountWrapper wrapper ) {
-       chartPanel.updateTimeSeries( wrapper ) ;
     }
 }

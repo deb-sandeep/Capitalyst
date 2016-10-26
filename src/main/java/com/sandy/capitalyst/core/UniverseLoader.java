@@ -7,10 +7,12 @@ import java.util.ArrayList ;
 import java.util.Collection ;
 import java.util.Comparator ;
 import java.util.Date ;
+import java.util.HashMap ;
 import java.util.Iterator ;
 import java.util.LinkedHashSet ;
 import java.util.List ;
 import java.util.Locale ;
+import java.util.Map ;
 import java.util.Set ;
 
 import org.apache.commons.beanutils.BeanUtils ;
@@ -34,6 +36,27 @@ public class UniverseLoader {
         converter = new DateLocaleConverter( Locale.getDefault(), "dd/MM/yyyy" ) ;
         ConvertUtils.register( converter, Date.class );
     }
+    
+    public static class ConfigurableField {
+        private Field field = null ;
+        private boolean mandatory = false ;
+        
+        public ConfigurableField( Field f, boolean mandatory ) {
+            this.field = f ;
+            this.mandatory = mandatory ;
+        }
+        
+        public Field getField() {
+            return this.field ;
+        }
+        
+        public boolean isMandatory() {
+            return this.mandatory ;
+        }
+    }
+    
+    public static Map<Class<?>, List<ConfigurableField>> configurableFieldMap =
+                                                               new HashMap<>() ;
     
     private static final String UNNAMED_UNIVERSE_PREFIX = "Unnamed Universe" ;
     private static int nextUnnamedUniverseID = 0 ;
@@ -191,14 +214,8 @@ public class UniverseLoader {
     
     private void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
         
-        List<Field> fields = getAllConfigurableFields( obj.getClass() ) ;
-        fields.sort( new Comparator<Field>() {
-            @Override public int compare( Field f1, Field f2 ) {
-                return f1.getName().compareTo( f2.getName() ) ;
-            }
-        } ) ;
-        
-        for( Field field :  fields ) {
+        List<ConfigurableField> fields = getAllConfigurableFields( obj.getClass() ) ;
+        for( ConfigurableField field :  fields ) {
             populateField( obj, field, attrCfg );
         }
         
@@ -211,43 +228,49 @@ public class UniverseLoader {
         }
     }
     
-    private List<Field> getAllConfigurableFields( Class<?> cls ) {
+    public static List<ConfigurableField> getAllConfigurableFields( Class<?> cls ) {
         
-        List<Field> allFields = new ArrayList<Field>() ;
+        List<ConfigurableField> allFields = null ;
         
-        do {
-            Field[] fields = cls.getDeclaredFields() ;
-            for( Field f : fields ) {
-                Annotation[] annotations = f.getAnnotations() ;
-                if( annotations.length > 0 ) {
-                    for( Annotation a : annotations ) {
-                        if( a instanceof com.sandy.capitalyst.cfg.Cfg ) {
-                            allFields.add( f ) ;
+        allFields = configurableFieldMap.get( cls ) ;
+        if( allFields == null ) {
+            allFields = new ArrayList<>() ;
+            do {
+                Field[] fields = cls.getDeclaredFields() ;
+                for( Field f : fields ) {
+                    Annotation[] annotations = f.getAnnotations() ;
+                    if( annotations.length > 0 ) {
+                        for( Annotation a : annotations ) {
+                            if( a instanceof com.sandy.capitalyst.cfg.Cfg ) {
+                                allFields.add( new ConfigurableField( f,
+                              ((com.sandy.capitalyst.cfg.Cfg)a).mandatory() ) ) ;
+                            }
                         }
                     }
                 }
+                cls = cls.getSuperclass() ;
             }
-            cls = cls.getSuperclass() ;
+            while( cls != null ) ;
+
+            allFields.sort( new Comparator<ConfigurableField>() {
+                @Override public int compare( ConfigurableField f1, ConfigurableField f2 ) {
+                    return f1.getField().getName().compareTo( f2.getField().getName() ) ;
+                }
+            } ) ;
+            
+            configurableFieldMap.put( cls, allFields ) ;
         }
-        while( cls != null ) ;
         
         return allFields ;
     }
     
-    private void populateField( Object obj, Field f, UniverseConfig attrValues ) {
+    private void populateField( Object obj, ConfigurableField f, 
+                                UniverseConfig attrValues ) {
         
         
-        boolean mandatory   = true ;
-        String  fieldName   = f.getName() ;
+        boolean mandatory   = f.isMandatory() ;
+        String  fieldName   = f.getField().getName() ;
         String  fieldRawVal = attrValues.getString( fieldName ) ;
-        
-        Annotation[] annotations = f.getAnnotations() ;
-        for( Annotation a : annotations ) {
-            if( a instanceof com.sandy.capitalyst.cfg.Cfg ) {
-                mandatory = ((com.sandy.capitalyst.cfg.Cfg)a).mandatory() ;
-                break ;
-            }
-        }
         
         if( mandatory && fieldRawVal == null ) {
             throw new MissingConfigException( fieldName ) ;

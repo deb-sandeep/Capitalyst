@@ -16,7 +16,7 @@ import com.sandy.capitalyst.core.Txn ;
 public class Utils {
 
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
-    public static final DecimalFormat     DF = new DecimalFormat( "00.0" ) ;
+    public static final DecimalFormat     DF = new DecimalFormat( "0.0" ) ;
     
     public static Date parseDate( String dateStr ) throws IllegalArgumentException {
         try {
