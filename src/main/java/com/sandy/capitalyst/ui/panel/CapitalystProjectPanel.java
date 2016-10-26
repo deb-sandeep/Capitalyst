@@ -11,6 +11,7 @@ import javax.swing.TransferHandler ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.ui.helper.AccountTransferHandler ;
+import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChart ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
 import com.sandy.capitalyst.ui.panel.tree.CapitalystTreePanel ;
@@ -68,5 +69,9 @@ public class CapitalystProjectPanel extends JPanel {
     // all components except the tree.
     public void removeUniverse( Universe u ) {
         chartPanel.removeUniverse( u ) ;
+    }
+
+    public void updateTimeSeries( AccountWrapper wrapper ) {
+       chartPanel.updateTimeSeries( wrapper ) ;
     }
 }

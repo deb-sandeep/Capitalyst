@@ -24,6 +24,7 @@ import org.apache.log4j.Logger ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
+import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.panel.CapitalystProjectPanel ;
 
 @SuppressWarnings( "serial" )
@@ -41,6 +42,7 @@ public class CapitalystTreePanel extends JPanel
     private JMenuItem  runSimulationMI = null ;
     private JMenuItem  cloneUniverseMI = null ;
     private JMenuItem  removeUniverseMI= null ;
+    private JMenuItem  resetSimulationMI = null ;
     
     public CapitalystTreePanel( TransferHandler th, CapitalystProjectPanel parent ) {
         this.parent = parent ;
@@ -74,14 +76,20 @@ public class CapitalystTreePanel extends JPanel
         runSimulationMI = new JMenuItem( "Run Simulation" ) ;
         runSimulationMI.addActionListener( this ) ;
         
+        resetSimulationMI = new JMenuItem( "Reset Simulation" ) ;
+        resetSimulationMI.addActionListener( this ) ;
+        
         cloneUniverseMI = new JMenuItem( "Clone Universe" ) ;
         cloneUniverseMI.addActionListener( this ) ;
         
         removeUniverseMI = new JMenuItem( "Remove Universe" ) ;
         removeUniverseMI.addActionListener( this ) ;
         
+        
         popupMenu = new JPopupMenu() ;
         popupMenu.add( runSimulationMI ) ;
+        popupMenu.add( resetSimulationMI ) ;
+        popupMenu.addSeparator() ;
         popupMenu.add( cloneUniverseMI ) ;
         popupMenu.add( removeUniverseMI ) ;
     }
@@ -118,9 +126,10 @@ public class CapitalystTreePanel extends JPanel
         } ) ;
     }
     
-    public void addUniverse( Universe universe ) {
+    public DefaultMutableTreeNode addUniverse( Universe universe ) {
         DefaultMutableTreeNode universeNode = treeModel.addUniverse( universe ) ;
         expandNode( universeNode ) ;
+        return universeNode ;
     }
     
     @SuppressWarnings( "unchecked" )
@@ -142,8 +151,13 @@ public class CapitalystTreePanel extends JPanel
         if( mi == runSimulationMI ) {
             simulateSelectedUniverse() ;
         }
+        else if( mi == resetSimulationMI ) {
+            resetSimulationOfSelectedUniverse() ;
+        }
         else if( mi == cloneUniverseMI ) {
-            cloneSelectedUniverse( true ) ;
+            final Universe u = getSelectedUniverse() ;
+            Universe newUniv = cloneUniverse( u, true ) ;
+            addUniverse( newUniv ) ;
         }
         else if( mi == removeUniverseMI ) {
             removeSelectedUniverse() ;
@@ -163,28 +177,59 @@ public class CapitalystTreePanel extends JPanel
         }
     }
     
-    private void cloneSelectedUniverse( boolean seekNewName ) {
+    @SuppressWarnings( "unchecked" )
+    private void resetSimulationOfSelectedUniverse() {
         
-        final Universe u = getSelectedUniverse() ;
+        Universe oldUniverse = getSelectedUniverse() ;
+        Universe newUniverse = cloneUniverse( oldUniverse, false ) ;
+        
+        TreePath selPath = tree.getSelectionPath() ;
+        DefaultMutableTreeNode oldUnivNode = null ;
+        oldUnivNode = ( DefaultMutableTreeNode ) selPath.getLastPathComponent() ;
+        
+        DefaultMutableTreeNode newUnivNode = addUniverse( newUniverse ) ;
+        
+        Enumeration<DefaultMutableTreeNode> descendents = null ;
+        descendents = newUnivNode.depthFirstEnumeration() ;
+        
+        while( descendents.hasMoreElements() ) {
+            DefaultMutableTreeNode c = descendents.nextElement() ;
+            Object userObj = c.getUserObject() ;
+            if( userObj instanceof AccountWrapper ) {
+                AccountWrapper wrapper = ( AccountWrapper )userObj ;
+                parent.updateTimeSeries( wrapper ) ;
+            }
+        }
+
+        treeModel.removeNodeFromParent( oldUnivNode ) ;
+        parent.removeUniverse( oldUniverse ) ;
+    }
+    
+    private Universe cloneUniverse( Universe u, boolean seekNewName ) {
+        
+        Universe newUniverse = null ;
+        
         if( u != null ) {
             UniverseConfig config      = u.getConfig().clone() ;
             UniverseLoader loader      = new UniverseLoader( config ) ;
-            Universe       newUniverse = null ;
             String         newName     = u.getName() ;
             
-            newName = JOptionPane.showInputDialog( "Name of the cloned universe?",
-                                                   u.getName() + "(clone)" ) ;
+            if( seekNewName )  {
+                newName = JOptionPane.showInputDialog( "Name of the cloned universe?",
+                                                       u.getName() + "(clone)" ) ;
+            }
+            
             if( newName != null ) {
                 try {
                     newUniverse = loader.loadUniverse() ;
                     newUniverse.setName( newName );
-                    addUniverse( newUniverse ) ;
                 }
                 catch( Exception e ) {
                     log.error( "Could not create new universe", e ) ;
                 }
             }
         }
+        return newUniverse ;
     }
     
     private Universe getSelectedUniverse() {
@@ -200,7 +245,7 @@ public class CapitalystTreePanel extends JPanel
         return null ;
     }
     
-    private void removeSelectedUniverse() {
+    private Universe removeSelectedUniverse() {
         
         TreePath selPath = tree.getSelectionPath() ;
         Universe u       = getSelectedUniverse() ;
@@ -212,5 +257,7 @@ public class CapitalystTreePanel extends JPanel
             treeModel.removeNodeFromParent( lastNode ) ;
             parent.removeUniverse( u ) ;
         }
+        
+        return u ;
     }
 }

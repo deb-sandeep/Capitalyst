@@ -7,6 +7,7 @@ import java.util.List ;
 import javax.swing.JPanel ;
 
 import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystChartPanel extends JPanel {
@@ -78,6 +79,12 @@ public class CapitalystChartPanel extends JPanel {
     public void removeUniverse( Universe u ) {
         for( CapitalystChart chart : charts ) {
             chart.removeUniverse( u ) ;
+        }
+    }
+
+    public void updateTimeSeries( AccountWrapper wrapper ) {
+        for( CapitalystChart chart : charts ) {
+            chart.updateTimeSeries( wrapper ) ;
         }
     }
 }

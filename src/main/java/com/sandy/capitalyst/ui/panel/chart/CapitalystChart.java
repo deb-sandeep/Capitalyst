@@ -168,4 +168,20 @@ public class CapitalystChart extends JPanel {
             }
         }
     }
+
+    public void updateTimeSeries( AccountWrapper newACWrapper ) {
+        
+        TimeSeries newTimeSeries = newACWrapper.getTimeSeries() ;
+        
+        for( TimeSeriesWrapper wrapper : accountWrapperMap.values() ) {
+            String oldSeriesName = (String)wrapper.series.getKey() ;
+            String newSeriesName = (String)newTimeSeries.getKey() ;
+            
+            if( oldSeriesName.equals( newSeriesName ) ) {
+                seriesCollection.removeSeries( wrapper.series ) ;
+                accountWrapperMap.remove( (String)wrapper.series.getKey() ) ;
+                addSeries( newACWrapper ) ;
+            }
+        }
+    }
 }
