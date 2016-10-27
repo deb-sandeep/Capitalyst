@@ -67,7 +67,7 @@ public class CapitalystMainFrame extends JFrame {
             
             @Override public boolean accept( File f ) {
                 boolean isCfgFile = false ;
-                isCfgFile = f.isFile() && f.getName().endsWith( ".properties" ) ;
+                isCfgFile = f.isFile() && f.getName().endsWith( ".capitalyst" ) ;
                 return f.isDirectory() || isCfgFile ;
             }
         } ) ;

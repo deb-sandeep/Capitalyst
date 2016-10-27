@@ -1,9 +1,12 @@
-The series need to be of the same color across charts.
 Saving configurations of universes
+Simulation speed change
+Ledger table for an account, with filter expression
 
 -------------------------------------------------------------------------------
                                DONE
 
+Change name of root property file to .capitalyst
+The series need to be of the same color across charts.
 Editing of properties of universe entities
 Remove specific series from chart
 Properties of selected accounts are now being shown

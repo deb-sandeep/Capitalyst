@@ -27,6 +27,7 @@ import org.jfree.chart.axis.ValueAxis ;
 import org.jfree.chart.entity.ChartEntity ;
 import org.jfree.chart.entity.LegendItemEntity ;
 import org.jfree.chart.plot.XYPlot ;
+import org.jfree.chart.renderer.AbstractRenderer ;
 import org.jfree.chart.title.LegendTitle ;
 import org.jfree.data.time.TimeSeries ;
 import org.jfree.data.time.TimeSeriesCollection ;
@@ -57,15 +58,16 @@ public class CapitalystChart extends JPanel
     private static final Font AXIS_FONT   = UIConstants.CHART_AXIS_FONT ;
     private static final Font LEGEND_FONT = UIConstants.CHART_LEGEND_FONT ;
     
-    private Map<String, TimeSeriesWrapper> accountWrapperMap    = null ;
-    private TimeSeriesCollection           seriesCollection = null ;
+    private Map<String, TimeSeriesWrapper> wrapperMap    = null ;
+    private TimeSeriesCollection           seriesColl = null ;
     private CapitalystChartPanel           parent           = null ;
     private TransferHandler                transferHandler  = null ;
     
-    private String     title = null ;
-    private JFreeChart chart = null ;
-    private XYPlot     plot  = null ;
-    private ChartPanel chartPanel = null ;
+    private String           title = null ;
+    private JFreeChart       chart = null ;
+    private XYPlot           plot  = null ;
+    private ChartPanel       chartPanel = null ;
+    private AbstractRenderer renderer = null ;
     
     private JPopupMenu legendPopupMenu = null ;
     private JMenuItem  removeSeriesMI = null ;
@@ -76,8 +78,8 @@ public class CapitalystChart extends JPanel
     public CapitalystChart( TransferHandler th ) {
         
         transferHandler  = th ;
-        accountWrapperMap = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
-        seriesCollection = new TimeSeriesCollection() ;
+        wrapperMap = new LinkedHashMap<String, CapitalystChart.TimeSeriesWrapper>() ;
+        seriesColl = new TimeSeriesCollection() ;
         
         createChart() ;
         setUpUI() ;
@@ -99,7 +101,7 @@ public class CapitalystChart extends JPanel
                       this.title, 
                       null, 
                       "Amount (Lakhs)", 
-                      seriesCollection ) ;
+                      seriesColl ) ;
         chart.setBackgroundPaint( Color.BLACK ) ;
         
         configurePlot() ;
@@ -113,6 +115,8 @@ public class CapitalystChart extends JPanel
         plot.setBackgroundPaint( Color.BLACK ) ;
         plot.setDomainGridlinePaint( Color.DARK_GRAY ) ;
         plot.setRangeGridlinePaint( Color.DARK_GRAY ) ;
+        
+        renderer = ( AbstractRenderer )plot.getRenderer() ;
     }
     
     private void configureLegendPopup() {
@@ -159,31 +163,38 @@ public class CapitalystChart extends JPanel
         parent.removeChartFromPanel( this ) ;
     }
     
-    public void addSeries( AccountWrapper accountWrapper ) {
+    public void addSeries( AccountWrapper wrapper ) {
         
-        TimeSeries series = accountWrapper.getTimeSeries() ;
-        if( !accountWrapperMap.containsKey( (String)series.getKey() ) ) {
-            accountWrapperMap.put( (String)series.getKey(), 
-                                   new TimeSeriesWrapper( accountWrapper ) ) ;
-            seriesCollection.addSeries( series ) ;
+        SeriesColorManager colorMgr = SeriesColorManager.instance() ;
+        TimeSeries series = wrapper.getTimeSeries() ;
+        
+        if( !wrapperMap.containsKey( (String)series.getKey() ) ) {
+            
+            String seriesKey = ( String ) series.getKey() ;
+            
+            wrapperMap.put( seriesKey, new TimeSeriesWrapper( wrapper ) ) ;
+            seriesColl.addSeries( series ) ;
+            
+            renderer.setSeriesPaint( seriesColl.getSeriesCount()-1, 
+                                     colorMgr.getColor( seriesKey ) ) ;
         }
     }
     
     public void removeSeries( TimeSeries series ) {
-        accountWrapperMap.remove( series.getKey() ) ;
-        seriesCollection.removeSeries( series ) ;
+        wrapperMap.remove( series.getKey() ) ;
+        seriesColl.removeSeries( series ) ;
     }
     
     public void removeSeries( String key ) {
-        TimeSeriesWrapper wrapper = accountWrapperMap.remove( key ) ;
+        TimeSeriesWrapper wrapper = wrapperMap.remove( key ) ;
         if( wrapper != null ) {
-            seriesCollection.removeSeries( wrapper.series ) ;
+            seriesColl.removeSeries( wrapper.series ) ;
         }
     }
     
     public void removeAllSeries() {
         Collection<String> seriesNames = new ArrayList<>() ;
-        for( String key : accountWrapperMap.keySet() ) {
+        for( String key : wrapperMap.keySet() ) {
             seriesNames.add( key ) ;
         }
         
@@ -193,29 +204,29 @@ public class CapitalystChart extends JPanel
     }
     
     public void hideSeries( String key ) {
-        TimeSeriesWrapper wrapper = accountWrapperMap.get( key ) ;
+        TimeSeriesWrapper wrapper = wrapperMap.get( key ) ;
         if( wrapper != null ) {
-            seriesCollection.removeSeries( wrapper.series ) ;
+            seriesColl.removeSeries( wrapper.series ) ;
             wrapper.isHidden = true ;
         }
     }
     
     public void unhideSeries( String key ) {
-        TimeSeriesWrapper wrapper = accountWrapperMap.get( key ) ;
+        TimeSeriesWrapper wrapper = wrapperMap.get( key ) ;
         if( wrapper != null && wrapper.isHidden ) {
             wrapper.isHidden = false ;
-            seriesCollection.addSeries( wrapper.series ) ;
+            seriesColl.addSeries( wrapper.series ) ;
         }
     }
     
     public void removeUniverse( Universe u ) {
-        for( TimeSeriesWrapper wrapper : accountWrapperMap.values() ) {
+        for( TimeSeriesWrapper wrapper : wrapperMap.values() ) {
             Account  wrapperAccount  = wrapper.acWrapper.getAccount() ;
             Universe wrapperUniverse = wrapperAccount.getUniverse() ;
             
             if( wrapperUniverse == u ) {
-                seriesCollection.removeSeries( wrapper.series ) ;
-                accountWrapperMap.remove( (String)wrapper.series.getKey() ) ;
+                seriesColl.removeSeries( wrapper.series ) ;
+                wrapperMap.remove( (String)wrapper.series.getKey() ) ;
             }
         }
     }
@@ -226,7 +237,7 @@ public class CapitalystChart extends JPanel
         
         Collection<TimeSeriesWrapper> wrappers = null ;
         wrappers = new ArrayList<CapitalystChart.TimeSeriesWrapper>() ;
-        for( TimeSeriesWrapper wrapper : accountWrapperMap.values() ) {
+        for( TimeSeriesWrapper wrapper : wrapperMap.values() ) {
             wrappers.add( wrapper ) ;
         }
         
@@ -236,8 +247,8 @@ public class CapitalystChart extends JPanel
             String newSeriesName = (String)newTimeSeries.getKey() ;
             
             if( oldSeriesName.equals( newSeriesName ) ) {
-                seriesCollection.removeSeries( wrapper.series ) ;
-                accountWrapperMap.remove( (String)wrapper.series.getKey() ) ;
+                seriesColl.removeSeries( wrapper.series ) ;
+                wrapperMap.remove( (String)wrapper.series.getKey() ) ;
                 addSeries( newACWrapper ) ;
             }
         }
