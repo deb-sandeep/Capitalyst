@@ -23,6 +23,7 @@ import javax.swing.tree.TreeSelectionModel ;
 
 import org.apache.log4j.Logger ;
 
+import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
@@ -31,6 +32,7 @@ import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.helper.UIConstants ;
 import com.sandy.capitalyst.ui.panel.chart.CapitalystChartPanel ;
+import com.sandy.capitalyst.ui.panel.ledger.LedgerTabbedPane ;
 import com.sandy.capitalyst.ui.panel.property.EntityPropertyEditPanel ;
 
 @SuppressWarnings( "serial" )
@@ -39,26 +41,30 @@ public class CapitalystTreePanel extends JPanel
 
     static final Logger log = Logger.getLogger( CapitalystTreePanel.class ) ;
     
-    private CapitalystChartPanel    chartPanel = null ;
-    private EntityPropertyEditPanel propPanel  = null ;
+    private CapitalystChartPanel    chartPanel    = null ;
+    private EntityPropertyEditPanel propPanel     = null ;
+    private LedgerTabbedPane        ledgerTabPane = null ;
     
-    private CapitalystProjectTreeModel treeModel = null ;
-    private JTree                      tree = null ;
+    private CapitalystProjectTreeModel treeModel       = null ;
+    private JTree                      tree            = null ;
     private TransferHandler            transferHandler = null ;
     
-    private JPopupMenu popupMenu = null ;
-    private JMenuItem  runSimulationMI = null ;
-    private JMenuItem  cloneUniverseMI = null ;
-    private JMenuItem  removeUniverseMI= null ;
+    private JPopupMenu popupMenu         = null ;
+    private JMenuItem  runSimulationMI   = null ;
+    private JMenuItem  cloneUniverseMI   = null ;
+    private JMenuItem  removeUniverseMI  = null ;
     private JMenuItem  resetSimulationMI = null ;
     
     public CapitalystTreePanel( TransferHandler th, 
                                 CapitalystChartPanel chartPanel,
-                                EntityPropertyEditPanel propPanel ) {
+                                EntityPropertyEditPanel propPanel,
+                                LedgerTabbedPane ledgerPanel ) {
         
         this.chartPanel = chartPanel ;
         this.propPanel = propPanel ;
+        this.ledgerTabPane = ledgerPanel ;
         this.transferHandler = th ;
+        
         setUpUI() ;
         setUpListeners() ;
     }
@@ -302,5 +308,9 @@ public class CapitalystTreePanel extends JPanel
             }
         }
         propPanel.refreshEntity( (UniverseConstituent)newEntity ) ;
+        
+        if( userObj instanceof AccountWrapper ) {
+            ledgerTabPane.showAccountLedger( (Account)newEntity ) ;
+        }
     }
 }

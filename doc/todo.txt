@@ -1,10 +1,11 @@
 Saving configurations of universes
 Simulation speed change
-Ledger table for an account, with filter expression
+Get the filter to work on ledger table
 
 -------------------------------------------------------------------------------
                                DONE
 
+Ledger table for an account, with filter expression
 Change name of root property file to .capitalyst
 The series need to be of the same color across charts.
 Editing of properties of universe entities

@@ -61,6 +61,10 @@ public class Account
         listeners.add( l ) ;
     }
     
+    public void removeListener( AccountListener l ) {
+        listeners.remove( l ) ;
+    }
+    
     public void removeAllListeners() {
         listeners.clear() ;
     }

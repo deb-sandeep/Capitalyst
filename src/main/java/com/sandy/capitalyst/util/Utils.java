@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat ;
 import java.time.Duration ;
 import java.util.Calendar ;
 import java.util.Date ;
+import java.util.Locale ;
 
 import org.apache.commons.lang.time.DateUtils ;
 
@@ -26,6 +27,17 @@ public class Utils {
             throw new IllegalArgumentException( "Invalid date specified. " + dateStr ) ;
         }
     }
+    
+    public static String formatLakh( double d ) {
+        
+        String s = String.format( Locale.UK, "%1.2f", Math.abs(d) ) ;
+        s = s.replaceAll( "(.+)(...\\...)", "$1,$2" ) ;
+        while( s.matches("\\d{3,},.+") ) {
+            s = s.replaceAll( "(\\d+)(\\d{2},.+)", "$1,$2" ) ;
+        }
+        s = s.substring( 0, s.indexOf( '.' ) ) ;
+        return d < 0 ? ("-" + s) : s;
+    }    
     
     public static int getMonth( Date date ) {
         return DateUtils.toCalendar( date ).get( Calendar.MONTH ) ;
