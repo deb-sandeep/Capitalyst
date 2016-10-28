@@ -48,6 +48,10 @@ public class LedgerTableModel extends AbstractTableModel
         public String getDescription() {
             return txn.getDescription() ;
         }
+        
+        public Txn getTxn() {
+            return this.txn ;
+        }
     } ;
     
     public static final Object[][] COL_PROPERTIES = {
@@ -130,6 +134,14 @@ public class LedgerTableModel extends AbstractTableModel
 
         refreshModelData() ;
         super.fireTableDataChanged() ;
+    }
+    
+    public Account getAccount() {
+        return this.account ;
+    }
+    
+    public LedgerEntry getEntry( int index ) {
+        return this.ledgerEntries.get( index ) ;
     }
     
     private void refreshModelData() {

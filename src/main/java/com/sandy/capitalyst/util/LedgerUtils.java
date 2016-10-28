@@ -2,12 +2,14 @@
 package com.sandy.capitalyst.util;
 
 import java.text.DecimalFormat ;
+import java.util.List ;
 
 import org.apache.commons.lang.StringUtils ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Txn.TxnType ;
+import com.sandy.capitalyst.ui.panel.ledger.LedgerTableModel.LedgerEntry ;
 
 public class LedgerUtils {
 
@@ -28,6 +30,25 @@ public class LedgerUtils {
             balance = printTxnRow( buffer, txn, balance ) ;
         }
         appendFooter( buffer, acct ) ;
+        return buffer.toString() ;
+    }
+    
+    public static String getFormattedLedger( Account account, 
+                                             List<LedgerEntry> entries ) {
+        
+        StringBuilder buffer = new StringBuilder() ;
+        
+        if( entries.isEmpty() ) {
+            buffer.append( "No ledger entries found" ) ;
+            return buffer.toString() ;
+        }
+        
+        appendHeader( buffer, account ) ;
+        for( LedgerEntry entry : entries ) {
+            printTxnRow( buffer, entry.getTxn(), entry.getAccountBalance() ) ;
+        }
+        appendSeparatorLine( buffer ) ;
+        
         return buffer.toString() ;
     }
     
@@ -87,8 +108,13 @@ public class LedgerUtils {
     }
     
     private static double printTxnRow( StringBuilder buffer, Txn txn, double balance ) {
+        
+        String dateString = "" ;
+        if( txn.getDate() != null ) {
+            dateString = Utils.formatDate( txn.getDate() ) ;
+        }
 
-        buffer.append( StringUtils.rightPad( Utils.formatDate( txn.getDate() ), FIELD_LEN ) )
+        buffer.append( StringUtils.rightPad( dateString, FIELD_LEN ) )
               .append( " | " ) ;
           
         if( txn.getTxnType() == TxnType.CREDIT ) {

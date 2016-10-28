@@ -16,7 +16,7 @@ import com.sandy.common.util.StringUtil ;
 
 public class LedgerQueryParser {
 
-    static final Logger logger = Logger.getLogger( LedgerQueryParser.class ) ;
+    static final Logger log = Logger.getLogger( LedgerQueryParser.class ) ;
 
     /** The operators supported for the input string. */
     private enum OP { AND, OR, GT, LT, NE, EQ } ;
@@ -52,21 +52,21 @@ public class LedgerQueryParser {
     // not restricting the user to fixed column names.
     private static final Map<String, Integer> COL_INDEX_MAP = new HashMap<String, Integer>() ;
     static {
-        COL_INDEX_MAP.put( "IS_CREDIT",     new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "CREDIT",        new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "IS_DEBIT",      new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "DEBIT",         new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "IS_CREDIT",   new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "CREDIT",      new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "IS_DEBIT",    new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "DEBIT",       new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
 
-        COL_INDEX_MAP.put( "DATE",          new Integer( LedgerTableModel.COL_DATE ) ) ;
+        COL_INDEX_MAP.put( "DATE",        new Integer( LedgerTableModel.COL_DATE ) ) ;
 
-        COL_INDEX_MAP.put( "AMOUNT",        new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
-        COL_INDEX_MAP.put( "AMT",           new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
+        COL_INDEX_MAP.put( "AMOUNT",      new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
+        COL_INDEX_MAP.put( "AMT",         new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
 
-        COL_INDEX_MAP.put( "BALANCE",       new Integer( LedgerTableModel.COL_AC_BALANCE_AMT ) ) ;
+        COL_INDEX_MAP.put( "BALANCE",     new Integer( LedgerTableModel.COL_AC_BALANCE_AMT ) ) ;
 
-        COL_INDEX_MAP.put( "DESCRIPTION",   new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
-        COL_INDEX_MAP.put( "DESCR",         new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
-        COL_INDEX_MAP.put( "DESC",          new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESCRIPTION", new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESCR",       new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESC",        new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
     }
 
     /**
@@ -88,14 +88,8 @@ public class LedgerQueryParser {
         private OP       operator   = null ;
         private Integer  colIndex   = null ;
         private String   value      = null ;
+        
         private RowFilter<Object, Object> rowFilter = null ;
-
-        private final boolean isRoot ;
-
-        public SubQuery( final boolean root ) {
-            super() ;
-            this.isRoot = root ;
-        }
 
         /**
          * This method recursively parses the input string and creates a
@@ -115,8 +109,9 @@ public class LedgerQueryParser {
             String  rhsVal= null ;
 
             for( int i=0; i<LedgerQueryParser.this.OPS_TOKENS.length; i++ ) {
+                
                 token = LedgerQueryParser.this.OPS_TOKENS[i] ;
-                index = input.indexOf( token ) ;
+                index = input.toUpperCase().indexOf( token ) ;
 
                 if( index > 0 ) {
 
@@ -134,20 +129,19 @@ public class LedgerQueryParser {
                     }
 
                     if( token.equals( OPS_TOKEN_AND ) || token.equals( OPS_TOKEN_OR ) ) {
-                        this.leftQuery = new SubQuery( false ) ;
+                        this.leftQuery = new SubQuery() ;
                         this.leftQuery.parse( lhsVal ) ;
-                        this.rightQuery = new SubQuery( false ) ;
+                        this.rightQuery = new SubQuery() ;
                         this.rightQuery.parse( rhsVal ) ;
                     }
                     else {
-                        this.colIndex = COL_INDEX_MAP.get( lhsVal ) ;
+                        this.colIndex = COL_INDEX_MAP.get( lhsVal.toUpperCase() ) ;
                         this.value  = rhsVal ;
 
                         if( this.colIndex == null ) {
                             throw new ParseException( "Invalid column : " + lhsVal +
                                                  " specified in the query", 0 ) ;
                         }
-
                         validateQueryValue( colIndex, value ) ;
                     }
 
@@ -157,35 +151,19 @@ public class LedgerQueryParser {
             }
 
             // If the control reaches here, it implies that the query string
-            // does not contain any tokens - oops wrong input. Unless this
-            // is the root node. Note that the user might just enter the
-            // credit, is_credit, debit, is_debit in the search box without 
-            // the name and we need to respect that too. If this is not a root 
-            // node, // we generate a parse exception
-            if( !this.isRoot ) {
-                throw new ParseException( "No tokens found in the input string", 0 ) ;
+            // does not contain any tokens - oops wrong input. Unless the user
+            // is using single word instructions like credit, is_credit, debit
+            // is_debit etc.
+            if( input.equalsIgnoreCase( "CREDIT" ) ||
+                input.equalsIgnoreCase( "IS_CREDIT" ) ||
+                input.equalsIgnoreCase( "DEBIT" ) ||
+                input.equalsIgnoreCase( "IS_DEBIT" ) ) {
+                
+                this.colIndex = COL_INDEX_MAP.get( input.toUpperCase() ) ;
+                this.value = input ;
             }
             else {
-                this.colIndex = COL_INDEX_MAP.get( LedgerTableModel.COL_TXN_TYPE_MARKER ) ;
-                this.value = input ;
-
-                final List<RowFilter<Object, Object>> filters =
-                                     new ArrayList<RowFilter<Object,Object>>() ;
-
-                if( input.equalsIgnoreCase( "IS_CREDIT" ) || 
-                    input.equalsIgnoreCase( "CREDIT" ) ) { 
-                    filters.add( RowFilter.regexFilter( "CREDIT", 
-                                      LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-                }
-                else if( input.equalsIgnoreCase( "IS_DEBIT" ) ||
-                         input.equalsIgnoreCase( "DEBIT" ) ) {
-                    filters.add( RowFilter.regexFilter( "CREDIT", 
-                                      LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-                }
-                else {
-                    throw new ParseException( "Invalid filter = " + value, 0 ) ;
-                }
-                this.rowFilter = RowFilter.orFilter( filters ) ;
+                throw new ParseException( "No tokens found in the input string", 0 ) ;
             }
         }
 
@@ -195,7 +173,54 @@ public class LedgerQueryParser {
         
         private void validateQueryValue( int colIndex, Object val ) 
             throws IllegalArgumentException {
-            // TODO
+            
+            if( colIndex == LedgerTableModel.COL_DATE ) {
+                validateDate( (String)val ) ;
+            }
+            else if( colIndex == LedgerTableModel.COL_TX_AMT || 
+                     colIndex == LedgerTableModel.COL_AC_BALANCE_AMT ) {
+                validateNumber( (String)val ) ;
+            }
+        }
+        
+        private void validateDate( String d ) {
+            try {
+                Utils.SDF.parse( d ) ;
+            }
+            catch( Exception e ) {
+                throw new IllegalArgumentException( "Illegal date", e ) ;
+            }
+        }
+        
+        private void validateNumber( String n ) {
+            try {
+                Double.parseDouble( n ) ;
+            }
+            catch( Exception e ) {
+                throw new IllegalArgumentException( "Illegal number", e ) ;
+            }
+        }
+        
+        private ComparisonType getComparisonType() {
+            ComparisonType compType = null ;
+            switch( this.operator ) {
+                case EQ:
+                    compType = ComparisonType.EQUAL ;
+                    break ;
+                case NE:
+                    compType = ComparisonType.NOT_EQUAL ;
+                    break ;
+                case LT:
+                    compType = ComparisonType.BEFORE ;
+                    break ;
+                case GT:
+                    compType = ComparisonType.AFTER ;
+                    break ;
+                default:
+                    throw new IllegalArgumentException( "Illegal operator " + 
+                                                        this.operator ) ;
+            }
+            return compType ;
         }
 
         /**
@@ -211,10 +236,9 @@ public class LedgerQueryParser {
 
             if( this.rowFilter == null ) {
 
-                final List<RowFilter<Object, Object>> filters =
-                                      new ArrayList<RowFilter<Object,Object>>() ;
-
                 if( !isLeafNode() ) {
+                    final List<RowFilter<Object, Object>> filters =
+                            new ArrayList<RowFilter<Object,Object>>() ;
 
                     filters.add( this.leftQuery.getRowFilter() ) ;
                     filters.add( this.rightQuery.getRowFilter() ) ;
@@ -230,51 +254,40 @@ public class LedgerQueryParser {
                 }
                 else {
                     if( this.colIndex == LedgerTableModel.COL_DATE ) {
-
-                        ComparisonType compType = null ;
-                        switch( this.operator ) {
-                            case EQ:
-                                compType = ComparisonType.EQUAL ;
-                                break ;
-                            case NE:
-                                compType = ComparisonType.NOT_EQUAL ;
-                                break ;
-                            case LT:
-                                compType = ComparisonType.BEFORE ;
-                                break ;
-                            case GT:
-                                compType = ComparisonType.AFTER ;
-                                break ;
-                        }
-                        this.rowFilter = RowFilter.dateFilter( compType, Utils.parseDate( this.value ), this.colIndex ) ;
+                        this.rowFilter = RowFilter.dateFilter( 
+                                                getComparisonType(), 
+                                                Utils.parseDate( this.value ), 
+                                                this.colIndex ) ;
                     }
                     else if( this.colIndex == LedgerTableModel.COL_AC_BALANCE_AMT || 
                              this.colIndex == LedgerTableModel.COL_TX_AMT ){
                         
                         final Number number = Double.parseDouble( this.value ) ;
-                        ComparisonType compType = null ;
-                        switch( this.operator ) {
-                            case EQ:
-                                compType = ComparisonType.EQUAL ;
-                                break ;
-                            case NE:
-                                compType = ComparisonType.NOT_EQUAL ;
-                                break ;
-                            case LT:
-                                compType = ComparisonType.BEFORE ;
-                                break ;
-                            case GT:
-                                compType = ComparisonType.AFTER ;
-                                break ;
-                        }
-                        this.rowFilter = RowFilter.numberFilter( compType, number, this.colIndex ) ;
+                        this.rowFilter = RowFilter.numberFilter( 
+                                                            getComparisonType(), 
+                                                            number, 
+                                                            this.colIndex ) ;
                     }
                     else if( this.colIndex == LedgerTableModel.COL_DESCRIPTION ){
-                        this.rowFilter = RowFilter.regexFilter( value, LedgerTableModel.COL_DESCRIPTION ) ;
+                        log.debug( "Creating reged with expr '" + value + "'" );
+                        this.rowFilter = RowFilter.regexFilter( 
+                                            value, 
+                                            LedgerTableModel.COL_DESCRIPTION ) ;
+                    }
+                    else if( this.colIndex == LedgerTableModel.COL_TXN_TYPE_MARKER ) {
+
+                       if( value.equalsIgnoreCase( "IS_CREDIT" ) || 
+                           value.equalsIgnoreCase( "CREDIT" ) ) { 
+                           this.rowFilter = RowFilter.regexFilter( "CREDIT", 
+                                             LedgerTableModel.COL_TXN_TYPE_MARKER ) ;
+                       }
+                       else {
+                           this.rowFilter = RowFilter.regexFilter( "DEBIT", 
+                                             LedgerTableModel.COL_TXN_TYPE_MARKER ) ;
+                       }
                     }
                 }
             }
-
             return this.rowFilter ;
         }
     }
@@ -298,10 +311,9 @@ public class LedgerQueryParser {
 
     public RowFilter<Object, Object> parse() throws ParseException {
         if( this.queryRoot == null ) {
-            this.queryRoot = new SubQuery( true ) ;
-            this.queryRoot.parse( this.inputQueryStr.trim().toUpperCase() ) ;
+            this.queryRoot = new SubQuery() ;
+            this.queryRoot.parse( this.inputQueryStr.trim() ) ;
         }
-
         return this.queryRoot.getRowFilter() ;
     }
 }

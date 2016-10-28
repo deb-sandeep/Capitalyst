@@ -4,9 +4,17 @@ import java.awt.BorderLayout ;
 import java.awt.Color ;
 import java.awt.event.ActionEvent ;
 import java.awt.event.ActionListener ;
+import java.io.File ;
+import java.io.IOException ;
+import java.util.ArrayList ;
 import java.util.Date ;
+import java.util.List ;
 
+import javax.swing.ImageIcon ;
+import javax.swing.JButton ;
 import javax.swing.JComboBox ;
+import javax.swing.JFileChooser ;
+import javax.swing.JOptionPane ;
 import javax.swing.JPanel ;
 import javax.swing.JScrollPane ;
 import javax.swing.JTable ;
@@ -16,23 +24,28 @@ import javax.swing.table.TableColumn ;
 import javax.swing.table.TableColumnModel ;
 import javax.swing.table.TableRowSorter ;
 
+import org.apache.commons.io.FileUtils ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Txn.TxnType ;
 import com.sandy.capitalyst.ui.helper.UIConstants ;
+import com.sandy.capitalyst.ui.panel.ledger.LedgerTableModel.LedgerEntry ;
+import com.sandy.capitalyst.util.LedgerUtils ;
 import com.sandy.common.util.StringUtil ;
 
 @SuppressWarnings( "serial" )
 public class LedgerDisplayPanel extends JPanel implements ActionListener {
 
-    static final Logger logger = Logger.getLogger( LedgerDisplayPanel.class ) ;
+    static final Logger log = Logger.getLogger( LedgerDisplayPanel.class ) ;
 
-    private final JComboBox<String> searchTF   = new JComboBox<String>() ;
-    private final LedgerTableModel  tableModel = new LedgerTableModel() ;
-    private final JTable            table      = new JTable( tableModel ) ;
+    private JComboBox<String> searchTF   = new JComboBox<String>() ;
+    private LedgerTableModel  tableModel = new LedgerTableModel() ;
+    private JTable            table      = new JTable( tableModel ) ;
+    private JButton           download   = new JButton() ;
+    private JFileChooser      fileChooser= new JFileChooser() ;
     
-    private final TableRowSorter<LedgerTableModel> sorter =
+    private TableRowSorter<LedgerTableModel> sorter =
                    new TableRowSorter<LedgerTableModel>( this.tableModel ) ;
     
     public LedgerDisplayPanel( Account account ) {
@@ -76,7 +89,7 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
 
         setLayout( new BorderLayout() ) ;
         add( tableSP, BorderLayout.CENTER ) ;
-        add( searchTF, BorderLayout.NORTH ) ;
+        add( getTopPanel(), BorderLayout.NORTH ) ;
     }
 
     /**
@@ -117,10 +130,33 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
         preferredWidth += 20 ;
         return preferredWidth ;
     }
+    
+    private JPanel getTopPanel() {
+        
+        download.setIcon( new ImageIcon( this.getClass().getResource( "/img/credit_icon.png" ) ) );
+        download.addActionListener( this ) ;
+        
+        JPanel panel = new JPanel() ;
+        panel.setLayout( new BorderLayout() ) ;
+        panel.add( searchTF, BorderLayout.CENTER ) ;
+        panel.add( download, BorderLayout.EAST ) ;
+        
+        return panel ;
+    }
 
     @Override
     public void actionPerformed( ActionEvent e ) {
-
+        Object src = e.getSource() ;
+        if( src == this.searchTF ) {
+            applySearchFilter() ;
+        }
+        else if( src == download ) {
+            initiateLedgerDownload() ;
+        }
+    }
+    
+    private void applySearchFilter() {
+        
         final String queryStr = this.searchTF.getSelectedItem().toString() ;
         if( StringUtil.isNotEmptyOrNull( queryStr ) ) {
 
@@ -133,14 +169,38 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
                 this.searchTF.insertItemAt( queryStr, 0 ) ;
             }
             catch ( final Exception e2 ) {
-                this.searchTF.setBackground( Color.pink ) ;
-                this.searchTF.setToolTipText( "ERROR: " + e2.getMessage() ) ;
+                JOptionPane.showMessageDialog( this, "Error in search query" );
             }
         }
         else {
             this.sorter.setRowFilter( null ) ;
             this.searchTF.setBackground( Color.white ) ;
             this.searchTF.setToolTipText( "Enter filter query and enter" ) ;
+        }
+    }
+    
+    private void initiateLedgerDownload() {
+        
+        int choice = fileChooser.showSaveDialog( this ) ;
+        if( choice != JFileChooser.APPROVE_OPTION ) return ;
+        
+        File file = fileChooser.getSelectedFile() ;    
+        List<LedgerEntry> entries = new ArrayList<LedgerTableModel.LedgerEntry>() ;
+        int numRows = table.getRowCount() ;
+        for( int viewRowIndex=0; viewRowIndex<numRows; viewRowIndex++ ) {
+            int modelRowIndex = table.convertRowIndexToModel( viewRowIndex ) ;
+            entries.add( tableModel.getEntry( modelRowIndex ) ) ;
+        }
+        
+        String string = LedgerUtils.getFormattedLedger( tableModel.getAccount(), entries ) ;
+        try {
+            FileUtils.writeStringToFile( file, string ) ;
+            JOptionPane.showMessageDialog( this, "File successfully written." );
+        }
+        catch( IOException e ) {
+            log.error( "File saving error", e ) ;
+            JOptionPane.showMessageDialog( 
+                                this, "Error saving file. " + e.getMessage() ) ;
         }
     }
 }
