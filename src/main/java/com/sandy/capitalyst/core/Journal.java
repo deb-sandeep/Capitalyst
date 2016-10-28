@@ -34,7 +34,7 @@ class Journal {
             throw new AccountExpiredException( t.getAccountNumber() ) ;
         }
         
-        if( !(t instanceof PDTxn) ) {
+        if( !t.isPostDated() ) {
             transactions.add( t ) ;
         }
         account.postTransaction( t ) ;

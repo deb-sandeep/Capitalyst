@@ -11,6 +11,10 @@ public class Txn {
     private Date   date ;
     private String description ;
     
+    private boolean postDated = false ;
+    private boolean taxable   = false ;
+    private double  taxableAmout = 0 ;
+    
     public Txn( String accountNumber, double amount, Date date ) {
         this( accountNumber, amount, date, "" ) ;
     }
@@ -22,6 +26,7 @@ public class Txn {
         this.amount = amount ;
         this.date = date ;
         this.description = description ;
+        this.postDated = false ;
     }
 
     public TxnType getTxnType() {
@@ -46,6 +51,34 @@ public class Txn {
     
     public String getDescription() {
         return description ;
+    }
+    
+    public void setPostDated( boolean b ) {
+        this.postDated = b ;
+    }
+    
+    public boolean isPostDated() {
+        return this.postDated ;
+    }
+    
+    public void setTaxable( boolean t ) {
+        this.taxable = t ;
+    }
+    
+    public boolean isTaxable() {
+        return this.taxable ;
+    }
+    
+    public void setTaxableAmount( double amt ) {
+        if( amt > this.amount ) {
+            throw new IllegalArgumentException( 
+             "Taxable amount can't be greater than total transaction amount" ) ;
+        }
+        this.taxableAmout = amt ;
+    }
+    
+    public double getTaxableAmount() {
+        return this.taxableAmout ;
     }
     
     @Override

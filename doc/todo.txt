@@ -1,10 +1,12 @@
 Clicking on a point in chart, highlights the txn in the ledger
 Saving configurations of universes
 Simulation speed change
+Taxable txn to be modeled
 
 -------------------------------------------------------------------------------
                                DONE
 
+Post dated transactions remodeled
 Exporting the ledger (filtered) from the ledger table
 Get the filter to work on ledger table
 Ledger table for an account, with filter expression

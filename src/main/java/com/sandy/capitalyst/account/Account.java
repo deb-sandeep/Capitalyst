@@ -14,7 +14,6 @@ import com.sandy.capitalyst.EventType ;
 import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
-import com.sandy.capitalyst.core.PDTxn ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.txgen.AbstractTxnGen ;
@@ -82,7 +81,7 @@ public class Account
     }
     
     public void postTransaction( Txn t ) {
-        if( t instanceof PDTxn ) {
+        if( t.isPostDated() ) {
             postDatedTxns.add( t ) ;
         }
         else {

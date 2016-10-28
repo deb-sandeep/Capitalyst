@@ -18,6 +18,7 @@ import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.timeobservers.TimeObserver ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
+import com.sandy.capitalyst.util.Utils ;
 import com.sandy.common.bus.EventBus ;
 
 public class Universe implements DayObserver, PostConfigInitializable {
@@ -174,6 +175,14 @@ public class Universe implements DayObserver, PostConfigInitializable {
             txGen.getTransactionsForDate( date, tempList ) ;
 
             if( tempList != null && !tempList.isEmpty() ) {
+                for( Txn t : tempList ) {
+                    if( Utils.isAfter( t.getDate(), date ) ) {
+                        t.setPostDated( true ) ;
+                    }
+                    else if( Utils.isBefore( t.getDate(), date ) ) {
+                        throw new IllegalStateException( "Predated txn not supported" ) ;
+                    }
+                }
                 journal.addTransactions( tempList ) ;
             }
         }
