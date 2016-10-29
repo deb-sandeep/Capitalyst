@@ -18,6 +18,7 @@ import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.timeobservers.TimeObserver ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
+import com.sandy.capitalyst.util.Range ;
 import com.sandy.capitalyst.util.Utils ;
 import com.sandy.common.bus.EventBus ;
 
@@ -25,19 +26,21 @@ public class Universe implements DayObserver, PostConfigInitializable {
 
     private UniverseConfig config = null ;
     
-    private String name = null ;
     private Journal journal = null ;
     private AccountManager accMgr = null ;
     
     private List<TxnGenerator> txnGenerators = new ArrayList<TxnGenerator>() ;
     private Map<String, UniverseConstituent> context = new HashMap<String, UniverseConstituent>() ;
+    private Map<Integer, Double> inflationRates = new HashMap<>() ;
     private DayClock clock = null ;
     
     private EventBus bus = new EventBus() ;
     private boolean  virgin = true ;
     
-    @Cfg private Date startDate = null ;
-    @Cfg private Date endDate = null ;
+    @Cfg private String name = null ;
+    @Cfg private Date   startDate = null ;
+    @Cfg private Date   endDate = null ;
+    @Cfg private Range  inflationRate = null ;
     
     public Universe( String name ) {
         
@@ -57,14 +60,6 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     public EventBus getBus() {
         return this.bus ;
-    }
-    
-    public void setStartDate( Date date ) {
-        this.startDate = date ;
-    }
-    
-    public void setEndDate( Date date ) {
-        this.endDate = date ;
     }
     
     public Date now() {
@@ -102,6 +97,30 @@ public class Universe implements DayObserver, PostConfigInitializable {
         this.name = name ;
     }
     
+    public void setStartDate( Date date ) {
+        this.startDate = date ;
+    }
+    
+    public void setEndDate( Date date ) {
+        this.endDate = date ;
+    }
+    
+    public Date getStartDate() {
+        return this.startDate ;
+    }
+    
+    public Date getEndDate() {
+        return this.endDate ;
+    }
+    
+    public Range getInflationRate() {
+        return inflationRate ;
+    }
+
+    public void setInflationRate( Range inflationRate ) {
+        this.inflationRate = inflationRate ;
+    }
+
     public void addToContext( String alias, UniverseConstituent obj ) {
         obj.setUniverse( this ) ;
         context.put( alias, obj ) ;
@@ -236,5 +255,18 @@ public class Universe implements DayObserver, PostConfigInitializable {
     @Override
     public String getId() {
         return getName() ;
+    }
+    
+    public double getCurrentInflationRate() {
+        Double rate = inflationRates.get( clock.getYear() ) ;
+        if( rate == null ) {
+            rate = inflationRate.getRandom() ;
+            inflationRates.put( clock.getYear(), rate ) ;
+        }
+        return rate ;
+    }
+    
+    protected double getInflatedAmount( double base ) {
+        return base*(1+getCurrentInflationRate()/100) ;
     }
 }

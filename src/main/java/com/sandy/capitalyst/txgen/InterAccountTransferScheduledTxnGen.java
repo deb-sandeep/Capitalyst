@@ -72,7 +72,9 @@ public class InterAccountTransferScheduledTxnGen extends ScheduledTxnGen {
         Account debitAcct  = getUniverse().getAccount( debitAccountNumber ) ;
         
         if( !allowOverdraft && ( debitAcct.getLiquidableAmount() < amount ) ) {
-            throw new AccountOverdraftException( creditAccountNumber ) ;
+            throw new AccountOverdraftException( 
+                    creditAccountNumber + " - " + debitAcct.getName(), 
+                    super.getName() ) ;
         }
         
         txnList.add( new Txn( debitAccountNumber, -amount, date, 

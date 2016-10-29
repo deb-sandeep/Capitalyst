@@ -190,7 +190,12 @@ public class CapitalystTreePanel extends JPanel
         if( u != null ) {
             Thread t = new Thread() {
                 public void run() {
-                    u.runSimulation() ;
+                    try {
+                        u.runSimulation() ;
+                    }
+                    catch( Exception e ) {
+                        JOptionPane.showMessageDialog( null, e.getMessage() ) ;
+                    }
                 }
             } ;
             t.start() ;

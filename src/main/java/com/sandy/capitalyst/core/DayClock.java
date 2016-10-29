@@ -45,6 +45,10 @@ public class DayClock {
         return this.now ;
     }
     
+    public int getYear() {
+        return Utils.getYear( now ) ;
+    }
+    
     public void reset() {
         now = null ;
         startDate = null ;

@@ -106,8 +106,8 @@ public class UniverseLoader {
             }
             
             if( univName.startsWith( UNNAMED_UNIVERSE_PREFIX ) ) {
-                if( this.univCfg.getString( "Universe.name" ) != null ) {
-                    this.univName = this.univCfg.getString( "Universe.name" ) ;
+                if( this.univCfg.getString( "Universe.attr.name" ) != null ) {
+                    this.univName = this.univCfg.getString( "Universe.attr.name" ) ;
                 }
             }
             
@@ -154,7 +154,7 @@ public class UniverseLoader {
     private void configureUniverse( Universe universe ) throws Exception {
         
         log.debug( "Configuring universe" ) ;
-        UniverseConfig attrCfg  = univCfg.getNestedConfig( "DayClock.attr" ) ;
+        UniverseConfig attrCfg  = univCfg.getNestedConfig( "Universe.attr" ) ;
         injectFieldValues( universe, attrCfg ) ;
     }
     
