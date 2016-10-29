@@ -11,9 +11,13 @@ public class Txn {
     private Date   date ;
     private String description ;
     
-    private boolean postDated = false ;
-    private boolean taxable   = false ;
+    private boolean postDated    = false ;
+    
+    private boolean taxable      = false ;
     private double  taxableAmout = 0 ;
+    private boolean tdsEnabled   = false ;
+    
+    private Txn taxTxn = null ;
     
     public Txn( String accountNumber, double amount, Date date ) {
         this( accountNumber, amount, date, "" ) ;
@@ -38,6 +42,9 @@ public class Txn {
     }
 
     public double getAmount() {
+        if( taxTxn != null ) {
+            return amount - taxTxn.getAmount() ;
+        }
         return amount ;
     }
 
@@ -79,6 +86,22 @@ public class Txn {
     
     public double getTaxableAmount() {
         return this.taxableAmout ;
+    }
+    
+    public boolean isTDSEnabled() {
+        return this.tdsEnabled ;
+    }
+    
+    public void setTDSEnabled( boolean b ) {
+        this.tdsEnabled = b ;
+    }
+    
+    public void setTaxTxn( Txn t ) {
+        this.taxTxn = t ;
+    }
+    
+    public Txn getTaxTxn() {
+        return this.taxTxn ;
     }
     
     @Override

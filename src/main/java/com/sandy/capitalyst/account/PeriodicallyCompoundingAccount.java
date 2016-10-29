@@ -65,6 +65,9 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     @Cfg
     private String parentAccountNumber = null ;
     
+    @Cfg( mandatory=false )
+    private boolean interestTaxable = false ;
+    
     protected boolean isAccountClosed = false ;
     
     protected List<QuantumOfMoney> quantumFragments = 
@@ -142,6 +145,14 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         return this.roi ;
     }
     
+    public boolean isInterestTaxable() {
+        return interestTaxable ;
+    }
+
+    public void setInterestTaxable( boolean interestTaxable ) {
+        this.interestTaxable = interestTaxable ;
+    }
+
     public void setParentAccountNumber( String acctNo ) {
         this.parentAccountNumber = acctNo ;
         super.addClosureAction( new TransferFullAmtOnClosure( acctNo ) );
@@ -186,6 +197,11 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         
         Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date,
                            "Accumulated Interest" ) ;
+        if( isInterestTaxable() ) {
+            txn.setTaxable( true ) ;
+            txn.setTaxableAmount( accumulatedInterest ) ;
+        }
+        
         super.getUniverse().postTransaction( txn ) ;
     }
 }

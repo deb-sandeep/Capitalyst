@@ -157,12 +157,31 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     public void postTransaction( Txn txn ) {
         if( txn.getAmount() != 0 ) {
-            journal.addTransaction( txn ) ;
+            if( !txn.isTaxable() || txn.isPostDated() ) {
+                journal.addTransaction( txn ) ;
+            }
+            else {
+                double taxAmt = txn.getTaxableAmount() * 0.3 ;
+                if( txn.isTDSEnabled() ) {
+                    taxAmt /= 3 ;
+                }
+                
+                String taxAC = getTaxAccount( txn.getAccountNumber() ) ;
+                Txn taxTx = new Txn( taxAC, taxAmt, txn.getDate(),
+                                     "TDS on " + txn.getDescription() + 
+                                     ".A/C" + txn.getAccountNumber() ) ;
+                
+                txn.setTaxTxn( taxTx ) ;
+                journal.addTransaction( txn ) ;
+                journal.addTransaction( taxTx ) ;
+            }
         }
     }
     
     public void postTransactions( List<Txn> txnList ) {
-        journal.addTransactions( txnList ) ;
+        for( Txn t : txnList ) {
+            postTransaction( t ) ;
+        }
     }
     
     @Override
@@ -182,8 +201,8 @@ public class Universe implements DayObserver, PostConfigInitializable {
                     else if( Utils.isBefore( t.getDate(), date ) ) {
                         throw new IllegalStateException( "Predated txn not supported" ) ;
                     }
+                    postTransaction( t ) ;
                 }
-                journal.addTransactions( tempList ) ;
             }
         }
     }

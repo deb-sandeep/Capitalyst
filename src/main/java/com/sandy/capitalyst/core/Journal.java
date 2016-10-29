@@ -39,11 +39,4 @@ class Journal {
         }
         account.postTransaction( t ) ;
     }
-    
-    public void addTransactions( List<Txn> txnList ) 
-        throws AccountNotFoundException, AccountExpiredException {
-        for( Txn txn : txnList ) {
-            addTransaction( txn ) ;
-        }
-    }
 }

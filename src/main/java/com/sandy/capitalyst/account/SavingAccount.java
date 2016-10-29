@@ -46,6 +46,8 @@ public class SavingAccount extends BankAccount
         if( accumulatedInterest > 0 ) {
             Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date,
                                "SB Interest" ) ;
+            txn.setTaxable( true ) ;
+            txn.setTaxableAmount( accumulatedInterest ) ;
             
             super.getUniverse().postTransaction( txn ) ;
             accumulatedInterest = 0 ;
