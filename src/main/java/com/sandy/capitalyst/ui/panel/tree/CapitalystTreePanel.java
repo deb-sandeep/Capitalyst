@@ -194,6 +194,7 @@ public class CapitalystTreePanel extends JPanel
                         u.runSimulation() ;
                     }
                     catch( Exception e ) {
+                        log.error( "Error in simulation", e );
                         JOptionPane.showMessageDialog( null, e.getMessage() ) ;
                     }
                 }
