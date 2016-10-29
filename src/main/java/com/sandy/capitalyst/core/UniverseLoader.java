@@ -27,6 +27,8 @@ import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
+import com.sandy.capitalyst.util.Range ;
+import com.sandy.capitalyst.util.RangeConverter ;
 
 public class UniverseLoader {
 
@@ -34,9 +36,12 @@ public class UniverseLoader {
     
     static {
         BeanUtilsBean.getInstance().getConvertUtils().register( true, false, 0 ) ;
+        
         DateLocaleConverter converter = null ;
         converter = new DateLocaleConverter( Locale.getDefault(), "dd/MM/yyyy" ) ;
         ConvertUtils.register( converter, Date.class );
+        
+        ConvertUtils.register( new RangeConverter(), Range.class ) ;
     }
     
     public static class ConfigurableField {

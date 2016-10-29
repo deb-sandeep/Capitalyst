@@ -269,7 +269,6 @@ public class LedgerQueryParser {
                                                             this.colIndex ) ;
                     }
                     else if( this.colIndex == LedgerTableModel.COL_DESCRIPTION ){
-                        log.debug( "Creating reged with expr '" + value + "'" );
                         this.rowFilter = RowFilter.regexFilter( 
                                             value, 
                                             LedgerTableModel.COL_DESCRIPTION ) ;
