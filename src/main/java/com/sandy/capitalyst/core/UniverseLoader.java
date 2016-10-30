@@ -26,7 +26,9 @@ import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
+import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
+import com.sandy.capitalyst.util.AmountConverter ;
 import com.sandy.capitalyst.util.Range ;
 import com.sandy.capitalyst.util.RangeConverter ;
 
@@ -115,8 +117,10 @@ public class UniverseLoader {
             log.debug( "---------------------------------------------" );
             
             universe = new Universe( univName ) ;
-            
             configureUniverse( universe ) ;
+            
+            ConvertUtils.register( new AmountConverter( universe ), Amount.class );
+            
             loadContextObjects( universe ) ;
             loadAccounts( universe ) ;
             loadTxGenerators( universe ) ;

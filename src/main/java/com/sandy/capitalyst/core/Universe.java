@@ -69,7 +69,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     @Override
     public void initializePostConfig() {
         clock = new DayClock( this, this.startDate, this.endDate ) ;
-        clock.registerTimeObserver( this ) ;
+        addTimeObserver( this ) ;
     }
     
     public void runSimulation() {
@@ -125,7 +125,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
         obj.setUniverse( this ) ;
         context.put( alias, obj ) ;
         if( obj instanceof TimeObserver ) {
-            clock.registerTimeObserver( (TimeObserver)obj ) ;
+            addTimeObserver( (TimeObserver)obj ) ;
         }
     }
     
@@ -137,13 +137,13 @@ public class Universe implements DayObserver, PostConfigInitializable {
         account.setUniverse( this ) ; 
         accMgr.addAccount( account ) ;
         registerTxnGenerator( account ) ;
-        clock.registerTimeObserver( account ) ;
+        addTimeObserver( account ) ;
         
         bus.publishEvent( EventType.ACCOUNT_CREATED, account ) ;
     }
     
     public void removeAccount( Account account ) {
-        clock.removeTimeObserver( account ) ;
+        removeTimeObserver( account ) ;
         accMgr.removeAccount( account ) ;
     }
     
@@ -159,6 +159,21 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return accMgr.getAllAccounts() ;
     }
     
+    public void addTimeObserver( TimeObserver observer ) {
+        if( observer.getUniverse() == null ) {
+            observer.setUniverse( this ) ;
+        }
+        else if( observer.getUniverse() != this ) {
+            throw new IllegalStateException( "Entity from a different " + 
+                                             "universe is being added" ) ;
+        }
+        clock.registerTimeObserver( observer ) ;
+    }
+    
+    public void removeTimeObserver( TimeObserver observer ) {
+        clock.removeTimeObserver( observer ) ;
+    }
+    
     public Collection<TxnGenerator> getAllTxGens() {
         return this.txnGenerators ;
     }
@@ -170,7 +185,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
         }
         
         if( txGen instanceof TimeObserver ) {
-            clock.registerTimeObserver( (TimeObserver)txGen ) ;
+            addTimeObserver( (TimeObserver)txGen ) ;
         }
     }
     
