@@ -5,6 +5,7 @@ import java.io.File ;
 import java.net.URL ;
 
 import javax.swing.JComponent ;
+import javax.swing.JOptionPane ;
 import javax.swing.JPanel ;
 import javax.swing.JSplitPane ;
 import javax.swing.TransferHandler ;
@@ -83,11 +84,16 @@ public class CapitalystProjectPanel extends JPanel {
     
     public void loadUniverse( File file ) throws Exception {
         
-        URL url = file.toURI().toURL() ;
-        UniverseLoader loader = new UniverseLoader( url ) ;
-        Universe universe = loader.loadUniverse() ;
-        
-        treePanel.addUniverse( universe ) ;
+        try {
+            URL url = file.toURI().toURL() ;
+            UniverseLoader loader = new UniverseLoader( url ) ;
+            Universe universe = loader.loadUniverse() ;
+            
+            treePanel.addUniverse( universe ) ;
+        }
+        catch( Exception e ) {
+            JOptionPane.showMessageDialog( null, e.getMessage() );
+        }
     }
     
     public void newChart() {

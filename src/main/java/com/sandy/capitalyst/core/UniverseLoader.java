@@ -19,6 +19,7 @@ import org.apache.commons.beanutils.BeanUtils ;
 import org.apache.commons.beanutils.BeanUtilsBean ;
 import org.apache.commons.beanutils.ConvertUtils ;
 import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
+import org.apache.commons.cli.MissingArgumentException ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
@@ -167,11 +168,18 @@ public class UniverseLoader {
         
         for( String beanAlias : getUniqueEntityAliases( univCfg, "Ctx" ) ) {
             
-            log.debug( "Loading context bean :: " + beanAlias ) ;
-            UniverseConfig beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
-            UniverseConstituent uc = ( UniverseConstituent )loadObject( beanAlias, beanCfg ) ;
+            try {
+                log.debug( "Loading context bean :: " + beanAlias ) ;
+                UniverseConfig beanCfg = univCfg.getNestedConfig( "Ctx." + beanAlias ) ;
+                UniverseConstituent uc = ( UniverseConstituent )loadObject( beanAlias, beanCfg ) ;
 
-            universe.addToContext( beanAlias, uc ) ;        }
+                universe.addToContext( beanAlias, uc ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Error loading " + beanAlias, e ) ;
+                throw new IllegalArgumentException( "Error loading " + beanAlias, e ) ;
+            }
+        }
     }
 
     private void loadAccounts( Universe universe ) 
@@ -179,11 +187,17 @@ public class UniverseLoader {
         
         for( String accAlias : getUniqueEntityAliases( univCfg, "Account") ) {
             
-            log.debug( "Loading account :: " + accAlias ) ;
-            UniverseConfig  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
-            Account acc    = (Account)loadObject( accAlias, accCfg ) ;
-            
-            universe.addAccount( acc ) ;
+            try {
+                log.debug( "Loading account :: " + accAlias ) ;
+                UniverseConfig  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
+                Account acc    = (Account)loadObject( accAlias, accCfg ) ;
+                
+                universe.addAccount( acc ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Error loading " + accAlias, e ) ;
+                throw new IllegalArgumentException( "Error loading " + accAlias, e ) ;
+            }
         }
     }
     
@@ -192,11 +206,17 @@ public class UniverseLoader {
         
         for( String txgenAlias : getUniqueEntityAliases( univCfg, "TxGen") ) {
             
-            log.debug( "Loading tx generator :: " + txgenAlias ) ;
-            UniverseConfig       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
-            TxnGenerator txgen = ( TxnGenerator )loadObject( txgenAlias, tgCfg ) ;
-            
-            universe.registerTxnGenerator( txgen ) ;
+            try {
+                log.debug( "Loading tx generator :: " + txgenAlias ) ;
+                UniverseConfig       tgCfg = univCfg.getNestedConfig( "TxGen." + txgenAlias ) ;
+                TxnGenerator txgen = ( TxnGenerator )loadObject( txgenAlias, tgCfg ) ;
+                
+                universe.registerTxnGenerator( txgen ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Error loading " + txgenAlias, e ) ;
+                throw new IllegalArgumentException( "Error loading " + txgenAlias, e ) ;
+            }
         }
     }
     
@@ -217,7 +237,7 @@ public class UniverseLoader {
         
         Class<?>       objCls  = Class.forName( clsName ) ;
         Object         obj     = objCls.newInstance() ;
-        UniverseConfig attrCfg = objCfg.getNestedConfig( "attr" ) ;
+        UniverseConfig attrCfg = extractAttributes( objId, objCfg ) ;
         
         injectFieldValues( obj, attrCfg ) ;
         
@@ -227,6 +247,26 @@ public class UniverseLoader {
         }
         
         return obj ;
+    }
+    
+    private UniverseConfig extractAttributes( String objId, UniverseConfig objCfg ) 
+        throws MissingArgumentException {
+        
+        UniverseConfig cfg = objCfg.getNestedConfig( "attr" ) ;
+        if( cfg.isEmpty() ) {
+            String[] attributes = objCfg.getStringArray( "attributes" ) ;
+            if( attributes != null ) {
+                for( String attribute : attributes ) {
+                    String[] nvp = attribute.split( "=" ) ;
+                    cfg.addProperty( nvp[0].trim(), nvp[1].trim() );
+                }
+            }
+            else {
+                throw new MissingArgumentException( 
+                               "Attribute are missing for entity = " + objId ) ;
+            }
+        }
+        return cfg ;
     }
     
     private void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
