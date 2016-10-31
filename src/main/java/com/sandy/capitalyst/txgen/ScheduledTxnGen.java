@@ -7,10 +7,7 @@ import org.joda.time.DateTime ;
 
 import com.cronutils.descriptor.CronDescriptor ;
 import com.cronutils.model.Cron ;
-import com.cronutils.model.definition.CronDefinition ;
-import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.model.time.ExecutionTime ;
-import com.cronutils.parser.CronParser ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.Txn ;
@@ -20,19 +17,6 @@ public abstract class ScheduledTxnGen
     extends AbstractTxnGen 
     implements PostConfigInitializable {
 
-    private final CronDefinition cronDefinition =
-                            CronDefinitionBuilder.defineCron()
-                                .withDayOfMonth()
-                                .supportsHash().supportsL().supportsW().and()
-                                .withMonth().and()
-                                .withDayOfWeek()
-                                .withIntMapping(7, 0) 
-                                .supportsHash().supportsL().supportsW().and()
-                                .withYear().and()
-                                .lastFieldOptional()
-                                .instance() ;
-    
-    private CronParser    cronParser   = new CronParser( cronDefinition ) ;
     private Cron          cron         = null ;
     private ExecutionTime execTime     = null ;
     private String        scheduleDesc = null ;
@@ -73,7 +57,7 @@ public abstract class ScheduledTxnGen
     @Override
     public void initializePostConfig() {
 
-        cron = cronParser.parse( scheduleExpr ) ;
+        cron = Utils.CRON_PARSER.parse( scheduleExpr ) ;
         execTime = ExecutionTime.forCron( cron ) ;
         
         scheduleDesc = CronDescriptor.instance().describe( cron ) ;

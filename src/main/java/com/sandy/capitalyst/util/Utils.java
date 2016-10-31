@@ -11,6 +11,9 @@ import java.util.Locale ;
 
 import org.apache.commons.lang.time.DateUtils ;
 
+import com.cronutils.model.definition.CronDefinition ;
+import com.cronutils.model.definition.CronDefinitionBuilder ;
+import com.cronutils.parser.CronParser ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.Txn ;
 
@@ -18,6 +21,18 @@ public class Utils {
 
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
     public static final DecimalFormat     DF = new DecimalFormat( "0.0" ) ;
+    private static final CronDefinition CRON_DEF =
+                            CronDefinitionBuilder.defineCron()
+                                .withDayOfMonth()
+                                .supportsHash().supportsL().supportsW().and()
+                                .withMonth().and()
+                                .withDayOfWeek()
+                                .withIntMapping(7, 0) 
+                                .supportsHash().supportsL().supportsW().and()
+                                .withYear().and()
+                                .lastFieldOptional()
+                                .instance() ;
+    public static final CronParser  CRON_PARSER = new CronParser( CRON_DEF ) ;
     
     public static Date parseDate( String dateStr ) throws IllegalArgumentException {
         try {

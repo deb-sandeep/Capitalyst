@@ -87,11 +87,13 @@ public class CapitalystMainFrame extends JFrame {
     public void loadAndAddUniverse()  {
         
         try {
-            int choice = openFileChooser.showOpenDialog( this ) ;
-            if( choice == JFileChooser.APPROVE_OPTION ) {
-                File file = openFileChooser.getSelectedFile() ;
-                projectPanel.loadUniverse( file ) ;
-            }
+//            int choice = openFileChooser.showOpenDialog( this ) ;
+//            if( choice == JFileChooser.APPROVE_OPTION ) {
+//                File file = openFileChooser.getSelectedFile() ;
+//                projectPanel.loadUniverse( file ) ;
+//            }
+            File file = new File( "/home/sandeep/projects/source/CapitalystHome/src/main/config/my.cap.properties" ) ;
+            projectPanel.loadUniverse( file ) ;
         }
         catch( Exception e ) {
             log.error( "Could not load universe", e ) ;

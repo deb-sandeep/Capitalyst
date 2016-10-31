@@ -1,8 +1,10 @@
-package com.sandy.capitalyst.util;
+package com.sandy.capitalyst.util.converter;
 
 import org.apache.commons.beanutils.converters.AbstractConverter ;
 import org.apache.commons.configuration.ConversionException ;
 import org.apache.log4j.Logger ;
+
+import com.sandy.capitalyst.util.Range ;
 
 public class RangeConverter extends AbstractConverter {
 

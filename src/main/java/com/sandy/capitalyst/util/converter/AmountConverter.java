@@ -1,4 +1,4 @@
-package com.sandy.capitalyst.util;
+package com.sandy.capitalyst.util.converter;
 
 import org.apache.commons.beanutils.converters.AbstractConverter ;
 import org.apache.commons.configuration.ConversionException ;
@@ -9,6 +9,7 @@ import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.core.amount.ConstantAmount ;
 import com.sandy.capitalyst.core.amount.InflatingAmount ;
 import com.sandy.capitalyst.core.amount.StepIncreasingAmount ;
+import com.sandy.capitalyst.util.Range ;
 
 public class AmountConverter extends AbstractConverter {
 

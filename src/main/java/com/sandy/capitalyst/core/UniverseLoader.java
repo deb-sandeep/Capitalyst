@@ -28,10 +28,12 @@ import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.amount.Amount ;
+import com.sandy.capitalyst.txgen.ScheduledTxnDef ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
-import com.sandy.capitalyst.util.AmountConverter ;
 import com.sandy.capitalyst.util.Range ;
-import com.sandy.capitalyst.util.RangeConverter ;
+import com.sandy.capitalyst.util.converter.AmountConverter ;
+import com.sandy.capitalyst.util.converter.RangeConverter ;
+import com.sandy.capitalyst.util.converter.ScheduleTxnDefConverter ;
 
 public class UniverseLoader {
 
@@ -45,6 +47,7 @@ public class UniverseLoader {
         ConvertUtils.register( converter, Date.class );
         
         ConvertUtils.register( new RangeConverter(), Range.class ) ;
+        ConvertUtils.register( new ScheduleTxnDefConverter(), ScheduledTxnDef.class );
     }
     
     public static class ConfigurableField {
@@ -253,19 +256,15 @@ public class UniverseLoader {
         throws MissingArgumentException {
         
         UniverseConfig cfg = objCfg.getNestedConfig( "attr" ) ;
-        if( cfg.isEmpty() ) {
-            String[] attributes = objCfg.getStringArray( "attributes" ) ;
-            if( attributes != null ) {
-                for( String attribute : attributes ) {
-                    String[] nvp = attribute.split( "=" ) ;
-                    cfg.addProperty( nvp[0].trim(), nvp[1].trim() );
-                }
-            }
-            else {
-                throw new MissingArgumentException( 
-                               "Attribute are missing for entity = " + objId ) ;
+        
+        String[] attributes = objCfg.getStringArray( "attributes" ) ;
+        if( attributes != null ) {
+            for( String attribute : attributes ) {
+                String[] nvp = attribute.split( "=" ) ;
+                cfg.addProperty( nvp[0].trim(), nvp[1].trim() );
             }
         }
+        
         return cfg ;
     }
     
@@ -325,22 +324,30 @@ public class UniverseLoader {
     private void populateField( Object obj, ConfigurableField f, 
                                 UniverseConfig attrValues ) {
         
+        boolean mandatory      = f.isMandatory() ;
+        String  fieldName      = f.getField().getName() ;
+        String  fieldRawVals[] = attrValues.getStringArray( fieldName ) ;
         
-        boolean mandatory   = f.isMandatory() ;
-        String  fieldName   = f.getField().getName() ;
-        String  fieldRawVal = attrValues.getString( fieldName ) ;
-        
-        if( mandatory && fieldRawVal == null ) {
+        if( mandatory && fieldRawVals == null ) {
             throw new MissingConfigException( fieldName ) ;
         }
-        else if( fieldRawVal != null ) {
+        else if( fieldRawVals != null ) {
             try {
-                log.debug( "\t" + fieldName + " = " + fieldRawVal ) ;
-                BeanUtils.setProperty( obj, fieldName, fieldRawVal ) ;
+                if( fieldRawVals.length == 1 ) {
+                    String rawVal = fieldRawVals[0] ;
+                    log.debug( "\t" + fieldName + " = " + rawVal ) ;
+                    BeanUtils.setProperty( obj, fieldName, rawVal ) ;
+                }
+                else if( fieldRawVals.length > 1 ){
+                    for( String rawVal : fieldRawVals ) {
+                        log.debug( "\t" + fieldName + " = " + rawVal ) ;
+                    }
+                    BeanUtils.setProperty( obj, fieldName, fieldRawVals ) ;
+                }
             }
             catch( Exception e ) {
                 log.error( "Unable to set property - " + fieldName + 
-                           " = " + fieldRawVal, e ) ;
+                           " = " + fieldRawVals, e ) ;
                 throw new InvalidConfigException( fieldName ) ;
             }
         }
