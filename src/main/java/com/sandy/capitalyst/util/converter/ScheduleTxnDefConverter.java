@@ -37,6 +37,8 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
     private ScheduledTxnDef createTxnDef( String input ) {
         log.debug( "Creating ScheduledTxnDef from " + input ) ;
         
+        input = input.replaceAll( ";", "," ) ;
+        
         ScheduledTxnDef def = new ScheduledTxnDef() ;
         String[] parts = input.split( ":" ) ;
         

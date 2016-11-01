@@ -115,6 +115,8 @@ public class CapitalystChart extends JPanel
         plot.setBackgroundPaint( Color.BLACK ) ;
         plot.setDomainGridlinePaint( Color.DARK_GRAY ) ;
         plot.setRangeGridlinePaint( Color.DARK_GRAY ) ;
+        plot.setRangePannable( true ) ;
+        plot.setDomainPannable( true ) ;
         
         renderer = ( AbstractRenderer )plot.getRenderer() ;
     }

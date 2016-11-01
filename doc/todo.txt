@@ -2,6 +2,8 @@ Clicking on a point in chart, highlights the txn in the ledger
 Saving configurations of universes
 Simulation speed change
 Taxable txn to be modeled
+Legend has a footer panel where the description of the selected transaction
+   is highlighted.
 
 -------------------------------------------------------------------------------
                                DONE
