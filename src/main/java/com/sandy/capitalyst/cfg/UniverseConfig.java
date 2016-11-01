@@ -76,4 +76,8 @@ public class UniverseConfig extends CompositeConfiguration {
         clone.copy( this ) ;
         return clone ;
     }
+    
+    public String interpolate( String input ) {
+        return super.interpolate( input ) ;
+    }
 }

@@ -15,6 +15,8 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
 
     static final Logger log = Logger.getLogger( ScheduleTxnDefConverter.class ) ;
     
+    public static int NUM_COLS = 7 ;
+    
     private static int AMT_ID         = 0 ;
     private static int CRON_ID        = 1 ;
     private static int DEBIT_AC_ID    = 2 ;
@@ -34,7 +36,7 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
     
     // 600@2% :1 * * *:${Sandy.iciciSBAccount}:${Sandy.expenseAC}:::Malhari salary
     // <Amount>:<Cron>:<Debit A/C>:<Credit A/C>:[Start Date]:[End Date]:<Description>
-    private ScheduledTxnDef createTxnDef( String input ) {
+    public ScheduledTxnDef createTxnDef( String input ) {
         log.debug( "Creating ScheduledTxnDef from " + input ) ;
         
         input = input.replaceAll( ";", "," ) ;

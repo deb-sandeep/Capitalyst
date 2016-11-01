@@ -129,7 +129,6 @@ public class UniverseLoader {
             loadAccounts( universe ) ;
             loadTxGenerators( universe ) ;
             
-            universe.setConfiguration( univCfg ) ;
             universe.setId( univName ) ;
         }
         catch( Exception e ) {
@@ -164,6 +163,7 @@ public class UniverseLoader {
         log.debug( "Configuring universe" ) ;
         UniverseConfig attrCfg  = univCfg.getNestedConfig( "Universe.attr" ) ;
         injectFieldValues( universe, attrCfg ) ;
+        universe.setConfiguration( univCfg ) ;
     }
     
     private void loadContextObjects( Universe universe ) 
@@ -242,12 +242,13 @@ public class UniverseLoader {
         Object         obj     = objCls.newInstance() ;
         UniverseConfig attrCfg = extractAttributes( objId, objCfg ) ;
         
-        injectFieldValues( obj, attrCfg ) ;
-        
         if( obj instanceof UniverseConstituent ) {
             UniverseConstituent uc = ( UniverseConstituent )obj ;
             uc.setId( objId ) ;
+            uc.setUniverse( universe ) ;
         }
+        
+        injectFieldValues( obj, attrCfg ) ;
         
         return obj ;
     }
