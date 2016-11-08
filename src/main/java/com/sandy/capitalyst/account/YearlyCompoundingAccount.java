@@ -13,7 +13,7 @@ public class YearlyCompoundingAccount extends PeriodicallyCompoundingAccount
     
     @Override
     public void handleEndOfYearEvent( Date date ) {
-        if( !isAccountClosed ) {
+        if( isActive() ) {
             super.postAccumulatedInterest( date ) ;
         }
     }

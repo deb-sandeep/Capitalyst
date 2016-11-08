@@ -13,7 +13,7 @@ public class QuarterlyCompoundingAccount extends PeriodicallyCompoundingAccount
     
     @Override
     public void handleEndOfQuarterEvent( Date date ) {
-        if( !isAccountClosed ) {
+        if( isActive() ) {
             super.postAccumulatedInterest( date ) ;
         }
     }

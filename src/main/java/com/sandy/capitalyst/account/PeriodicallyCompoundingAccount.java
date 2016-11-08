@@ -68,8 +68,6 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     @Cfg( mandatory=false )
     private boolean interestTaxable = false ;
     
-    protected boolean isAccountClosed = false ;
-    
     protected List<QuantumOfMoney> quantumFragments = 
                    new ArrayList<PeriodicallyCompoundingAccount.QuantumOfMoney>() ;
 
@@ -111,7 +109,6 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         }
 
         if( Utils.isAfter( getUniverse().now(), closingDate ) ) {
-            isAccountClosed = true ;
             closeAccount( closingDate ) ;
         }
         else if( super.amount > 0 ){
@@ -172,13 +169,12 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     @Override
     public void handleEndOfDayEvent( Date date ) {
 
-        if( !isAccountClosed ) {
+        if( isActive() ) {
             for( QuantumOfMoney q : quantumFragments ) {
                 q.computeAndCollateInterestTillDate( date ) ;
             }
             
             if( closingDate != null && Utils.isSame( closingDate, date ) ) {
-                isAccountClosed = true ;
                 postAccumulatedInterest( date ) ;
                 closeAccount( date ) ;
             }

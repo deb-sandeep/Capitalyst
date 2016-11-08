@@ -22,6 +22,7 @@ import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
 import org.apache.commons.cli.MissingArgumentException ;
 import org.apache.log4j.Logger ;
 
+import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
@@ -32,6 +33,7 @@ import com.sandy.capitalyst.txgen.ScheduledTxnDef ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.util.Range ;
 import com.sandy.capitalyst.util.converter.AmountConverter ;
+import com.sandy.capitalyst.util.converter.ExecutionTimeConverter ;
 import com.sandy.capitalyst.util.converter.RangeConverter ;
 import com.sandy.capitalyst.util.converter.ScheduleTxnDefConverter ;
 
@@ -48,6 +50,7 @@ public class UniverseLoader {
         
         ConvertUtils.register( new RangeConverter(), Range.class ) ;
         ConvertUtils.register( new ScheduleTxnDefConverter(), ScheduledTxnDef.class );
+        ConvertUtils.register( new ExecutionTimeConverter(), ExecutionTime.class ) ;
     }
     
     public static class ConfigurableField {
@@ -329,7 +332,7 @@ public class UniverseLoader {
         String  fieldName      = f.getField().getName() ;
         String  fieldRawVals[] = attrValues.getStringArray( fieldName ) ;
         
-        if( mandatory && fieldRawVals == null ) {
+        if( mandatory && ( fieldRawVals == null || fieldRawVals.length==0 ) ) {
             throw new MissingConfigException( fieldName ) ;
         }
         else if( fieldRawVals != null ) {

@@ -60,7 +60,7 @@ public class SuperannuationAccount extends YearlyCompoundingAccount
     }
     
     public void handleEndOfMonthEvent( Date date ) {
-        if( isAccountClosed ) {
+        if( !isActive() ) {
             Txn txn = new Txn( getParentAccountNumber(), 
                                annuityPayoutPerMonth, date,
                                "Annuity payout from " + getName() ) ;

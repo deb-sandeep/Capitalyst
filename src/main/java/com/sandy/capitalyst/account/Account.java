@@ -29,6 +29,7 @@ public class Account
     
     private double openingBalance = 0 ;
     private String id = null ;
+    private boolean isActive = true ;
     
     private List<Txn> ledger        = new ArrayList<Txn>() ;
     private List<Txn> postDatedTxns = new ArrayList<Txn>() ;
@@ -93,7 +94,7 @@ public class Account
     }
     
     public boolean isActive() {
-        return true ;
+        return this.isActive ;
     }
     
     public List<Txn> getLedger() {
@@ -102,6 +103,7 @@ public class Account
     
     public void closeAccount( Date date ) {
         closureActions.forEach( a -> a.execute( this, date ) ) ;
+        this.isActive = false ;
         getUniverse().getBus().publishEvent( EventType.ACCOUNT_CLOSED, this ) ;
     }
     
