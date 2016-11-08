@@ -13,13 +13,17 @@ import java.util.List ;
 import javax.swing.ImageIcon ;
 import javax.swing.JButton ;
 import javax.swing.JComboBox ;
+import javax.swing.JComponent ;
 import javax.swing.JFileChooser ;
 import javax.swing.JOptionPane ;
 import javax.swing.JPanel ;
 import javax.swing.JScrollPane ;
 import javax.swing.JTable ;
+import javax.swing.JTextArea ;
 import javax.swing.ListSelectionModel ;
 import javax.swing.RowFilter ;
+import javax.swing.event.ListSelectionEvent ;
+import javax.swing.event.ListSelectionListener ;
 import javax.swing.table.TableColumn ;
 import javax.swing.table.TableColumnModel ;
 import javax.swing.table.TableRowSorter ;
@@ -35,7 +39,8 @@ import com.sandy.capitalyst.util.LedgerUtils ;
 import com.sandy.common.util.StringUtil ;
 
 @SuppressWarnings( "serial" )
-public class LedgerDisplayPanel extends JPanel implements ActionListener {
+public class LedgerDisplayPanel extends JPanel 
+    implements ActionListener, ListSelectionListener {
 
     static final Logger log = Logger.getLogger( LedgerDisplayPanel.class ) ;
 
@@ -44,6 +49,7 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
     private JTable            table      = new JTable( tableModel ) ;
     private JButton           download   = new JButton() ;
     private JFileChooser      fileChooser= new JFileChooser() ;
+    private JTextArea         descrTA    = new JTextArea( 1, 20 ) ;
     
     private TableRowSorter<LedgerTableModel> sorter =
                    new TableRowSorter<LedgerTableModel>( this.tableModel ) ;
@@ -73,7 +79,8 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
         this.table.setRowSorter( this.sorter ) ;
         this.table.setRowSelectionAllowed( true ) ;
         this.table.setColumnSelectionAllowed( false ) ;
-        this.table.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION ) ;
+        this.table.setSelectionMode( ListSelectionModel.SINGLE_SELECTION ) ;
+        this.table.getSelectionModel().addListSelectionListener( this ) ;
         this.sorter.setRowFilter( null ) ;
 
         setColumnProperties( LedgerTableModel.COL_TXN_TYPE_MARKER,    10 ) ;
@@ -86,10 +93,15 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
         this.searchTF.setFont( UIConstants.TABLE_FONT ) ;
         this.searchTF.addActionListener( this ) ;
         this.searchTF.setEditable( true ) ;
+        
+        this.descrTA.setEditable( false ) ;
+        this.descrTA.setWrapStyleWord( true ) ;
+        this.descrTA.setFont( UIConstants.STD_FONT );
 
         setLayout( new BorderLayout() ) ;
         add( tableSP, BorderLayout.CENTER ) ;
         add( getTopPanel(), BorderLayout.NORTH ) ;
+        add( getBottomPanel(), BorderLayout.SOUTH ) ;
     }
 
     /**
@@ -142,6 +154,14 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
         panel.add( download, BorderLayout.EAST ) ;
         
         return panel ;
+    }
+    
+    private JComponent getBottomPanel() {
+        
+        JScrollPane sp = new JScrollPane( this.descrTA, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER  ) ; 
+        return sp ;
     }
 
     @Override
@@ -202,5 +222,19 @@ public class LedgerDisplayPanel extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog( 
                                 this, "Error saving file. " + e.getMessage() ) ;
         }
+    }
+
+    @Override
+    public void valueChanged( ListSelectionEvent e ) {
+        
+        int viewRow = this.table.getSelectedRow() ;
+        int modelRow = this.table.convertRowIndexToModel( viewRow ) ;
+        
+        LedgerEntry entry = this.tableModel.getEntry( modelRow ) ;
+        
+        String newText = entry.getDescription() ;
+        newText = ( newText == null ) ? "" : newText ;
+        
+        this.descrTA.setText( newText ) ;
     }
 }

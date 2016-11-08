@@ -6,6 +6,8 @@ public class UIConstants {
 
     private static final String FONT_NAME = "Helvetica" ;
     
+    public static final Font STD_FONT = new Font( FONT_NAME, Font.PLAIN, 11 ) ;
+    
     public static final Font TREE_FONT  = new Font( FONT_NAME, Font.PLAIN, 11 ) ;
     public static final Font TABLE_FONT = new Font( FONT_NAME, Font.PLAIN, 11 ) ;
     
