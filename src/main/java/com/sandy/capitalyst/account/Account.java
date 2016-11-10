@@ -15,6 +15,7 @@ import com.sandy.capitalyst.action.AccountClosureAction ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.exception.AccountOverdraftException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
 import com.sandy.capitalyst.txgen.AbstractTxnGen ;
 
@@ -87,6 +88,10 @@ public class Account
         }
         else {
             ledger.add( t ) ;
+            if( (this.amount + t.getAmount()) < 0 ) {
+                throw new AccountOverdraftException( accountNumber, 
+                                                     t.getDescription() ) ;
+            }
             this.amount += t.getAmount() ;
             getUniverse().getBus().publishEvent( EventType.TXN_POSTED, t ) ;
             listeners.stream().forEach( l -> l.txnPosted( t, this ) ) ;

@@ -25,7 +25,8 @@ public class ExecutionTimeConverter extends AbstractConverter {
         
         log.debug( "\tConverting '" + input + "' to Cron" ) ;
         checkNotEmptyOrNull( "Cron", input ) ;
-        
+
+        input = input.replaceAll( ";", "," ) ;
         Cron cron = Utils.CRON_PARSER.parse( input ) ;
         return ExecutionTime.forCron( cron ) ;
     }

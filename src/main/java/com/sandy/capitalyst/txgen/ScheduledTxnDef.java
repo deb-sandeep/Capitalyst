@@ -1,14 +1,18 @@
 package com.sandy.capitalyst.txgen;
 
+import java.time.ZoneId ;
+import java.time.ZonedDateTime ;
 import java.util.Date ;
 
-import org.joda.time.DateTime ;
+import org.apache.log4j.Logger ;
 
 import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.util.Utils ;
 
 public class ScheduledTxnDef {
+    
+    private static Logger log = Logger.getLogger( ScheduledTxnDef.class ) ;
 
     private Amount        amount         = null ;
     private ExecutionTime executionTime  = null ;
@@ -87,6 +91,14 @@ public class ScheduledTxnDef {
             }
         }
         
-        return executionTime.isMatch( new DateTime( date.getTime() ) ) ;
+        try {
+            ZonedDateTime dt = null ;
+            dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
+            return executionTime.isMatch( dt ) ; 
+        }
+        catch( Exception e ) {
+            log.error( "Error in cron matching.", e );
+            throw e ;
+        }
     }
 }

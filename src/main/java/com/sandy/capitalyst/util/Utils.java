@@ -22,17 +22,18 @@ public class Utils {
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
     public static final DecimalFormat     DF = new DecimalFormat( "0.0" ) ;
     private static final CronDefinition CRON_DEF =
-                            CronDefinitionBuilder.defineCron()
-                                .withDayOfMonth()
-                                .supportsHash().supportsL().supportsW().and()
-                                .withMonth().and()
-                                .withDayOfWeek()
-                                .withIntMapping(7, 0) 
-                                .supportsHash().supportsL().supportsW().and()
-                                .withYear().and()
-                                .lastFieldOptional()
-                                .instance() ;
-    public static final CronParser  CRON_PARSER = new CronParser( CRON_DEF ) ;
+                                    CronDefinitionBuilder.defineCron()
+                                    .withDayOfMonth()
+                                    .supportsHash().supportsL().supportsW().and()
+                                    .withMonth().and()
+                                    .withDayOfWeek()
+                                    .withIntMapping(7, 0)
+                                    .supportsHash().supportsL().supportsW().and()
+                                    .withYear().and()
+                                    .lastFieldOptional()
+                                    .instance();
+    
+    public static final CronParser CRON_PARSER = new CronParser( CRON_DEF ) ;
     
     public static Date parseDate( String dateStr ) throws IllegalArgumentException {
         try {
@@ -91,6 +92,20 @@ public class Utils {
         return false ;
     }
     
+    public static boolean isSameOrAfter( Date toCompare, Date milestone ) {
+        if( DateUtils.truncatedCompareTo( toCompare, milestone, Calendar.DAY_OF_MONTH ) >= 0 ) {
+            return true ;
+        }
+        return false ;
+    }
+    
+    public static boolean isSameOrBefore( Date toCompare, Date milestone ) {
+        if( DateUtils.truncatedCompareTo( toCompare, milestone, Calendar.DAY_OF_MONTH ) <= 0 ) {
+            return true ;
+        }
+        return false ;
+    }
+    
     public static boolean isEndOfMonth( Date date ) {
         return isEndOfMonth( DateUtils.toCalendar( date ) ) ;
     }
@@ -110,9 +125,9 @@ public class Utils {
         if( isEndOfMonth( cal ) ) {
             int monthNum  = cal.get( Calendar.MONTH ) ;
             if( monthNum == Calendar.MARCH || 
-                    monthNum == Calendar.JUNE || 
-                    monthNum == Calendar.SEPTEMBER ||
-                    monthNum == Calendar.DECEMBER ) {
+                monthNum == Calendar.JUNE || 
+                monthNum == Calendar.SEPTEMBER ||
+                monthNum == Calendar.DECEMBER ) {
                 return true ;
             }
         }

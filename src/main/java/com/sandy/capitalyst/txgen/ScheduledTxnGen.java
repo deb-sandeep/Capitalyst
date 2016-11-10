@@ -1,9 +1,9 @@
 package com.sandy.capitalyst.txgen;
 
+import java.time.ZoneId ;
+import java.time.ZonedDateTime ;
 import java.util.Date ;
 import java.util.List ;
-
-import org.joda.time.DateTime ;
 
 import com.cronutils.descriptor.CronDescriptor ;
 import com.cronutils.model.Cron ;
@@ -79,8 +79,9 @@ public abstract class ScheduledTxnGen
             return ;
         }
         
-        DateTime dateTime = new DateTime( date.getTime() ) ;
-        if( execTime.isMatch( dateTime ) ) {
+        ZonedDateTime dt = null ;
+        dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
+        if( execTime.isMatch( dt ) ) {
             generateScheduledTxnForDate( date, txnList ) ;
         }
     }

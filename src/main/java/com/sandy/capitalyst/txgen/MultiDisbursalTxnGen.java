@@ -3,6 +3,7 @@ package com.sandy.capitalyst.txgen;
 import java.io.File ;
 import java.io.FileInputStream ;
 import java.io.InputStream ;
+import java.util.ArrayList ;
 import java.util.Date ;
 import java.util.List ;
 
@@ -18,6 +19,7 @@ import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.util.converter.ScheduleTxnDefConverter ;
+import com.sandy.common.util.StringUtil ;
 
 public class MultiDisbursalTxnGen extends AbstractTxnGen
     implements PostConfigInitializable {
@@ -134,34 +136,47 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
         Workbook workbook = new XSSFWorkbook( is ) ;
         
         Sheet sheet = workbook.getSheetAt( 0 ) ;
-        int numDefs = sheet.getLastRowNum() - sheet.getFirstRowNum() ;
+        int numLines = sheet.getLastRowNum() - sheet.getFirstRowNum() ;
         
-        ScheduledTxnDef[] defs = new ScheduledTxnDef[numDefs] ;
+        List<ScheduledTxnDef> defs = new ArrayList<ScheduledTxnDef>() ;
         ScheduleTxnDefConverter converter = new ScheduleTxnDefConverter() ;
         
-        for( int i=1; i<=numDefs; i++ ) {
-            Row row = sheet.getRow( i ) ;
+        for( int rowNum=0; rowNum<=numLines; rowNum++ ) {
+            Row row = sheet.getRow( rowNum ) ;
             StringBuilder buffer = new StringBuilder() ;
+            boolean definitionCreated = true ;
             
-            for( int c=0; c<ScheduleTxnDefConverter.NUM_COLS; c++ ) {
+            for( int colNum=0; colNum<ScheduleTxnDefConverter.NUM_COLS; colNum++ ) {
                 String cellContent = "" ;
-                Cell cell = row.getCell( c ) ;
+                Cell cell = row.getCell( colNum ) ;
             
                 if( cell != null ) {
                     cellContent = cell.toString() ;
                 }
                 
-                cellContent = getInterpolatedValue( cellContent ) ;
-                buffer.append( cellContent ) ;
-                
-                if( c < ScheduleTxnDefConverter.NUM_COLS-1 ) { 
-                    buffer.append( ":" ) ; 
+                if( colNum==0 ) {
+                    // If the row is either a comment row, title row, or blank
+                    // row, ignore the line
+                    if( cellContent.startsWith( "#" ) || 
+                        cellContent.startsWith( "Amount" ) || 
+                        StringUtil.isEmptyOrNull( cellContent ) ) {
+                        definitionCreated = false ;
+                        break ;
+                    }
                 }
+                
+                cellContent = getInterpolatedValue( cellContent ) ;
+                buffer.append( cellContent ).append( ":" ) ;
             }
-            log.debug( "\tTxn def = " + buffer ) ;
-            defs[i-1] = converter.createTxnDef( buffer.toString() ) ;
+            
+            if( definitionCreated ) {
+                buffer.append( "EOR" ) ;
+                log.debug( "\tTxn def = " + buffer ) ;
+                defs.add( converter.createTxnDef( buffer.toString() ) ) ;
+            }
         }
-        txnDefs = defs ;
+        
+        txnDefs = defs.toArray( new ScheduledTxnDef[1] ) ;
     }
     
     private String getInterpolatedValue( String input ) {

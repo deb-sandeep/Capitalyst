@@ -18,12 +18,12 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
     public static int NUM_COLS = 7 ;
     
     private static int AMT_ID         = 0 ;
-    private static int CRON_ID        = 1 ;
-    private static int DEBIT_AC_ID    = 2 ;
-    private static int CREDIT_AC_ID   = 3 ;
-    private static int START_DATE_ID  = 4 ;
-    private static int END_DATE_ID    = 5 ;
-    private static int DESCRIPTION_ID = 6 ;
+    private static int DESCRIPTION_ID = 1 ;
+    private static int CRON_ID        = 2 ;
+    private static int DEBIT_AC_ID    = 3 ;
+    private static int CREDIT_AC_ID   = 4 ;
+    private static int START_DATE_ID  = 5 ;
+    private static int END_DATE_ID    = 6 ;
     
     @Override
     protected <T> T convertToType( Class<T> type, Object value )
@@ -45,12 +45,12 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         String[] parts = input.split( ":" ) ;
         
         setAmount     ( def, parts[AMT_ID         ].trim() ) ;
+        setDescription( def, parts[DESCRIPTION_ID ].trim() ) ;
         setCron       ( def, parts[CRON_ID        ].trim() ) ;
         setDebitACNo  ( def, parts[DEBIT_AC_ID    ].trim() ) ;
         setCreditACNo ( def, parts[CREDIT_AC_ID   ].trim() ) ;
         setStartDate  ( def, parts[START_DATE_ID  ].trim() ) ;
         setEndDate    ( def, parts[END_DATE_ID    ].trim() ) ;
-        setDescription( def, parts[DESCRIPTION_ID ].trim() ) ;
         
         return def ;
     }

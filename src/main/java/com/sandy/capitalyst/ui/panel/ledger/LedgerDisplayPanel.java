@@ -183,12 +183,17 @@ public class LedgerDisplayPanel extends JPanel
             final LedgerQueryParser parser = new LedgerQueryParser( queryStr ) ;
             try {
                 final RowFilter<Object, Object> filter = parser.parse() ;
+                this.table.getSelectionModel().removeListSelectionListener( this ) ;
+                
                 this.sorter.setRowFilter( filter ) ;
                 this.searchTF.setBackground( Color.white ) ;
                 this.searchTF.setToolTipText( "Enter filter query and enter" ) ;
                 this.searchTF.insertItemAt( queryStr, 0 ) ;
+                
+                this.table.getSelectionModel().addListSelectionListener( this ) ;
             }
             catch ( final Exception e2 ) {
+                log.error( "parser error", e2 );
                 JOptionPane.showMessageDialog( this, "Error in search query" );
             }
         }
@@ -227,14 +232,16 @@ public class LedgerDisplayPanel extends JPanel
     @Override
     public void valueChanged( ListSelectionEvent e ) {
         
-        int viewRow = this.table.getSelectedRow() ;
-        int modelRow = this.table.convertRowIndexToModel( viewRow ) ;
-        
-        LedgerEntry entry = this.tableModel.getEntry( modelRow ) ;
-        
-        String newText = entry.getDescription() ;
-        newText = ( newText == null ) ? "" : newText ;
-        
-        this.descrTA.setText( newText ) ;
+        if( !e.getValueIsAdjusting() ) {
+            int viewRow = this.table.getSelectedRow() ;
+            int modelRow = this.table.convertRowIndexToModel( viewRow ) ;
+            
+            LedgerEntry entry = this.tableModel.getEntry( modelRow ) ;
+            
+            String newText = entry.getDescription() ;
+            newText = ( newText == null ) ? "" : newText ;
+            
+            this.descrTA.setText( newText ) ;
+        }
     }
 }

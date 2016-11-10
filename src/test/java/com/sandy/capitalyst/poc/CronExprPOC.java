@@ -1,6 +1,8 @@
 package com.sandy.capitalyst.poc ;
 
-import org.joda.time.DateTime ;
+import java.time.ZoneId ;
+import java.time.ZonedDateTime ;
+import java.util.Date ;
 
 import com.cronutils.descriptor.CronDescriptor ;
 import com.cronutils.model.Cron ;
@@ -8,12 +10,13 @@ import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
+import com.sandy.capitalyst.util.Utils ;
 
 public class CronExprPOC {
 
     public void basicPOC() {
         CronDefinition cronDefinition =
-            CronDefinitionBuilder.defineCron()
+                CronDefinitionBuilder.defineCron()
                 .withDayOfMonth()
                 .supportsHash().supportsL().supportsW().and()
                 .withMonth().and()
@@ -22,15 +25,15 @@ public class CronExprPOC {
                 .supportsHash().supportsL().supportsW().and()
                 .withYear().and()
                 .lastFieldOptional()
-                .instance() ;
+                .instance();
         
         CronParser parser = new CronParser( cronDefinition ) ;
-        Cron cron = parser.parse( "L JAN,MAR,JUN *" ) ;
+        Cron cron = parser.parse( "1 5 * 2019" ) ;
         ExecutionTime execTime = ExecutionTime.forCron( cron ) ;
         
-        DateTime dateTime = new DateTime( 2015, 9, 9, 0, 0 ) ;
-        
-        System.out.println( execTime.isMatch( dateTime ) ) ;
+        Date date = Utils.parseDate( "1/6/2019" ) ;
+        ZonedDateTime dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
+        System.out.println( execTime.isMatch( dt ) ) ;
 
         CronDescriptor descriptor = CronDescriptor.instance() ;
         System.out.println( descriptor.describe( cron ) ) ;
