@@ -131,6 +131,7 @@ public class UniverseLoader {
             loadContextObjects( universe ) ;
             loadAccounts( universe ) ;
             loadTxGenerators( universe ) ;
+            loadFactories( universe ) ;
             
             universe.setId( univName ) ;
         }
@@ -167,6 +168,7 @@ public class UniverseLoader {
         UniverseConfig attrCfg  = univCfg.getNestedConfig( "Universe.attr" ) ;
         injectFieldValues( universe, attrCfg ) ;
         universe.setConfiguration( univCfg ) ;
+        universe.initializePostConfig() ;
     }
     
     private void loadContextObjects( Universe universe ) 
@@ -226,6 +228,23 @@ public class UniverseLoader {
         }
     }
     
+    private void loadFactories( Universe universe ) 
+        throws Exception {
+        
+        for( String factoryAlias : getUniqueEntityAliases( univCfg, "Factory") ) {
+            
+            try {
+                log.debug( "Loading factory :: " + factoryAlias ) ;
+                UniverseConfig factoryCfg = univCfg.getNestedConfig( "Factory." + factoryAlias ) ;
+                loadObject( factoryAlias, factoryCfg ) ;
+            }
+            catch( Exception e ) {
+                log.error( "Error loading " + factoryAlias, e ) ;
+                throw new IllegalArgumentException( "Error loading " + factoryAlias, e ) ;
+            }
+        }
+    }
+    
     private Object loadObject( String objId, UniverseConfig objCfg ) 
         throws Exception {
         
@@ -253,6 +272,10 @@ public class UniverseLoader {
         
         injectFieldValues( obj, attrCfg ) ;
         
+        if( obj instanceof PostConfigInitializable ) {
+            ( (PostConfigInitializable)obj ).initializePostConfig() ;
+        }
+        
         return obj ;
     }
     
@@ -268,7 +291,6 @@ public class UniverseLoader {
                 cfg.addProperty( nvp[0].trim(), nvp[1].trim() );
             }
         }
-        
         return cfg ;
     }
     
@@ -277,15 +299,6 @@ public class UniverseLoader {
         List<ConfigurableField> fields = getAllConfigurableFields( obj.getClass() ) ;
         for( ConfigurableField field :  fields ) {
             populateField( obj, field, attrCfg );
-        }
-        
-        if( obj instanceof UniverseConstituent ) {
-            UniverseConstituent uc = ( UniverseConstituent )obj ;
-            uc.setUniverse( universe ) ;
-        }
-        
-        if( obj instanceof PostConfigInitializable ) {
-            ( (PostConfigInitializable)obj ).initializePostConfig() ;
         }
     }
     

@@ -1,19 +1,12 @@
 package com.sandy.capitalyst.txgen;
 
-import java.time.ZoneId ;
-import java.time.ZonedDateTime ;
 import java.util.Date ;
-
-import org.apache.log4j.Logger ;
 
 import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.core.amount.Amount ;
-import com.sandy.capitalyst.util.Utils ;
 
 public class ScheduledTxnDef {
     
-    private static Logger log = Logger.getLogger( ScheduledTxnDef.class ) ;
-
     private Amount        amount         = null ;
     private ExecutionTime executionTime  = null ;
     private String        debitACNo      = null ;
@@ -21,6 +14,8 @@ public class ScheduledTxnDef {
     private Date          startDate      = null ;
     private Date          endDate        = null ;
     private String        description    = null ;
+    private String        classifiers    = null ;
+    private String        name           = null ;
     
     public Amount getAmount() {
         return amount ;
@@ -78,27 +73,19 @@ public class ScheduledTxnDef {
         this.description = description ;
     }
     
-    public boolean isValidFor( Date date ) {
-        if( startDate != null ) {
-            if( Utils.isBefore( date, startDate ) ) {
-                return false ;
-            }
-        }
-        
-        if( endDate != null ) {
-            if( Utils.isAfter( date, endDate ) ) {
-                return false ;
-            }
-        }
-        
-        try {
-            ZonedDateTime dt = null ;
-            dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
-            return executionTime.isMatch( dt ) ; 
-        }
-        catch( Exception e ) {
-            log.error( "Error in cron matching.", e );
-            throw e ;
-        }
+    public String getClassifiers() {
+        return classifiers ;
+    }
+
+    public void setClassifiers( String classifiers ) {
+        this.classifiers = classifiers ;
+    }
+
+    public String getName() {
+        return name ;
+    }
+
+    public void setName( String name ) {
+        this.name = name ;
     }
 }

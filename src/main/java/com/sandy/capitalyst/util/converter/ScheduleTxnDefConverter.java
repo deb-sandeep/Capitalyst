@@ -15,15 +15,16 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
 
     static final Logger log = Logger.getLogger( ScheduleTxnDefConverter.class ) ;
     
-    public static int NUM_COLS = 7 ;
+    public static int NUM_COLS = 8 ;
     
-    private static int AMT_ID         = 0 ;
-    private static int DESCRIPTION_ID = 1 ;
-    private static int CRON_ID        = 2 ;
-    private static int DEBIT_AC_ID    = 3 ;
-    private static int CREDIT_AC_ID   = 4 ;
-    private static int START_DATE_ID  = 5 ;
-    private static int END_DATE_ID    = 6 ;
+    private static int CLASSIFIER_ID  = 0 ;
+    private static int AMT_ID         = 1 ;
+    private static int DESCRIPTION_ID = 2 ;
+    private static int CRON_ID        = 3 ;
+    private static int DEBIT_AC_ID    = 4 ;
+    private static int CREDIT_AC_ID   = 5 ;
+    private static int START_DATE_ID  = 6 ;
+    private static int END_DATE_ID    = 7 ;
     
     @Override
     protected <T> T convertToType( Class<T> type, Object value )
@@ -44,6 +45,7 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         ScheduledTxnDef def = new ScheduledTxnDef() ;
         String[] parts = input.split( ":" ) ;
         
+        setClassifier ( def, parts[CLASSIFIER_ID  ].trim() ) ;
         setAmount     ( def, parts[AMT_ID         ].trim() ) ;
         setDescription( def, parts[DESCRIPTION_ID ].trim() ) ;
         setCron       ( def, parts[CRON_ID        ].trim() ) ;
@@ -53,6 +55,12 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         setEndDate    ( def, parts[END_DATE_ID    ].trim() ) ;
         
         return def ;
+    }
+    
+    private void setClassifier( ScheduledTxnDef def, String input ) {
+        if( StringUtil.isNotEmptyOrNull( input ) ) {
+            def.setClassifiers( input ) ;
+        }
     }
     
     private void setAmount( ScheduledTxnDef def, String input ) {

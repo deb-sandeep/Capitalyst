@@ -1,10 +1,9 @@
-package com.sandy.capitalyst.txgen;
+package com.sandy.capitalyst.factory;
 
 import java.io.File ;
 import java.io.FileInputStream ;
 import java.io.InputStream ;
 import java.util.ArrayList ;
-import java.util.Date ;
 import java.util.List ;
 
 import org.apache.log4j.Logger ;
@@ -15,18 +14,20 @@ import org.apache.poi.ss.usermodel.Workbook ;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook ;
 
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.PostConfigInitializable ;
-import com.sandy.capitalyst.core.Txn ;
-import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
+import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.txgen.ScheduledTxnDef ;
+import com.sandy.capitalyst.txgen.ScheduledTxnGen ;
 import com.sandy.capitalyst.util.converter.ScheduleTxnDefConverter ;
 import com.sandy.common.util.StringUtil ;
 
-public class MultiDisbursalTxnGen extends AbstractTxnGen
-    implements PostConfigInitializable {
+public class ScheduledTxnGenFactory extends Factory {
 
-    static final Logger log = Logger.getLogger( MultiDisbursalTxnGen.class ) ;
+    static final Logger log = Logger.getLogger( ScheduledTxnGenFactory.class ) ;
     
-    @Cfg( mandatory=false )
+    private String id = null ;
+    private Universe universe = null ;
+    private ScheduleTxnDefConverter converter = new ScheduleTxnDefConverter() ;
+    
     private ScheduledTxnDef[] txnDefs = null ;
     
     @Cfg( mandatory=false )
@@ -35,16 +36,7 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
     @Cfg( mandatory=false )
     private String defaultDebitAccount = null ;
     
-    @Cfg( mandatory=false )
-    private File definitionFile = null ;
-    
-    public ScheduledTxnDef[] getTxnDefs() {
-        return txnDefs ;
-    }
-
-    public void setTxnDefs( ScheduledTxnDef[] txnDefs ) {
-        this.txnDefs = txnDefs ;
-    }
+    @Cfg private File definitionFile = null ;
     
     public String getDefaultCreditAccount() {
         return defaultCreditAccount ;
@@ -69,45 +61,21 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
     public void setDefinitionFile( File definitionFile ) {
         this.definitionFile = definitionFile ;
     }
-
-    @Override
-    public void getTransactionsForDate( Date date, List<Txn> txnList ) {
-        for( ScheduledTxnDef def : txnDefs ) {
-            if( def.isValidFor( date ) ) {
-                createTxn( def, date, txnList ) ;
-            }
-        }
+    
+    public void setId( String id ) {
+        this.id = id ;
     }
     
-    private void createTxn( ScheduledTxnDef def, Date date, 
-                            List<Txn> txnList ) {
-        
-        String creditAC = def.getCreditACNo() ;
-        String debitAC  = def.getDebitACNo() ;
-        
-        if( creditAC == null ) {
-            creditAC = defaultCreditAccount ;
-        }
-        
-        if( debitAC == null ) {
-            debitAC = defaultDebitAccount ;
-        }
-        
-        if( creditAC == null ) {
-            throw new AccountNotFoundException( "creditAccount" ) ;
-        }
-        
-        if( debitAC == null ) {
-            throw new AccountNotFoundException( "debitAccount" ) ;
-        }
-        
-        double amt = def.getAmount().getAmount() ;
-        
-        Txn debitTxn  = new Txn( debitAC, -amt, date, "Transfer for " + def.getDescription() ) ;
-        Txn creditTxn = new Txn( creditAC, amt, date, "Transfer to "  + def.getDescription() ) ;
-        
-        txnList.add( debitTxn ) ;
-        txnList.add( creditTxn ) ;
+    public String getId() {
+        return this.id ;
+    }
+    
+    public void setUniverse( Universe u ) {
+        this.universe = u ;
+    }
+    
+    public Universe getUniverse() {
+        return this.universe ;
     }
 
     @Override
@@ -123,6 +91,9 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
             }
             try {
                 loadTxnDefsFromFile() ;
+                for( ScheduledTxnDef def : txnDefs ) {
+                    universe.registerTxnGenerator( new ScheduledTxnGen( def ) ) ;
+                }
             }
             catch( Exception e ) {
                 throw new IllegalStateException( "Invalid definition file", e ) ;
@@ -139,12 +110,12 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
         int numLines = sheet.getLastRowNum() - sheet.getFirstRowNum() ;
         
         List<ScheduledTxnDef> defs = new ArrayList<ScheduledTxnDef>() ;
-        ScheduleTxnDefConverter converter = new ScheduleTxnDefConverter() ;
         
         for( int rowNum=0; rowNum<=numLines; rowNum++ ) {
             Row row = sheet.getRow( rowNum ) ;
+            if( isIgnorableRow( row ) ) continue ;
+            
             StringBuilder buffer = new StringBuilder() ;
-            boolean definitionCreated = true ;
             
             for( int colNum=0; colNum<ScheduleTxnDefConverter.NUM_COLS; colNum++ ) {
                 String cellContent = "" ;
@@ -154,29 +125,54 @@ public class MultiDisbursalTxnGen extends AbstractTxnGen
                     cellContent = cell.toString() ;
                 }
                 
-                if( colNum==0 ) {
-                    // If the row is either a comment row, title row, or blank
-                    // row, ignore the line
-                    if( cellContent.startsWith( "#" ) || 
-                        cellContent.startsWith( "Amount" ) || 
-                        StringUtil.isEmptyOrNull( cellContent ) ) {
-                        definitionCreated = false ;
-                        break ;
-                    }
-                }
-                
                 cellContent = getInterpolatedValue( cellContent ) ;
                 buffer.append( cellContent ).append( ":" ) ;
             }
-            
-            if( definitionCreated ) {
-                buffer.append( "EOR" ) ;
-                log.debug( "\tTxn def = " + buffer ) ;
-                defs.add( converter.createTxnDef( buffer.toString() ) ) ;
-            }
+            buffer.append( "EOR" ) ;
+            defs.add( createTxnDef( buffer.toString() ) ) ;
         }
         
         txnDefs = defs.toArray( new ScheduledTxnDef[1] ) ;
+    }
+    
+    private boolean isIgnorableRow( Row row ) {
+        
+        if( row != null ) {
+            Cell cell1 = row.getCell( 0 ) ;
+            Cell cell2 = row.getCell( 1 ) ;
+            
+            if( cell1 != null ) {
+                String content = cell1.toString() ;
+                if( content.startsWith( "#" ) || 
+                    content.startsWith( "Classifiers" ) ) {
+                    return true ;
+                }
+            }
+            
+            if( cell2 != null ) {
+                String content = cell2.toString() ;
+                if( StringUtil.isNotEmptyOrNull( content ) ) {
+                    return false ;
+                }
+            }
+        }
+        return true ;
+    }
+    
+    private ScheduledTxnDef createTxnDef( String input ) {
+        
+        log.debug( "\tTxn def = " + input ) ;
+        ScheduledTxnDef txnDef = converter.createTxnDef( input ) ;
+        
+        if( txnDef.getDebitACNo() == null ) {
+            txnDef.setDebitACNo( getDefaultDebitAccount() ) ;
+        }
+        
+        if( txnDef.getCreditACNo() == null ) {
+            txnDef.setCreditACNo( getDefaultCreditAccount() ) ;
+        }
+        
+        return txnDef ;
     }
     
     private String getInterpolatedValue( String input ) {

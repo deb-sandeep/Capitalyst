@@ -1,4 +1,7 @@
 Clicking on a point in chart, highlights the txn in the ledger
+Cumulative accounts
+Bulk account loading through excel file
+
 Saving configurations of universes
 Simulation speed change
 Taxable txn to be modeled
