@@ -11,8 +11,8 @@ import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 @SuppressWarnings( "serial" )
 public class CapitalystProjectTreeModel extends DefaultTreeModel {
 
-    private static final String ACCOUNT_NODE_NAME = "Accounts" ;
-    private static final String TXGENS_NODE_NAME  = "Txn Generators" ;
+    public static final String ACCOUNT_NODE_NAME = "Accounts" ;
+    public static final String TXGENS_NODE_NAME  = "Txn Generators" ;
     
     private DefaultMutableTreeNode rootNode = null ;
     

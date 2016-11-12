@@ -50,7 +50,7 @@ public class CapitalystProjectPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT ) ;
         splitPane.add( getLeftSidePanel() ) ;
         splitPane.add( getRightSidePanel() ) ;
-        splitPane.setDividerLocation( 250 ) ;
+        splitPane.setDividerLocation( 300 ) ;
         splitPane.setDividerSize( 5 ) ;
         splitPane.setOneTouchExpandable( true ) ;
         

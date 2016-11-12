@@ -155,16 +155,26 @@ public class CapitalystTreePanel extends JPanel
     @SuppressWarnings( "unchecked" )
     private void expandNode( DefaultMutableTreeNode node ) {
         
-        if( node.getChildCount() > 0 ) {
-            
+        if( node.getChildCount() > 0 && node.getDepth() > 1 ) {
             tree.expandPath( new TreePath( node.getPath() ) ) ;
+            
             Enumeration<DefaultMutableTreeNode> children = node.children() ;
             while( children.hasMoreElements() ) {
-                expandNode( children.nextElement() ) ;
+                
+                DefaultMutableTreeNode child = children.nextElement() ;
+                if( child.getLevel() == 2 ) {
+                    String nodeName = child.toString() ;
+                    if( nodeName.equals( CapitalystProjectTreeModel.ACCOUNT_NODE_NAME ) ) {
+                        expandNode( child ) ;
+                    }
+                }
+                else {
+                    expandNode( child ) ;
+                }
             }
         }
     }
-
+    
     @Override
     public void actionPerformed( ActionEvent e ) {
         JMenuItem mi = ( JMenuItem )e.getSource() ;
