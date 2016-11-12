@@ -28,6 +28,7 @@ public class Account
     @Cfg private String accountNumber ;
     @Cfg( mandatory=false ) protected double amount = 0 ;
     
+    private boolean overdraftAllowed = true ;
     private double openingBalance = 0 ;
     private String id = null ;
     private boolean isActive = true ;
@@ -37,6 +38,7 @@ public class Account
     
     private Set<AccountClosureAction> closureActions = new HashSet<AccountClosureAction>() ;
     private Set<AccountListener>      listeners      = new HashSet<AccountListener>() ;
+    
     
     public double getOpeningBalance() {
         return this.openingBalance ;
@@ -82,16 +84,27 @@ public class Account
         return amount ;
     }
     
+    public boolean isOverdraftAllowed() {
+        return overdraftAllowed ;
+    }
+
+    public void setOverdraftAllowed( boolean overdraftAllowed ) {
+        this.overdraftAllowed = overdraftAllowed ;
+    }
+
     public void postTransaction( Txn t ) {
         if( t.isPostDated() ) {
             postDatedTxns.add( t ) ;
         }
         else {
             ledger.add( t ) ;
-            if( (this.amount + t.getAmount()) < 0 ) {
-                throw new AccountOverdraftException( accountNumber, 
-                                                     t.getDescription() ) ;
+            if( !isOverdraftAllowed() ) {
+                if( (this.amount + t.getAmount()) < 0 ) {
+                    throw new AccountOverdraftException( accountNumber, 
+                            t.getDescription() ) ;
+                }
             }
+            
             this.amount += t.getAmount() ;
             getUniverse().getBus().publishEvent( EventType.TXN_POSTED, t ) ;
             listeners.stream().forEach( l -> l.txnPosted( t, this ) ) ;

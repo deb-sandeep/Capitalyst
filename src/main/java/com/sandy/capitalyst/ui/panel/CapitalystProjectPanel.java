@@ -10,6 +10,8 @@ import javax.swing.JPanel ;
 import javax.swing.JSplitPane ;
 import javax.swing.TransferHandler ;
 
+import org.apache.log4j.Logger ;
+
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.ui.helper.AccountTransferHandler ;
@@ -22,6 +24,8 @@ import com.sandy.common.ui.SwingUtils ;
 
 @SuppressWarnings( "serial" )
 public class CapitalystProjectPanel extends JPanel {
+    
+    private static Logger log = Logger.getLogger( CapitalystProjectPanel.class ) ;
     
     private CapitalystTreePanel     treePanel  = null ;
     private CapitalystChartPanel    chartPanel = null ;
@@ -92,6 +96,7 @@ public class CapitalystProjectPanel extends JPanel {
             treePanel.addUniverse( universe ) ;
         }
         catch( Exception e ) {
+            log.error( "Error loading universe.", e ) ;
             JOptionPane.showMessageDialog( null, e.getMessage() );
         }
     }

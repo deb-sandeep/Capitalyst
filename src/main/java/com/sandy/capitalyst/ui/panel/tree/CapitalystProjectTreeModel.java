@@ -4,6 +4,7 @@ import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.DefaultTreeModel ;
 
 import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.account.AggregateAccount ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
@@ -58,10 +59,12 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
             classifiers = a.getClassifiers().split( ">" ) ;
         }
         
-        DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers ) ;
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode( a.getName() ) ;
-        node.setUserObject( new AccountWrapper( a ) ) ;
-        holdingNode.add( node ) ;
+        DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers, a ) ;
+        DefaultMutableTreeNode acNode = new DefaultMutableTreeNode( a.getName() ) ;
+        acNode.setUserObject( new AccountWrapper( a ) ) ;
+        holdingNode.add( acNode ) ;
+        
+        addAccountToParentNodes( holdingNode, a ) ;
     }
     
     private DefaultMutableTreeNode createTxGensNode( Universe u ) {
@@ -83,14 +86,15 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
             classifiers = g.getClassifiers().split( ">" ) ;
         }
         
-        DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers ) ;
+        DefaultMutableTreeNode holdingNode = findHoldingNode( root, classifiers, null ) ;
         DefaultMutableTreeNode node = new DefaultMutableTreeNode( g.getName() ) ;
         node.setUserObject( g ) ;
         holdingNode.add( node ) ;
     }
     
     private DefaultMutableTreeNode findHoldingNode( DefaultMutableTreeNode root,
-                                                    String[] classifiers ) {
+                                                    String[] classifiers,
+                                                    Account account ) {
         
         if( classifiers == null ) {
             return root ;
@@ -116,10 +120,32 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
             else {
                 newNode = new DefaultMutableTreeNode( classifier ) ;
                 node.add( newNode ) ;
+                
+                if( account != null ) {
+                    AggregateAccount aggAc = new AggregateAccount() ;
+                    aggAc.setId( classifier ) ;
+                    aggAc.setName( classifier ) ;
+                    aggAc.setUniverse( account.getUniverse() );
+                    newNode.setUserObject( new AccountWrapper( aggAc ) ) ;
+                    
+                    addAccountToParentNodes( node, account ) ;
+                }
+                
                 node = newNode ;
             }
         }
         
         return node ;
+    }
+
+    private void addAccountToParentNodes( DefaultMutableTreeNode root, Account a ) {
+        
+        if( root != null && root.getLevel() > 1 ) {
+            AccountWrapper acWrapper = ( AccountWrapper )root.getUserObject() ;
+            AggregateAccount aggAc = ( AggregateAccount )acWrapper.getAccount() ;
+            aggAc.addAccount( a ) ;
+            
+            addAccountToParentNodes( (DefaultMutableTreeNode)root.getParent(), a ) ;
+        }
     }
 }

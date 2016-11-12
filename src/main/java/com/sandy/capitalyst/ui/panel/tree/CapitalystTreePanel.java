@@ -24,6 +24,7 @@ import javax.swing.tree.TreeSelectionModel ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.account.AggregateAccount ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
@@ -80,6 +81,11 @@ public class CapitalystTreePanel extends JPanel
         tree.setTransferHandler( transferHandler ) ;
         tree.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION ) ;
         tree.addTreeSelectionListener( this ) ;
+        tree.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent me ) {
+                doMouseClicked( me ) ;
+            }
+        } ) ;
         
         super.setLayout( new BorderLayout() ) ;
         
@@ -317,16 +323,38 @@ public class CapitalystTreePanel extends JPanel
             userObj  = lastNode.getUserObject() ;
             
             if( userObj instanceof AccountWrapper ) {
-                newEntity = (( AccountWrapper )userObj).getAccount() ;
+                Account account = (( AccountWrapper )userObj).getAccount() ;
+                if( !(account instanceof AggregateAccount) ) {
+                    newEntity = account ;
+                }
             }
             else if( userObj instanceof TxnGenerator ) {
                 newEntity = userObj ;
             }
         }
-        propPanel.refreshEntity( (UniverseConstituent)newEntity ) ;
         
-        if( userObj instanceof AccountWrapper ) {
-            ledgerTabPane.showAccountLedger( (Account)newEntity ) ;
+        if( newEntity != null ) {
+            propPanel.refreshEntity( (UniverseConstituent)newEntity ) ;
+        }
+    }
+    
+    public void doMouseClicked( MouseEvent me ) {
+        
+        DefaultMutableTreeNode lastNode = null ; 
+        Object userObj = null ;
+        
+        if( me.getClickCount()==2 ) {
+            
+            TreePath tp = tree.getPathForLocation( me.getX(), me.getY() ) ;
+            if( tp != null ) {
+                lastNode = ( DefaultMutableTreeNode )tp.getLastPathComponent() ;
+                userObj  = lastNode.getUserObject() ;
+                
+                if( userObj instanceof AccountWrapper ) {
+                    Account account = (( AccountWrapper )userObj).getAccount() ;
+                    ledgerTabPane.showAccountLedger( account ) ;
+                }
+            }
         }
     }
 }

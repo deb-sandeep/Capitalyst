@@ -157,7 +157,8 @@ public class AccountFactory extends Factory {
             }
             
             if( !cfgFields.containsKey( attr ) ) {
-                throw new IllegalStateException( "Invalid attribute found." );
+                throw new IllegalStateException( attr + " attribute not "
+                                           + "found in account configuration" ) ;
             }
         }
         expectSecHdrRow = false ;
