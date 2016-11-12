@@ -29,13 +29,11 @@ import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.amount.Amount ;
-import com.sandy.capitalyst.txgen.ScheduledTxnDef ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.util.Range ;
 import com.sandy.capitalyst.util.converter.AmountConverter ;
 import com.sandy.capitalyst.util.converter.ExecutionTimeConverter ;
 import com.sandy.capitalyst.util.converter.RangeConverter ;
-import com.sandy.capitalyst.util.converter.ScheduleTxnDefConverter ;
 
 public class UniverseLoader {
 
@@ -49,7 +47,6 @@ public class UniverseLoader {
         ConvertUtils.register( converter, Date.class );
         
         ConvertUtils.register( new RangeConverter(), Range.class ) ;
-        ConvertUtils.register( new ScheduleTxnDefConverter(), ScheduledTxnDef.class );
         ConvertUtils.register( new ExecutionTimeConverter(), ExecutionTime.class ) ;
     }
     

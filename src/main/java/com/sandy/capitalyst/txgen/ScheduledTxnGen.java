@@ -13,11 +13,10 @@ import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.util.Utils ;
-import com.sandy.common.util.StringUtil ;
 
 public class ScheduledTxnGen extends AbstractTxnGen {
     
-    private static Logger log = Logger.getLogger( ScheduledTxnDef.class ) ;
+    private static Logger log = Logger.getLogger( ScheduledTxnGen.class ) ;
     
     @Cfg
     private Amount amount = null ;
@@ -40,27 +39,6 @@ public class ScheduledTxnGen extends AbstractTxnGen {
     @Cfg( mandatory=false )
     private String description = null ;
     
-    public ScheduledTxnGen() {
-    }
-    
-    public ScheduledTxnGen( ScheduledTxnDef def ) {
-        super.setClassifiers( def.getClassifiers() ) ;
-        super.setName( def.getName() ) ;
-        super.setId( def.getName() ) ;
-        
-        this.setAmount( def.getAmount() ) ;
-        this.setExecutionTime( def.getExecutionTime() ) ;
-        this.setDebitACNo( def.getDebitACNo() ) ;
-        this.setCreditACNo( def.getCreditACNo() ) ;
-        this.setStartDate( def.getStartDate() ) ;
-        this.setEndDate( def.getEndDate() ) ;
-        this.setDescription( def.getDescription() ) ;
-        
-        if( StringUtil.isEmptyOrNull( def.getName() ) ) {
-            this.setName( def.getDescription() ) ;
-        }
-    }
-
     public Amount getAmount() {
         return amount ;
     }

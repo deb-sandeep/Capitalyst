@@ -1,19 +1,19 @@
-package com.sandy.capitalyst.util.converter;
+package com.sandy.capitalyst.factory;
 
 import org.apache.commons.beanutils.ConvertUtils ;
-import org.apache.commons.beanutils.converters.AbstractConverter ;
 import org.apache.log4j.Logger ;
 
 import com.cronutils.model.Cron ;
 import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.core.amount.Amount ;
-import com.sandy.capitalyst.txgen.ScheduledTxnDef ;
+import com.sandy.capitalyst.txgen.ScheduledTxnGen ;
 import com.sandy.capitalyst.util.Utils ;
+import com.sandy.capitalyst.util.converter.AmountConverter ;
 import com.sandy.common.util.StringUtil ;
 
-public class ScheduleTxnDefConverter extends AbstractConverter {
+public class ScheduleTxnGenConverter {
 
-    static final Logger log = Logger.getLogger( ScheduleTxnDefConverter.class ) ;
+    static final Logger log = Logger.getLogger( ScheduleTxnGenConverter.class ) ;
     
     public static int NUM_COLS = 8 ;
     
@@ -26,23 +26,14 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
     private static int START_DATE_ID  = 6 ;
     private static int END_DATE_ID    = 7 ;
     
-    @Override
-    protected <T> T convertToType( Class<T> type, Object value )
-            throws Throwable {
-        if( ScheduledTxnDef.class.equals( type ) ) {
-            return type.cast( createTxnDef( value.toString() ) ) ;
-        }
-        throw conversionException(type, value);
-    }
-    
     // 600@2% :1 * * *:${Sandy.iciciSBAccount}:${Sandy.expenseAC}:::Malhari salary
     // <Amount>:<Cron>:<Debit A/C>:<Credit A/C>:[Start Date]:[End Date]:<Description>
-    public ScheduledTxnDef createTxnDef( String input ) {
-        log.debug( "Creating ScheduledTxnDef from " + input ) ;
+    public ScheduledTxnGen createTxnGen( String input ) {
+        log.debug( "Creating ScheduledTxnGen from " + input ) ;
         
         input = input.replaceAll( ";", "," ) ;
         
-        ScheduledTxnDef def = new ScheduledTxnDef() ;
+        ScheduledTxnGen def = new ScheduledTxnGen() ;
         String[] parts = input.split( ":" ) ;
         
         setClassifier ( def, parts[CLASSIFIER_ID  ].trim() ) ;
@@ -57,13 +48,13 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         return def ;
     }
     
-    private void setClassifier( ScheduledTxnDef def, String input ) {
+    private void setClassifier( ScheduledTxnGen def, String input ) {
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setClassifiers( input ) ;
         }
     }
     
-    private void setAmount( ScheduledTxnDef def, String input ) {
+    private void setAmount( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Amount" ) ;
         checkNotEmptyOrNull( "Amount", input ) ;
         
@@ -72,7 +63,7 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         def.setAmount( amt ) ;
     }
     
-    private void setCron( ScheduledTxnDef def, String input ) {
+    private void setCron( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Cron" ) ;
         checkNotEmptyOrNull( "Cron", input ) ;
         
@@ -82,35 +73,35 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
         def.setExecutionTime( execTime ) ;
     }
 
-    private void setDebitACNo( ScheduledTxnDef def, String input ) {
+    private void setDebitACNo( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Debit Account" ) ;
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setDebitACNo( input ) ;
         }
     }
 
-    private void setCreditACNo( ScheduledTxnDef def, String input ) {
+    private void setCreditACNo( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Credit Account" ) ;
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setCreditACNo( input ) ;
         }
     }
 
-    private void setStartDate( ScheduledTxnDef def, String input ) {
+    private void setStartDate( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Start Date" ) ;
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setStartDate( Utils.parseDate( input ) );
         }
     }
 
-    private void setEndDate( ScheduledTxnDef def, String input ) {
+    private void setEndDate( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to End Date" ) ;
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setEndDate( Utils.parseDate( input ) );
         }
     }
 
-    private void setDescription( ScheduledTxnDef def, String input ) {
+    private void setDescription( ScheduledTxnGen def, String input ) {
         log.debug( "\tConverting '" + input + "' to Description" ) ;
         if( StringUtil.isNotEmptyOrNull( input ) ) {
             def.setDescription( input ) ;
@@ -123,7 +114,4 @@ public class ScheduleTxnDefConverter extends AbstractConverter {
                                                 " field can't be empty" ) ;
         }
     }
-
-    @Override
-    protected Class<?> getDefaultType() { return null ; }
 }
