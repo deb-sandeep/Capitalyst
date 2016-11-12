@@ -78,7 +78,7 @@ public class ScheduledTxnGenFactory extends Factory {
                 throw new IllegalArgumentException( "Definition file does not exist" ) ;
             }
             try {
-                loadTxnDefsFromFile() ;
+                loadTxnGensFromFile() ;
             }
             catch( Exception e ) {
                 throw new IllegalStateException( "Invalid definition file", e ) ;
@@ -86,7 +86,7 @@ public class ScheduledTxnGenFactory extends Factory {
         }
     }
     
-    private void loadTxnDefsFromFile() throws Exception {
+    private void loadTxnGensFromFile() throws Exception {
         
         InputStream is = new FileInputStream( definitionFile ) ;
         Workbook workbook = new XSSFWorkbook( is ) ;

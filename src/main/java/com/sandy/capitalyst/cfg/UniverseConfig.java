@@ -15,7 +15,7 @@ public class UniverseConfig extends CompositeConfiguration {
 
     static Logger log = Logger.getLogger( UniverseConfig.class ) ;
     
-    private UniverseConfig() {
+    public UniverseConfig() {
     }
     
     public UniverseConfig( URL configURL ) throws ConfigurationException {

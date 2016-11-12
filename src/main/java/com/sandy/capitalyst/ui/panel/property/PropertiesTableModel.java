@@ -12,8 +12,7 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
-import com.sandy.capitalyst.core.UniverseLoader ;
-import com.sandy.capitalyst.core.UniverseLoader.ConfigurableField ;
+import com.sandy.capitalyst.util.ConfigurableField ;
 import com.sandy.capitalyst.util.Utils ;
 
 @SuppressWarnings( "serial" )
@@ -40,7 +39,7 @@ public class PropertiesTableModel extends DefaultTableModel {
             
             this.ucType = ( instance instanceof Account ) ? "Account" : "TxGen" ;
             this.ucId = instance.getId() ;
-            this.fieldCfgs = UniverseLoader.getAllConfigurableFields( instance.getClass() ) ;
+            this.fieldCfgs = Utils.getAllConfigurableFields( instance.getClass() ) ;
             this.instance = instance ;
         }
         else {

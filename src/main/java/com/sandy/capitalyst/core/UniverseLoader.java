@@ -1,21 +1,13 @@
 package com.sandy.capitalyst.core;
 
-import java.lang.annotation.Annotation ;
-import java.lang.reflect.Field ;
 import java.net.URL ;
-import java.util.ArrayList ;
 import java.util.Collection ;
-import java.util.Comparator ;
 import java.util.Date ;
-import java.util.HashMap ;
 import java.util.Iterator ;
 import java.util.LinkedHashSet ;
-import java.util.List ;
 import java.util.Locale ;
-import java.util.Map ;
 import java.util.Set ;
 
-import org.apache.commons.beanutils.BeanUtils ;
 import org.apache.commons.beanutils.BeanUtilsBean ;
 import org.apache.commons.beanutils.ConvertUtils ;
 import org.apache.commons.beanutils.locale.converters.DateLocaleConverter ;
@@ -24,13 +16,12 @@ import org.apache.log4j.Logger ;
 
 import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.account.Account ;
-import com.sandy.capitalyst.cfg.InvalidConfigException ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
-import com.sandy.capitalyst.cfg.PostConfigInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.util.Range ;
+import com.sandy.capitalyst.util.Utils ;
 import com.sandy.capitalyst.util.converter.AmountConverter ;
 import com.sandy.capitalyst.util.converter.ExecutionTimeConverter ;
 import com.sandy.capitalyst.util.converter.RangeConverter ;
@@ -49,27 +40,6 @@ public class UniverseLoader {
         ConvertUtils.register( new RangeConverter(), Range.class ) ;
         ConvertUtils.register( new ExecutionTimeConverter(), ExecutionTime.class ) ;
     }
-    
-    public static class ConfigurableField {
-        private Field field = null ;
-        private boolean mandatory = false ;
-        
-        public ConfigurableField( Field f, boolean mandatory ) {
-            this.field = f ;
-            this.mandatory = mandatory ;
-        }
-        
-        public Field getField() {
-            return this.field ;
-        }
-        
-        public boolean isMandatory() {
-            return this.mandatory ;
-        }
-    }
-    
-    public static Map<Class<?>, List<ConfigurableField>> configurableFieldMap =
-                                                               new HashMap<>() ;
     
     private static final String UNNAMED_UNIVERSE_PREFIX = "Unnamed Universe" ;
     private static int nextUnnamedUniverseID = 0 ;
@@ -163,7 +133,7 @@ public class UniverseLoader {
         
         log.debug( "Configuring universe" ) ;
         UniverseConfig attrCfg  = univCfg.getNestedConfig( "Universe.attr" ) ;
-        injectFieldValues( universe, attrCfg ) ;
+        Utils.injectFieldValues( universe, attrCfg ) ;
         universe.setConfiguration( univCfg ) ;
         universe.initializePostConfig() ;
     }
@@ -258,22 +228,9 @@ public class UniverseLoader {
         log.debug( "\t[ " + clsName + " ]" ) ;
         
         Class<?>       objCls  = Class.forName( clsName ) ;
-        Object         obj     = objCls.newInstance() ;
         UniverseConfig attrCfg = extractAttributes( objId, objCfg ) ;
-        
-        if( obj instanceof UniverseConstituent ) {
-            UniverseConstituent uc = ( UniverseConstituent )obj ;
-            uc.setId( objId ) ;
-            uc.setUniverse( universe ) ;
-        }
-        
-        injectFieldValues( obj, attrCfg ) ;
-        
-        if( obj instanceof PostConfigInitializable ) {
-            ( (PostConfigInitializable)obj ).initializePostConfig() ;
-        }
-        
-        return obj ;
+
+        return Utils.createEntity( objCls, attrCfg, objId, universe ) ;
     }
     
     private UniverseConfig extractAttributes( String objId, UniverseConfig objCfg ) 
@@ -289,82 +246,6 @@ public class UniverseLoader {
             }
         }
         return cfg ;
-    }
-    
-    private void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
-        
-        List<ConfigurableField> fields = getAllConfigurableFields( obj.getClass() ) ;
-        for( ConfigurableField field :  fields ) {
-            populateField( obj, field, attrCfg );
-        }
-    }
-    
-    public static List<ConfigurableField> getAllConfigurableFields( Class<?> cls ) {
-        
-        List<ConfigurableField> allFields = null ;
-        
-        allFields = configurableFieldMap.get( cls ) ;
-        if( allFields == null ) {
-            allFields = new ArrayList<>() ;
-            do {
-                Field[] fields = cls.getDeclaredFields() ;
-                for( Field f : fields ) {
-                    Annotation[] annotations = f.getAnnotations() ;
-                    if( annotations.length > 0 ) {
-                        for( Annotation a : annotations ) {
-                            if( a instanceof com.sandy.capitalyst.cfg.Cfg ) {
-                                allFields.add( new ConfigurableField( f,
-                              ((com.sandy.capitalyst.cfg.Cfg)a).mandatory() ) ) ;
-                            }
-                        }
-                    }
-                }
-                cls = cls.getSuperclass() ;
-            }
-            while( cls != null ) ;
-
-            allFields.sort( new Comparator<ConfigurableField>() {
-                @Override public int compare( ConfigurableField f1, ConfigurableField f2 ) {
-                    return f1.getField().getName().compareTo( f2.getField().getName() ) ;
-                }
-            } ) ;
-            
-            configurableFieldMap.put( cls, allFields ) ;
-        }
-        
-        return allFields ;
-    }
-    
-    private void populateField( Object obj, ConfigurableField f, 
-                                UniverseConfig attrValues ) {
-        
-        boolean mandatory      = f.isMandatory() ;
-        String  fieldName      = f.getField().getName() ;
-        String  fieldRawVals[] = attrValues.getStringArray( fieldName ) ;
-        
-        if( mandatory && ( fieldRawVals == null || fieldRawVals.length==0 ) ) {
-            throw new MissingConfigException( fieldName ) ;
-        }
-        else if( fieldRawVals != null ) {
-            try {
-                if( fieldRawVals.length == 1 ) {
-                    String rawVal = fieldRawVals[0] ;
-                    log.debug( "\t" + fieldName + " = " + rawVal ) ;
-                    BeanUtils.setProperty( obj, fieldName, rawVal ) ;
-                }
-                else if( fieldRawVals.length > 1 ){
-                    for( String rawVal : fieldRawVals ) {
-                        log.debug( "\t" + fieldName + " = " + rawVal ) ;
-                    }
-                    BeanUtils.setProperty( obj, fieldName, fieldRawVals ) ;
-                }
-            }
-            catch( Exception e ) {
-                log.error( "Unable to set property - " + fieldName + 
-                           " = " + fieldRawVals, e ) ;
-                throw new InvalidConfigException( fieldName ) ;
-            }
-        }
     }
     
     private Collection<String> getUniqueEntityAliases( UniverseConfig config, 

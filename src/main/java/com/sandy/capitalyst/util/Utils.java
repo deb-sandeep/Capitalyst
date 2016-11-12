@@ -1,24 +1,41 @@
 
 package com.sandy.capitalyst.util;
 
+import java.lang.annotation.Annotation ;
+import java.lang.reflect.Field ;
 import java.text.DecimalFormat ;
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
 import java.time.Duration ;
+import java.util.ArrayList ;
 import java.util.Calendar ;
+import java.util.Comparator ;
 import java.util.Date ;
+import java.util.HashMap ;
+import java.util.List ;
 import java.util.Locale ;
+import java.util.Map ;
 
+import org.apache.commons.beanutils.BeanUtils ;
 import org.apache.commons.lang.time.DateUtils ;
+import org.apache.log4j.Logger ;
 
 import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
 import com.cronutils.parser.CronParser ;
 import com.sandy.capitalyst.account.Account ;
+import com.sandy.capitalyst.cfg.InvalidConfigException ;
+import com.sandy.capitalyst.cfg.MissingConfigException ;
+import com.sandy.capitalyst.cfg.PostConfigInitializable ;
+import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Txn ;
+import com.sandy.capitalyst.core.Universe ;
+import com.sandy.capitalyst.core.UniverseConstituent ;
 
 public class Utils {
 
+    private static Logger log = Logger.getLogger( Utils.class ) ;
+    
     public static final SimpleDateFormat SDF = new SimpleDateFormat( "dd/MM/yyyy" ) ;
     public static final DecimalFormat     DF = new DecimalFormat( "0.0" ) ;
     private static final CronDefinition CRON_DEF =
@@ -194,4 +211,105 @@ public class Utils {
         fromAcc.getUniverse().postTransaction( debitTxn ) ;
         fromAcc.getUniverse().postTransaction( creditTxn ) ;
     }
+
+    public static List<ConfigurableField> getAllConfigurableFields( Class<?> cls ) {
+        
+        List<ConfigurableField> allFields = new ArrayList<>() ;
+        
+        do {
+            Field[] fields = cls.getDeclaredFields() ;
+            for( Field f : fields ) {
+                Annotation[] annotations = f.getAnnotations() ;
+                if( annotations.length > 0 ) {
+                    for( Annotation a : annotations ) {
+                        if( a instanceof com.sandy.capitalyst.cfg.Cfg ) {
+                            allFields.add( new ConfigurableField( f,
+                          ((com.sandy.capitalyst.cfg.Cfg)a).mandatory() ) ) ;
+                        }
+                    }
+                }
+            }
+            cls = cls.getSuperclass() ;
+        }
+        while( cls != null ) ;
+
+        allFields.sort( new Comparator<ConfigurableField>() {
+            @Override public int compare( ConfigurableField f1, ConfigurableField f2 ) {
+                return f1.getField().getName().compareTo( f2.getField().getName() ) ;
+            }
+        } ) ;
+        
+        return allFields ;
+    }
+    
+    public static Map<String, ConfigurableField> getAllConfigurableFieldsMap( Class<?> cls ) {
+        Map<String, ConfigurableField> map = new HashMap<String, ConfigurableField>() ;
+        for( ConfigurableField field : getAllConfigurableFields( cls ) ) {
+            map.put( field.getName(), field ) ;
+        }
+        return map ;
+    }
+    
+    public static Object createEntity( Class<?> cls, UniverseConfig attrCfg,
+                                       String objId, Universe universe ) 
+        throws Exception {
+
+        Object  obj = cls.newInstance() ;
+        
+        if( obj instanceof UniverseConstituent ) {
+            UniverseConstituent uc = ( UniverseConstituent )obj ;
+            uc.setId( objId ) ;
+            uc.setUniverse( universe ) ;
+        }
+        
+        Utils.injectFieldValues( obj, attrCfg ) ;
+        
+        if( obj instanceof PostConfigInitializable ) {
+            ( (PostConfigInitializable)obj ).initializePostConfig() ;
+        }
+        
+        return obj ;
+        
+    }
+
+    public static void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
+        
+        List<ConfigurableField> fields = Utils.getAllConfigurableFields( obj.getClass() ) ;
+        for( ConfigurableField field :  fields ) {
+            populateField( obj, field, attrCfg );
+        }
+    }
+    
+    private static void populateField( Object obj, ConfigurableField f, 
+                                       UniverseConfig attrValues ) {
+        
+        boolean mandatory      = f.isMandatory() ;
+        String  fieldName      = f.getField().getName() ;
+        String  fieldRawVals[] = attrValues.getStringArray( fieldName ) ;
+        
+        if( mandatory && ( fieldRawVals == null || fieldRawVals.length==0 ) ) {
+            throw new MissingConfigException( fieldName ) ;
+        }
+        else if( fieldRawVals != null ) {
+            try {
+                if( fieldRawVals.length == 1 ) {
+                    String rawVal = fieldRawVals[0] ;
+                    log.debug( "\t" + fieldName + " = " + rawVal ) ;
+                    BeanUtils.setProperty( obj, fieldName, rawVal ) ;
+                }
+                else if( fieldRawVals.length > 1 ){
+                    for( String rawVal : fieldRawVals ) {
+                        log.debug( "\t" + fieldName + " = " + rawVal ) ;
+                    }
+                    BeanUtils.setProperty( obj, fieldName, fieldRawVals ) ;
+                }
+            }
+            catch( Exception e ) {
+                log.error( "Unable to set property - " + fieldName + 
+                           " = " + fieldRawVals, e ) ;
+                throw new InvalidConfigException( fieldName ) ;
+            }
+        }
+    }
+    
 }
