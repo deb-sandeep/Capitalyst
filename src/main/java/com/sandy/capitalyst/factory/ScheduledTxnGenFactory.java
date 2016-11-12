@@ -14,7 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.txgen.ScheduledTxnGen ;
-import com.sandy.common.util.StringUtil ;
 
 public class ScheduledTxnGenFactory extends Factory {
 
@@ -97,7 +96,7 @@ public class ScheduledTxnGenFactory extends Factory {
         
         for( int rowNum=0; rowNum<=numLines; rowNum++ ) {
             Row row = sheet.getRow( rowNum ) ;
-            if( isIgnorableRow( row ) ) continue ;
+            if( XLSXUtil.isIgnorableRow( row ) ) continue ;
             
             StringBuilder buffer = new StringBuilder() ;
             
@@ -115,30 +114,6 @@ public class ScheduledTxnGenFactory extends Factory {
             buffer.append( "EOR" ) ;
             createScheduledTxnGen( buffer.toString() ) ;
         }
-    }
-    
-    private boolean isIgnorableRow( Row row ) {
-        
-        if( row != null ) {
-            Cell cell1 = row.getCell( 0 ) ;
-            Cell cell2 = row.getCell( 1 ) ;
-            
-            if( cell1 != null ) {
-                String content = cell1.toString() ;
-                if( content.startsWith( "#" ) || 
-                    content.startsWith( "Classifiers" ) ) {
-                    return true ;
-                }
-            }
-            
-            if( cell2 != null ) {
-                String content = cell2.toString() ;
-                if( StringUtil.isNotEmptyOrNull( content ) ) {
-                    return false ;
-                }
-            }
-        }
-        return true ;
     }
     
     private void createScheduledTxnGen( String input ) {
