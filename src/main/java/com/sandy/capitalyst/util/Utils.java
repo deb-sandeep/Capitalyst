@@ -7,6 +7,8 @@ import java.text.DecimalFormat ;
 import java.text.ParseException ;
 import java.text.SimpleDateFormat ;
 import java.time.Duration ;
+import java.time.ZoneId ;
+import java.time.ZonedDateTime ;
 import java.util.ArrayList ;
 import java.util.Calendar ;
 import java.util.Comparator ;
@@ -22,6 +24,7 @@ import org.apache.log4j.Logger ;
 
 import com.cronutils.model.definition.CronDefinition ;
 import com.cronutils.model.definition.CronDefinitionBuilder ;
+import com.cronutils.model.time.ExecutionTime ;
 import com.cronutils.parser.CronParser ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.cfg.InvalidConfigException ;
@@ -51,6 +54,13 @@ public class Utils {
                                     .instance();
     
     public static final CronParser CRON_PARSER = new CronParser( CRON_DEF ) ;
+    
+    public static boolean isMatch( ExecutionTime schedule, Date date ) {
+        
+        ZonedDateTime dt = null ;
+        dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
+        return schedule.isMatch( dt ) ; 
+    }
     
     public static Date parseDate( String dateStr ) throws IllegalArgumentException {
         try {

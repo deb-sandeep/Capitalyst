@@ -3,7 +3,9 @@ package com.sandy.capitalyst.factory;
 import java.io.File ;
 import java.io.FileInputStream ;
 import java.io.InputStream ;
+import java.util.ArrayList ;
 import java.util.HashMap ;
+import java.util.List ;
 import java.util.Map ;
 
 import org.apache.log4j.Logger ;
@@ -18,6 +20,7 @@ import com.sandy.capitalyst.account.BankAccount ;
 import com.sandy.capitalyst.account.FixedInvestmentFixedAnnuityAccount ;
 import com.sandy.capitalyst.account.FixedInvestmentFixedReturnAccount ;
 import com.sandy.capitalyst.account.QuarterlyCompoundingAccount ;
+import com.sandy.capitalyst.account.RecurringDepositAccount ;
 import com.sandy.capitalyst.account.SavingAccount ;
 import com.sandy.capitalyst.account.SuperannuationAccount ;
 import com.sandy.capitalyst.account.YearlyCompoundingAccount ;
@@ -38,11 +41,13 @@ public class AccountFactory extends Factory {
         accClsMap.put( "Account",                            Account.class ) ;
         accClsMap.put( "BankAccount",                        BankAccount.class ) ;
         accClsMap.put( "SavingAccount",                      SavingAccount.class ) ;
+        accClsMap.put( "FixedDepositAccount",                QuarterlyCompoundingAccount.class ) ;
         accClsMap.put( "QuarterlyCompoundingAccount",        QuarterlyCompoundingAccount.class ) ;
         accClsMap.put( "YearlyCompoundingAccount",           YearlyCompoundingAccount.class ) ;
         accClsMap.put( "SuperannuationAccount",              SuperannuationAccount.class ) ;
         accClsMap.put( "FixedInvestmentFixedAnnuityAccount", FixedInvestmentFixedAnnuityAccount.class ) ;
         accClsMap.put( "FixedInvestmentFixedReturnAccount",  FixedInvestmentFixedReturnAccount.class ) ;
+        accClsMap.put( "RecurringDepositAccount",            RecurringDepositAccount.class ) ;
     }
     
     private String id = null ;
@@ -147,26 +152,56 @@ public class AccountFactory extends Factory {
     
     private void processSectionColHdrs( Row row ) {
         
-        int numExpectedCols = cfgFields.size() ;
-        cfgAttributeOrder = getRowContents( row, numExpectedCols ) ;
+        int maxNumExpectedCols = cfgFields.size() ;
+        cfgAttributeOrder = getConfiguredAttributes( row, maxNumExpectedCols ) ;
         
         // Validate the columns. All the expected columns should be present.
-        for( String attr : cfgAttributeOrder ) {
-            if( attr == null ) {
-                throw new IllegalStateException( "Empty column header found" ) ;
-            }
-            
-            if( !cfgFields.containsKey( attr ) ) {
-                throw new IllegalStateException( attr + " attribute not "
-                                           + "found in account configuration" ) ;
+        for( String field : cfgFields.keySet() ) {
+            if( !isPresent( field, cfgAttributeOrder ) ) {
+                ConfigurableField cfgField = cfgFields.get( field ) ;
+                if( cfgField.isMandatory() ) {
+                    throw new IllegalStateException( field + 
+                                            " mandatory attribute not found in "
+                                            + "account configuration" ) ;
+                }
             }
         }
+        
+        for( String field : cfgAttributeOrder ) {
+            if( !cfgFields.containsKey( field ) ) {
+                throw new IllegalStateException( field + 
+                     " unknown attribute specified in account configuration" ) ;
+            }
+        }
+
         expectSecHdrRow = false ;
+    }
+    
+    private boolean isPresent( String needle, String[] haystack ) {
+        for( String hay : haystack ) {
+            if( hay.equals( needle ) ) {
+                return true ;
+            }
+        }
+        return false ;
+    }
+    
+    private String[] getConfiguredAttributes( Row row, int maxCols ) {
+        
+        String[] possibleAttrNames = getRowContents( row, maxCols ) ;
+        List<String> notNullAttrs = new ArrayList<String>() ;
+        
+        for( String attr : possibleAttrNames ) {
+            if( StringUtil.isNotEmptyOrNull( attr ) ) {
+                notNullAttrs.add( attr ) ;
+            }
+        }
+        return notNullAttrs.toArray( new String[0] ) ;
     }
     
     private void loadAccount( Row row ) throws Exception {
         
-        int numAttrs = cfgFields.size() ;
+        int numAttrs = cfgAttributeOrder.length ;
         String[] attrVals = getRowContents( row, numAttrs ) ;
         UniverseConfig config = new UniverseConfig() ;
         

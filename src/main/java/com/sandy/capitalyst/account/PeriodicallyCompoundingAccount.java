@@ -10,48 +10,13 @@ import com.sandy.capitalyst.action.TransferFullAmtOnClosure ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.timeobservers.EndOfDayObserver ;
+import com.sandy.capitalyst.util.QuantumOfMoney ;
 import com.sandy.capitalyst.util.Utils ;
 
 public class PeriodicallyCompoundingAccount extends BankAccount 
     implements EndOfDayObserver {
     
     static Logger log = Logger.getLogger( PeriodicallyCompoundingAccount.class ) ;
-    
-    class QuantumOfMoney {
-        
-        private double principal ;
-        private Date   receiptDate ;
-        private double interestTillDate ;
-        
-        public QuantumOfMoney( double principal, Date receiptDate ) {
-            
-            this.principal        = principal ;
-            this.receiptDate      = receiptDate ;
-            this.interestTillDate = 0 ;
-        }
-        
-        public void computeAndCollateInterestTillDate( Date date ) {
-            
-            long numDays = Utils.getNumDaysBetween( receiptDate, date ) ;
-            interestTillDate = principal*(roi/(100*365)) * numDays ;
-        }
-        
-        public double getAmount() {
-            return principal + interestTillDate ;
-        }
-        
-        public double getPrincipal() {
-            return this.principal ;
-        }
-        
-        public double getInterest() {
-            return this.interestTillDate ;
-        }
-        
-        public void addAmount( double amt ) {
-            this.principal += amt ;
-        }
-    }
     
     @Cfg 
     private double roi = 0 ;
@@ -68,8 +33,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     @Cfg( mandatory=false )
     private boolean interestTaxable = false ;
     
-    protected List<QuantumOfMoney> quantumFragments = 
-                   new ArrayList<PeriodicallyCompoundingAccount.QuantumOfMoney>() ;
+    protected List<QuantumOfMoney> quantumFragments = new ArrayList<QuantumOfMoney>() ;
 
     @Override
     public void initializePostConfig() {
@@ -112,9 +76,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
             closeAccount( closingDate ) ;
         }
         else if( super.amount > 0 ){
-            QuantumOfMoney quantum = null ;
-            quantum = new QuantumOfMoney( super.amount, getUniverse().now() ) ;
-            quantumFragments.add( quantum ) ;
+            addNewQuantumOfMoney( super.amount, getUniverse().now() ) ;
         }
     }
     
@@ -162,8 +124,11 @@ public class PeriodicallyCompoundingAccount extends BankAccount
     public void postTransaction( Txn t ) {
 
         super.postTransaction( t ) ;
-        QuantumOfMoney quantum = new QuantumOfMoney( t.getAmount(), t.getDate() ) ;
-        quantumFragments.add( quantum ) ;
+        addNewQuantumOfMoney( t.getAmount(), t.getDate() ) ;
+    }
+    
+    protected void addNewQuantumOfMoney( double amt, Date date ) {
+        quantumFragments.add( new QuantumOfMoney( amt, date, roi ) ) ;
     }
     
     @Override
@@ -189,7 +154,7 @@ public class PeriodicallyCompoundingAccount extends BankAccount
         }
         
         quantumFragments.clear() ;
-        quantumFragments.add( new QuantumOfMoney( super.getAmount(), date ) ) ;
+        addNewQuantumOfMoney( super.getAmount(), date ) ;
         
         Txn txn = new Txn( getAccountNumber(), accumulatedInterest, date,
                            "Accumulated Interest" ) ;

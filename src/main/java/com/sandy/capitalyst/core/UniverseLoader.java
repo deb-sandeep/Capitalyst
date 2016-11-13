@@ -46,7 +46,7 @@ public class UniverseLoader {
     
     private String univName   = null ;
     private UniverseConfig univCfg    = null ;
-    private URL    univCfgURL = null ;
+    private URL univCfgURL = null ;
     
     private Universe universe = null ;
     
@@ -133,6 +133,12 @@ public class UniverseLoader {
         
         log.debug( "Configuring universe" ) ;
         UniverseConfig attrCfg  = univCfg.getNestedConfig( "Universe.attr" ) ;
+        
+        String startDateStr = attrCfg.getString( "startDate" ) ;
+        if( startDateStr == null || startDateStr.equalsIgnoreCase( "today" ) ) {
+            attrCfg.setProperty( "startDate", Utils.formatDate( new Date() ) );
+        }
+        
         Utils.injectFieldValues( universe, attrCfg ) ;
         universe.setConfiguration( univCfg ) ;
         universe.initializePostConfig() ;

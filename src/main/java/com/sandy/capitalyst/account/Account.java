@@ -28,7 +28,7 @@ public class Account
     @Cfg private String accountNumber ;
     @Cfg( mandatory=false ) protected double amount = 0 ;
     
-    private boolean overdraftAllowed = true ;
+    private boolean overdraftAllowed = false ;
     private double openingBalance = 0 ;
     private String id = null ;
     private boolean isActive = true ;

@@ -1,7 +1,5 @@
 package com.sandy.capitalyst.txgen;
 
-import java.time.ZoneId ;
-import java.time.ZonedDateTime ;
 import java.util.Date ;
 import java.util.List ;
 
@@ -116,9 +114,7 @@ public class ScheduledTxnGen extends AbstractTxnGen {
         }
         
         try {
-            ZonedDateTime dt = null ;
-            dt = ZonedDateTime.ofInstant( date.toInstant(), ZoneId.systemDefault() ) ;
-            return executionTime.isMatch( dt ) ; 
+            return Utils.isMatch( executionTime, date ) ;
         }
         catch( Exception e ) {
             log.error( "Error in cron matching.", e );
