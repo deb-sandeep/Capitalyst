@@ -1,5 +1,7 @@
 package com.sandy.capitalyst.ui.helper;
 
+import java.util.Date ;
+
 import org.jfree.data.time.Day ;
 import org.jfree.data.time.TimeSeries ;
 
@@ -16,13 +18,13 @@ public class AccountWrapper implements AccountListener {
         this.account = account ;
         balanceHistory = new TimeSeries( account.getUniverse().getName() + 
                                          "." + account.getName() ) ;
+        addTemporalAmount( account.getUniverse().now(), account.getAmount() );
         account.addListener( this ) ;
     }
 
     @Override
     public void txnPosted( Txn txn, Account a ) {
-        balanceHistory.addOrUpdate( new Day( txn.getDate() ), 
-                                    a.getAmount()/100000 ) ;
+        addTemporalAmount( txn.getDate(), a.getAmount() ) ;
     }
     
     public Account getAccount() {
@@ -35,5 +37,9 @@ public class AccountWrapper implements AccountListener {
     
     public String toString() {
         return this.account.getName() ;
+    }
+    
+    private void addTemporalAmount( Date date, double amt ) {
+        balanceHistory.addOrUpdate( new Day( date ), amt/100000 ) ;
     }
 }

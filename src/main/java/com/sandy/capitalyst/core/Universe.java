@@ -4,8 +4,10 @@ import java.util.ArrayList ;
 import java.util.Collection ;
 import java.util.Date ;
 import java.util.HashMap ;
+import java.util.LinkedHashSet ;
 import java.util.List ;
 import java.util.Map ;
+import java.util.Set ;
 
 import com.sandy.capitalyst.EventType ;
 import com.sandy.capitalyst.account.Account ;
@@ -13,6 +15,7 @@ import com.sandy.capitalyst.account.AccountManager ;
 import com.sandy.capitalyst.account.BankAccount ;
 import com.sandy.capitalyst.cfg.Cfg ;
 import com.sandy.capitalyst.cfg.PostConfigInitializable ;
+import com.sandy.capitalyst.cfg.PostUniverseCreationInitializable ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.exception.AccountNotFoundException ;
 import com.sandy.capitalyst.timeobservers.DayObserver ;
@@ -32,6 +35,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     private List<TxnGenerator> txnGenerators = new ArrayList<TxnGenerator>() ;
     private Map<String, UniverseConstituent> context = new HashMap<String, UniverseConstituent>() ;
     private Map<Integer, Double> inflationRates = new HashMap<>() ;
+    private Set<UniverseConstituent> allEntities = new LinkedHashSet<UniverseConstituent>() ;
     private DayClock clock = null ;
     
     private EventBus bus = new EventBus() ;
@@ -122,6 +126,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     }
 
     public void addToContext( String alias, UniverseConstituent obj ) {
+        addEntity( obj ) ;
         obj.setUniverse( this ) ;
         context.put( alias, obj ) ;
         if( obj instanceof TimeObserver ) {
@@ -160,6 +165,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     }
     
     public void addTimeObserver( TimeObserver observer ) {
+        addEntity( observer ) ;
         if( observer.getUniverse() == null ) {
             observer.setUniverse( this ) ;
         }
@@ -179,6 +185,7 @@ public class Universe implements DayObserver, PostConfigInitializable {
     }
     
     public void registerTxnGenerator( TxnGenerator txGen ) {
+        addEntity( txGen ) ;
         if( !txnGenerators.contains( txGen ) ) {
             txGen.setUniverse( this ) ;
             txnGenerators.add( txGen ) ;
@@ -283,5 +290,19 @@ public class Universe implements DayObserver, PostConfigInitializable {
     
     protected double getInflatedAmount( double base ) {
         return base*(1+getCurrentInflationRate()/100) ;
+    }
+
+    public void initializePostCreation() {
+        PostUniverseCreationInitializable puc = null ;
+        for( UniverseConstituent uc : allEntities  ) {
+            if( uc instanceof PostUniverseCreationInitializable ) {
+                puc = ( PostUniverseCreationInitializable )uc ;
+                puc.initializePostUniverseCreation() ; 
+            }
+        }
+    }
+    
+    private void addEntity( UniverseConstituent entity ) {
+        allEntities.add( entity ) ;
     }
 }

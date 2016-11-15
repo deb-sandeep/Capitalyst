@@ -101,6 +101,7 @@ public class UniverseLoader {
             loadFactories( universe ) ;
             
             universe.setId( univName ) ;
+            universe.initializePostCreation() ;
         }
         catch( Exception e ) {
             log.error( "Loading universe " + univName + " failed.", e ) ;

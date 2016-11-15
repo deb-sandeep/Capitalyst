@@ -17,6 +17,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.BankAccount ;
+import com.sandy.capitalyst.account.DividendAccount ;
 import com.sandy.capitalyst.account.FixedInvestmentFixedAnnuityAccount ;
 import com.sandy.capitalyst.account.FixedInvestmentFixedReturnAccount ;
 import com.sandy.capitalyst.account.QuarterlyCompoundingAccount ;
@@ -48,6 +49,7 @@ public class AccountFactory extends Factory {
         accClsMap.put( "FixedInvestmentFixedAnnuityAccount", FixedInvestmentFixedAnnuityAccount.class ) ;
         accClsMap.put( "FixedInvestmentFixedReturnAccount",  FixedInvestmentFixedReturnAccount.class ) ;
         accClsMap.put( "RecurringDepositAccount",            RecurringDepositAccount.class ) ;
+        accClsMap.put( "DividendAccount",                    DividendAccount.class ) ;
     }
     
     private String id = null ;

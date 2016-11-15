@@ -91,6 +91,10 @@ public class Account
     public void setOverdraftAllowed( boolean overdraftAllowed ) {
         this.overdraftAllowed = overdraftAllowed ;
     }
+    
+    protected void postAmount( Date date, double amt, String desc ) {
+        postTransaction( new Txn( getAccountNumber(), amt, date, desc ) );
+    }
 
     public void postTransaction( Txn t ) {
         if( t.isPostDated() ) {
