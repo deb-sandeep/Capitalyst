@@ -63,6 +63,9 @@ public class AccountFactory extends Factory {
     
     @Cfg private File definitionFile = null ;
     
+    @Cfg(mandatory=false)
+    private String worksheetName = "Accounts" ;
+    
     public File getDefinitionFile() {
         return definitionFile ;
     }
@@ -71,6 +74,14 @@ public class AccountFactory extends Factory {
         this.definitionFile = definitionFile ;
     }
     
+    public String getWorksheetName() {
+        return worksheetName ;
+    }
+
+    public void setWorksheetName( String worksheetName ) {
+        this.worksheetName = worksheetName ;
+    }
+
     public void setId( String id ) { this.id = id ; }
     public String getId() { return this.id ; }
     public void setUniverse( Universe u ) { this.universe = u ; }
@@ -97,7 +108,7 @@ public class AccountFactory extends Factory {
         InputStream is = new FileInputStream( definitionFile ) ;
         Workbook workbook = new XSSFWorkbook( is ) ;
         
-        Sheet sheet = workbook.getSheetAt( 0 ) ;
+        Sheet sheet = workbook.getSheet( worksheetName ) ;
         int numLines = sheet.getLastRowNum() - sheet.getFirstRowNum() ;
         
         for( int rowNum=0; rowNum<=numLines; rowNum++ ) {

@@ -31,6 +31,18 @@ public class ScheduledTxnGenFactory extends Factory {
     
     @Cfg private File definitionFile = null ;
     
+    @Cfg(mandatory=false)
+    private String worksheetName = "TxGen" ;
+    
+    public String getWorksheetName() {
+        return worksheetName ;
+    }
+
+    public void setWorksheetName( String worksheetName ) {
+        this.worksheetName = worksheetName ;
+    }
+
+    
     public String getDefaultCreditAccount() {
         return defaultCreditAccount ;
     }
@@ -91,7 +103,7 @@ public class ScheduledTxnGenFactory extends Factory {
         InputStream is = new FileInputStream( definitionFile ) ;
         Workbook workbook = new XSSFWorkbook( is ) ;
         
-        Sheet sheet = workbook.getSheetAt( 0 ) ;
+        Sheet sheet = workbook.getSheet( worksheetName ) ;
         int numLines = sheet.getLastRowNum() - sheet.getFirstRowNum() ;
         
         for( int rowNum=0; rowNum<=numLines; rowNum++ ) {

@@ -3,6 +3,8 @@ package com.sandy.capitalyst.ui.panel.tree;
 import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.DefaultTreeModel ;
 
+import org.jfree.util.Log ;
+
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AggregateAccount ;
 import com.sandy.capitalyst.core.Universe ;
@@ -140,11 +142,11 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
 
     private void addAccountToParentNodes( DefaultMutableTreeNode root, Account a ) {
         
-        if( root != null && root.getLevel() > 1 ) {
+        if( root != null && root.getLevel() >= 1 ) {
             AccountWrapper acWrapper = ( AccountWrapper )root.getUserObject() ;
             AggregateAccount aggAc = ( AggregateAccount )acWrapper.getAccount() ;
             aggAc.addAccount( a ) ;
-            
+            Log.debug( "Added account tp agg " + acWrapper.toString() );
             addAccountToParentNodes( (DefaultMutableTreeNode)root.getParent(), a ) ;
         }
     }

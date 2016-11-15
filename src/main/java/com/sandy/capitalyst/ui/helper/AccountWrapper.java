@@ -18,7 +18,10 @@ public class AccountWrapper implements AccountListener {
         this.account = account ;
         balanceHistory = new TimeSeries( account.getUniverse().getName() + 
                                          "." + account.getName() ) ;
-        addTemporalAmount( account.getUniverse().now(), account.getAmount() );
+        if( account.getAmount() > 0 ) {
+            addTemporalAmount( account.getUniverse().now(), 
+                               account.getAmount() );
+        }
         account.addListener( this ) ;
     }
 
