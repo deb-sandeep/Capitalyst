@@ -47,7 +47,6 @@ public class CapitalystChart extends JPanel
         
         AccountWrapper acWrapper = null ;
         TimeSeries series ;
-        boolean isHidden = false ;
         
         public TimeSeriesWrapper( AccountWrapper accountWrapper ) {
             this.acWrapper = accountWrapper ;
@@ -202,22 +201,6 @@ public class CapitalystChart extends JPanel
         
         for( String key : seriesNames ) {
             removeSeries( key ) ;
-        }
-    }
-    
-    public void hideSeries( String key ) {
-        TimeSeriesWrapper wrapper = wrapperMap.get( key ) ;
-        if( wrapper != null ) {
-            seriesColl.removeSeries( wrapper.series ) ;
-            wrapper.isHidden = true ;
-        }
-    }
-    
-    public void unhideSeries( String key ) {
-        TimeSeriesWrapper wrapper = wrapperMap.get( key ) ;
-        if( wrapper != null && wrapper.isHidden ) {
-            wrapper.isHidden = false ;
-            seriesColl.addSeries( wrapper.series ) ;
         }
     }
     

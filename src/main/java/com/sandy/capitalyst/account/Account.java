@@ -26,10 +26,10 @@ public class Account
     static final Logger log = Logger.getLogger( Account.class ) ;
 
     @Cfg private String accountNumber ;
-    @Cfg( mandatory=false ) protected double amount = 0 ;
+    @Cfg( mandatory=false ) private double openingBalance = 0 ;
     
     private boolean overdraftAllowed = false ;
-    private double openingBalance = 0 ;
+    private double amount = 0 ;
     private String id = null ;
     private boolean isActive = true ;
     
@@ -42,6 +42,10 @@ public class Account
     
     public double getOpeningBalance() {
         return this.openingBalance ;
+    }
+    
+    public void setOpeningBalance( double amt ) {
+        this.openingBalance = amt ;
     }
     
     public void setAccountNumber( String accNo ) {
@@ -152,7 +156,7 @@ public class Account
 
     @Override
     public void initializePostConfig() {
-        this.openingBalance = this.amount ;
+        this.amount = this.openingBalance ;
     }
 
     @Override public void setId( String id ) { this.id = id ; }

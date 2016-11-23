@@ -23,7 +23,7 @@ public class AggregateAccount extends Account
     
     public void addAccount( Account account ) {
         account.addListener( this ) ;
-        super.amount += account.getAmount() ;
+        super.setAmount( super.getAmount() + account.getAmount() ) ;
     }
 
     @Override

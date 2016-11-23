@@ -1,14 +1,12 @@
 package com.sandy.capitalyst.txgen;
 
 import com.sandy.capitalyst.cfg.Cfg ;
-import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 
 
 public abstract class AbstractTxnGen implements TxnGenerator {
     
     private Universe universe = null ;
-    private UniverseConfig config = null ;
     private String id = null ;
     
     @Cfg( mandatory=false )
@@ -23,14 +21,6 @@ public abstract class AbstractTxnGen implements TxnGenerator {
     
     public Universe getUniverse() {
         return this.universe ;
-    }
-    
-    public void setConfiguration( UniverseConfig config ) {
-        this.config = config ;
-    }
-    
-    public UniverseConfig getConfiguration() {
-        return this.config ;
     }
     
     public String getName() {

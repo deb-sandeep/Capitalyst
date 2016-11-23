@@ -21,14 +21,13 @@ import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.TreePath ;
 import javax.swing.tree.TreeSelectionModel ;
 
+import org.apache.commons.lang.NotImplementedException ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AggregateAccount ;
-import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
-import com.sandy.capitalyst.core.UniverseLoader ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
 import com.sandy.capitalyst.ui.helper.UIConstants ;
@@ -260,8 +259,6 @@ public class CapitalystTreePanel extends JPanel
         Universe newUniverse = null ;
         
         if( u != null ) {
-            UniverseConfig config  = u.getConfiguration().clone() ;
-            UniverseLoader loader  = new UniverseLoader( config ) ;
             String         newName = u.getName() ;
             
             if( seekNewName )  {
@@ -271,8 +268,11 @@ public class CapitalystTreePanel extends JPanel
             
             if( newName != null ) {
                 try {
-                    newUniverse = loader.loadUniverse() ;
-                    newUniverse.setName( newName );
+                    // TODO: Clone the existing universe to create a new one
+//                  newUniverse = loader.loadUniverse() ;
+//                  newUniverse.setName( newName );
+                    JOptionPane.showMessageDialog( null, "TO BE IMPLEMENTED" ) ;
+                    throw new NotImplementedException( "TO BE IMPLEMENTED" ) ;
                 }
                 catch( Exception e ) {
                     log.error( "Could not create new universe", e ) ;

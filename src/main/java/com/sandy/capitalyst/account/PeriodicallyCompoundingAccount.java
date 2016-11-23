@@ -69,14 +69,14 @@ public class PeriodicallyCompoundingAccount extends BankAccount
                                                       4*numYears ) ;
             }
             
-            super.amount = initialAmt ;
+            super.setAmount( initialAmt ) ;
         }
 
         if( Utils.isAfter( getUniverse().now(), closingDate ) ) {
             closeAccount( closingDate ) ;
         }
-        else if( super.amount > 0 ){
-            addNewQuantumOfMoney( super.amount, getUniverse().now() ) ;
+        else if( super.getAmount() > 0 ){
+            addNewQuantumOfMoney( super.getAmount(), getUniverse().now() ) ;
         }
     }
     

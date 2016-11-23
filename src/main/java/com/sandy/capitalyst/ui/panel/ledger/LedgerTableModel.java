@@ -167,7 +167,7 @@ public class LedgerTableModel extends AbstractTableModel
     @Override
     public void txnPosted( Txn txn, Account account ) {
         LedgerEntry lastEntry = null ;
-        double balance = 0 ;
+        double balance = account.getAmount() ;
         
         if( !ledgerEntries.isEmpty() ) {
             lastEntry = ledgerEntries.get( 0 ) ;
