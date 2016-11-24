@@ -12,7 +12,7 @@ import com.cronutils.model.time.ExecutionTime ;
 
 public class RDCurrentValueComputer {
 
-    private static Logger log = Logger.getLogger( RDCurrentValueComputer.class ) ;
+    static Logger log = Logger.getLogger( RDCurrentValueComputer.class ) ;
     
     private double investmentAmount = 0 ;
     private double roi = 0 ;
@@ -36,8 +36,6 @@ public class RDCurrentValueComputer {
     }
     
     public void compute() {
-        
-        log.debug( "Running simulation...\n" ) ;
         
         Date now = this.openingDate ;
         while( DateUtils.truncatedCompareTo( now, closingDate, Calendar.DATE ) < 0 ) {

@@ -264,13 +264,14 @@ public class Universe implements DayObserver, PostConfigInitializable {
         allEntities.add( entity ) ;
     }
 
-    public Universe clone( String newName ) {
+    public Universe clone( String newName ) 
+        throws Exception {
         
         Universe u = new Universe( newName ) ;
         u.setStartDate( getStartDate() ) ;
         u.setEndDate( getEndDate() ) ;
         u.setInflationRate( getInflationRate() ) ;
-        u.setId( getId() ) ;
+        u.inflationRates = this.inflationRates ;
         
         u.initializePostConfig() ;
         
@@ -284,7 +285,8 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return u ;
     }
     
-    private void cloneContextObjects( Universe newUniverse ) {
+    private void cloneContextObjects( Universe newUniverse ) 
+        throws Exception {
         
         UniverseConstituent uc = null ;
         UniverseConstituent ucClone = null ;
@@ -297,7 +299,8 @@ public class Universe implements DayObserver, PostConfigInitializable {
         }
     }
     
-    private void cloneAccounts( Universe newUniverse ) {
+    private void cloneAccounts( Universe newUniverse ) 
+        throws Exception {
         
         Account acClone = null ;
         for( Account ac : getAllAccounts() ) {
@@ -306,22 +309,27 @@ public class Universe implements DayObserver, PostConfigInitializable {
         }
     }
     
-    private void cloneTxGens( Universe newUniverse ) {
+    private void cloneTxGens( Universe newUniverse ) 
+        throws Exception {
         
         TxnGenerator txGenClone = null ;
         for( TxnGenerator txGen : getAllTxGens() ) {
-            txGenClone = ( TxnGenerator )Utils.clone( txGen, newUniverse ) ;
-            newUniverse.registerTxnGenerator( txGenClone ) ;
+            if( !( txGen instanceof Account ) ) {
+                txGenClone = ( TxnGenerator )Utils.clone( txGen, newUniverse ) ;
+                newUniverse.registerTxnGenerator( txGenClone ) ;
+            }
         }
     }
     
-    private void cloneTimeObservers( Universe newUniverse ) {
+    private void cloneTimeObservers( Universe newUniverse ) 
+        throws Exception {
         
         TimeObserver oClone = null ;
         for( TimeObserver o : clock.getObservers() ) {
             if( !( o instanceof Account || 
                    o instanceof TxnGenerator || 
-                   this.context.containsValue( o ) ) ) {
+                   this.context.containsValue( o ) ||
+                   o instanceof Universe ) ) {
                 
                 oClone = ( TimeObserver )Utils.clone( o, newUniverse ) ;
                 newUniverse.registerTimeObserver( oClone ) ;

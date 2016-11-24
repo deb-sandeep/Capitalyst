@@ -25,7 +25,7 @@ public class SuperannuationAccount extends YearlyCompoundingAccount
     }
     
     public void setMaxTaxFreeWithdrawalPct( double pct ) {
-        this.maxTaxFreeWithdrawalPct = pct/100 ;
+        this.maxTaxFreeWithdrawalPct = pct ;
     }
     
     public void setAnnuityPer1000PerYear( double amt ){
@@ -40,7 +40,7 @@ public class SuperannuationAccount extends YearlyCompoundingAccount
         public void execute( Account account, Date date ) {
             
             double accumulatedCorpus = SuperannuationAccount.this.getAmount() ;  
-            double withdrawalAmt = maxTaxFreeWithdrawalPct * accumulatedCorpus ;
+            double withdrawalAmt = maxTaxFreeWithdrawalPct * accumulatedCorpus/100 ;
             double annuityCorpus = accumulatedCorpus - withdrawalAmt ;
             
             annuityPayoutPerMonth = (annuityCorpus/1000)*annuityPer1000PerYear/12 ;

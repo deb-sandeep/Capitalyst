@@ -31,7 +31,8 @@ public class AmountConverter extends AbstractConverter {
     }
     
     private Amount createAmount( String input ) {
-        
+       
+       Amount amt = null ;
        double baseAmount = 0 ;
        
        String[] parts = input.split( "@" ) ;
@@ -43,24 +44,29 @@ public class AmountConverter extends AbstractConverter {
        
        if( parts.length == 1 ) {
            if( !input.endsWith( "@" ) ) {
-               return new ConstantAmount( baseAmount ) ;
+               amt = new ConstantAmount() ;
+               amt.setBaseAmount( baseAmount ) ;
            }
            else {
-               return createAmtWithUniverseRateOfInflation( baseAmount ) ;
+               amt = createAmtWithUniverseRateOfInflation( baseAmount ) ;
            }
        }
        else {
            if( input.endsWith( "%" ) ) {
-               return createAmtWithInflationRates( baseAmount, parts[1].trim() ) ;
+               amt = createAmtWithInflationRates( baseAmount, parts[1].trim() ) ;
            }
            else {
-               return createAmtWithStepBounds( baseAmount, parts[1].trim() ) ;
+               amt = createAmtWithStepBounds( baseAmount, parts[1].trim() ) ;
            }
        }
+       
+       amt.setCreationString( input ) ;
+       return amt ;
     }
     
     private Amount createAmtWithUniverseRateOfInflation( double baseAmount ) {
-        InflatingAmount amt = new InflatingAmount( baseAmount ) ;
+        InflatingAmount amt = new InflatingAmount() ;
+        amt.setBaseAmount( baseAmount ) ;
         amt.setIncrementRange( universe.getInflationRate() ) ;
         universe.registerTimeObserver( amt ) ;
         return amt ;
@@ -68,14 +74,16 @@ public class AmountConverter extends AbstractConverter {
     
     private Amount createAmtWithInflationRates( double baseAmount, String minMaxStr ) {
         String input = minMaxStr.substring( 0, minMaxStr.length()-1 ) ;
-        InflatingAmount amt = new InflatingAmount( baseAmount ) ;
+        InflatingAmount amt = new InflatingAmount() ;
+        amt.setBaseAmount( baseAmount ) ;
         amt.setIncrementRange( createRange( input ) ) ;
         universe.registerTimeObserver( amt ) ;
         return amt ;
     }
     
     private Amount createAmtWithStepBounds( double baseAmount, String rangeInput ) {
-        StepIncreasingAmount amt = new StepIncreasingAmount( baseAmount ) ;
+        StepIncreasingAmount amt = new StepIncreasingAmount() ;
+        amt.setBaseAmount( baseAmount ) ;
         amt.setIncrementRange( createRange( rangeInput ) ) ;
         universe.registerTimeObserver( amt ) ;
         return amt ;

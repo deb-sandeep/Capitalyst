@@ -20,6 +20,7 @@ import java.util.Map ;
 
 import org.apache.commons.beanutils.BeanUtils ;
 import org.apache.commons.beanutils.ConvertUtils ;
+import org.apache.commons.beanutils.PropertyUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
@@ -328,7 +329,36 @@ public class Utils {
         }
     }
 
-    public static Object clone( UniverseConstituent uc, Universe newUniverse ) {
-        return null ;
+    public static Object clone( Object master, Universe newUniverse ) 
+        throws Exception {
+        
+        log.debug( "Cloning " + master ) ;
+        
+        Class<?> cls = master.getClass() ;
+        List<ConfigurableField> cfgFields = getAllConfigurableFields( cls ) ;
+        Object clone = null ;
+        
+        ConvertUtils.register( new AmountConverter( newUniverse ), Amount.class );
+        clone = cls.newInstance() ;
+        
+        for( ConfigurableField field : cfgFields ) {
+            Object value = PropertyUtils.getProperty( master, field.getName() ) ;
+            if( value instanceof Amount ) {
+                value = (( Amount )value).getCreationString() ;
+            }
+            BeanUtils.setProperty( clone, field.getName(), value );
+        }
+        
+        if( clone instanceof UniverseConstituent ) {
+            UniverseConstituent uc = ( UniverseConstituent )clone ; 
+            uc.setUniverse( newUniverse ) ;
+            uc.setId( BeanUtils.getProperty( master, "id" ) );
+        }
+        
+        if( clone instanceof PostConfigInitializable ) {
+            ((PostConfigInitializable)clone).initializePostConfig() ;
+        }
+        
+        return clone ;
     }
 }

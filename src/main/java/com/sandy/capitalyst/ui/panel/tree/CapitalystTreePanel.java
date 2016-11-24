@@ -21,7 +21,6 @@ import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.TreePath ;
 import javax.swing.tree.TreeSelectionModel ;
 
-import org.apache.commons.lang.NotImplementedException ;
 import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
@@ -187,12 +186,26 @@ public class CapitalystTreePanel extends JPanel
             simulateSelectedUniverse() ;
         }
         else if( mi == resetSimulationMI ) {
-            resetSimulationOfSelectedUniverse() ;
+            try {
+                resetSimulationOfSelectedUniverse() ;
+            }
+            catch( Exception e1 ) {
+                log.error( "Error clong universe.", e1 );
+                JOptionPane.showMessageDialog( null, 
+                                         "Cloning error. " + e1.getMessage() ) ;
+            }
         }
         else if( mi == cloneUniverseMI ) {
-            final Universe u = getSelectedUniverse() ;
-            Universe newUniv = cloneUniverse( u, true ) ;
-            addUniverse( newUniv ) ;
+            try {
+                final Universe u = getSelectedUniverse() ;
+                Universe newUniv = cloneUniverse( u, true ) ;
+                addUniverse( newUniv ) ;
+            }
+            catch( Exception e1 ) {
+                log.error( "Error clong universe.", e1 );
+                JOptionPane.showMessageDialog( null, 
+                                         "Cloning error. " + e1.getMessage() ) ;
+            }
         }
         else if( mi == removeUniverseMI ) {
             removeSelectedUniverse() ;
@@ -219,7 +232,8 @@ public class CapitalystTreePanel extends JPanel
     }
     
     @SuppressWarnings( "unchecked" )
-    private void resetSimulationOfSelectedUniverse() {
+    private void resetSimulationOfSelectedUniverse() 
+        throws Exception {
         
         // Get references to old and new universes
         Universe oldUniverse = getSelectedUniverse() ;
@@ -254,12 +268,13 @@ public class CapitalystTreePanel extends JPanel
         chartPanel.removeUniverse( oldUniverse ) ;
     }
     
-    private Universe cloneUniverse( Universe u, boolean seekNewName ) {
+    private Universe cloneUniverse( Universe u, boolean seekNewName ) 
+        throws Exception {
         
         Universe newUniverse = null ;
         
         if( u != null ) {
-            String         newName = u.getName() ;
+            String newName = u.getName() ;
             
             if( seekNewName )  {
                 newName = JOptionPane.showInputDialog( "Name of the cloned universe?",
@@ -267,16 +282,7 @@ public class CapitalystTreePanel extends JPanel
             }
             
             if( newName != null ) {
-                try {
-                    // TODO: Clone the existing universe to create a new one
-//                  newUniverse = loader.loadUniverse() ;
-//                  newUniverse.setName( newName );
-                    JOptionPane.showMessageDialog( null, "TO BE IMPLEMENTED" ) ;
-                    throw new NotImplementedException( "TO BE IMPLEMENTED" ) ;
-                }
-                catch( Exception e ) {
-                    log.error( "Could not create new universe", e ) ;
-                }
+                newUniverse = u.clone( newName ) ;
             }
         }
         return newUniverse ;
@@ -335,6 +341,9 @@ public class CapitalystTreePanel extends JPanel
         
         if( newEntity != null ) {
             propPanel.refreshEntity( (UniverseConstituent)newEntity ) ;
+        }
+        else {
+            propPanel.refreshEntity( null ) ;
         }
     }
     

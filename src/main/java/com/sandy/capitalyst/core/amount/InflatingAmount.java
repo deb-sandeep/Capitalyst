@@ -4,10 +4,6 @@ import java.util.Date ;
 
 public class InflatingAmount extends AbstractEOYObservingAmount {
 
-    public InflatingAmount( double amt ) {
-        super( amt ) ;
-    }
-    
     @Override
     public void handleEndOfYearEvent( Date date ) {
         double rate = 0 ;
