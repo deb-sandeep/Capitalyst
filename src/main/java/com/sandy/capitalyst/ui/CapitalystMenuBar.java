@@ -20,7 +20,8 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
     private JMenuItem loadUniverseMI = null ;
     private JMenuItem exitMI         = null ;
     
-    private JMenuItem newChartMI     = null ;
+    private JMenuItem newChartMI       = null ;
+    private JMenuItem removeChartMI    = null ;
     private JMenuItem increaseNumColMI = null ;
     private JMenuItem decreaseNumColMI = null ;
     
@@ -59,6 +60,9 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         newChartMI = new JMenuItem( "New chart" ) ;
         newChartMI.addActionListener( this ) ;
         
+        removeChartMI = new JMenuItem( "Remove chart" ) ;
+        removeChartMI.addActionListener( this ) ;
+        
         increaseNumColMI = new JMenuItem( "Columns +" ) ;
         increaseNumColMI.addActionListener( this ) ;
         
@@ -67,6 +71,8 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         
         JMenu menu = new JMenu( "Chart" ) ;
         menu.add( newChartMI ) ;
+        menu.add( removeChartMI ) ;
+        menu.addSeparator() ;
         menu.add( increaseNumColMI ) ;
         menu.add( decreaseNumColMI ) ;
         
@@ -84,6 +90,9 @@ public class CapitalystMenuBar extends JMenuBar implements ActionListener {
         }
         else if( mi == newChartMI ) {
             mainFrame.newChart() ;
+        }
+        else if( mi == removeChartMI ) {
+            mainFrame.removeChart() ;
         }
         else if( mi == increaseNumColMI ) {
             mainFrame.changeNumChartCols(1) ;

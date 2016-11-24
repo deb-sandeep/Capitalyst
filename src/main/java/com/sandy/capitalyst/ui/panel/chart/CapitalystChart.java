@@ -160,10 +160,6 @@ public class CapitalystChart extends JPanel
         parent = panel ;
     }
     
-    public void removeFromParentPanel() {
-        parent.removeChartFromPanel( this ) ;
-    }
-    
     public void addSeries( AccountWrapper wrapper ) {
         
         SeriesColorManager colorMgr = SeriesColorManager.instance() ;
@@ -254,6 +250,7 @@ public class CapitalystChart extends JPanel
                 legendPopupMenu.show( this, mouse.getX(), mouse.getY() );
             }
         }
+        parent.setActive( this ) ;
     }
 
     @Override

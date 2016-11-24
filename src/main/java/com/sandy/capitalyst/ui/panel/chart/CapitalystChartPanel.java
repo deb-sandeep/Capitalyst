@@ -1,9 +1,11 @@
 package com.sandy.capitalyst.ui.panel.chart;
 
+import java.awt.Color ;
 import java.awt.GridLayout ;
 import java.util.ArrayList ;
 import java.util.List ;
 
+import javax.swing.BorderFactory ;
 import javax.swing.JPanel ;
 
 import com.sandy.capitalyst.core.Universe ;
@@ -16,36 +18,54 @@ public class CapitalystChartPanel extends JPanel {
     private GridLayout            layout = new GridLayout( 1, 1, 1, 1 ) ;
     
     private int numColsInLayout = 1 ;
+    private CapitalystChart activeChart = null ;
     
     public CapitalystChartPanel() {
         setUpUI() ;
     }
     
     private void setUpUI() {
-        
         setLayout( layout ) ;
     }
-
+    
     public void addChart( CapitalystChart chart ) {
-        
+        chart.setParentPanel( this ) ;
         this.charts.add( chart ) ;
         addChartToPanel( chart ) ;
     }
     
-    private void addChartToPanel( JPanel chart ) {
+    public void setActive( CapitalystChart chart ) {
+        
+        if( activeChart != chart ) {
+            if( activeChart != null ) {
+                activeChart.setBorder( null ) ;
+            }
+            activeChart = chart ;
+            chart.setBorder( BorderFactory.createLineBorder( Color.GREEN, 1 ) ) ;
+        }
+    }
+    
+    private void addChartToPanel( CapitalystChart chart ) {
         
         int numKhopchas = layout.getRows() * layout.getColumns() ;
         super.add( chart ) ;
         if( charts.size() > numKhopchas ) {
             layout.setRows( layout.getRows()+1 ) ;
         }
+        setActive( chart ) ;
         super.validate() ;
     }
     
-    public void removeChartFromPanel( JPanel chart ) {
-        super.remove( chart ) ;
-        charts.remove( chart ) ;
-        setLayoutColumns( numColsInLayout ) ;
+    public void removeActiveChart() {
+        
+        if( activeChart != null ) {
+            super.remove( activeChart ) ;
+            charts.remove( activeChart ) ;
+            setLayoutColumns( numColsInLayout ) ;
+            if( charts.size() > 0 ) {
+                setActive( charts.get( 0 ) ) ;
+            }
+        }
     }
     
     public void setLayoutColumns( int cols ) {

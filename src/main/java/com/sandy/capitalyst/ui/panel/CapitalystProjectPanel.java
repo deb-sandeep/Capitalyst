@@ -105,6 +105,10 @@ public class CapitalystProjectPanel extends JPanel {
         chartPanel.addChart( new CapitalystChart( accountTransferHandler ) ) ;
     }
     
+    public void removeChart() {
+        chartPanel.removeActiveChart() ;
+    }
+    
     public CapitalystChartPanel getChartPanel() {
         return chartPanel ;
     }

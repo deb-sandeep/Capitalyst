@@ -103,6 +103,10 @@ public class CapitalystMainFrame extends JFrame {
     public void newChart() {
         projectPanel.newChart() ;
     }
+    
+    public void removeChart() {
+        projectPanel.removeChart() ;
+    }
 
     public void exit() {
         super.dispose() ;
