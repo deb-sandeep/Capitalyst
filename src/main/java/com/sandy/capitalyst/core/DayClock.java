@@ -2,6 +2,7 @@ package com.sandy.capitalyst.core;
 
 import java.util.ArrayList ;
 import java.util.Calendar ;
+import java.util.Collection ;
 import java.util.Date ;
 import java.util.List ;
 
@@ -54,6 +55,10 @@ public class DayClock {
         startDate = null ;
         endDate = null ;
         observers = new ArrayList<TimeObserver>() ;
+    }
+    
+    public Collection<TimeObserver> getObservers() {
+        return this.observers ;
     }
     
     public void removeTimeObserver( TimeObserver to ) {

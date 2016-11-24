@@ -18,11 +18,9 @@ import com.cronutils.model.time.ExecutionTime ;
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.cfg.MissingConfigException ;
 import com.sandy.capitalyst.cfg.UniverseConfig ;
-import com.sandy.capitalyst.core.amount.Amount ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.util.Range ;
 import com.sandy.capitalyst.util.Utils ;
-import com.sandy.capitalyst.util.converter.AmountConverter ;
 import com.sandy.capitalyst.util.converter.ExecutionTimeConverter ;
 import com.sandy.capitalyst.util.converter.RangeConverter ;
 
@@ -93,8 +91,6 @@ public class UniverseLoader {
             universe = new Universe( univName ) ;
             configureUniverse( universe ) ;
             
-            ConvertUtils.register( new AmountConverter( universe ), Amount.class );
-            
             loadContextObjects( universe ) ;
             loadAccounts( universe ) ;
             loadTxGenerators( universe ) ;
@@ -140,7 +136,7 @@ public class UniverseLoader {
             attrCfg.setProperty( "startDate", Utils.formatDate( new Date() ) );
         }
         
-        Utils.injectFieldValues( universe, attrCfg ) ;
+        Utils.injectFieldValues( universe, attrCfg, universe ) ;
         universe.setConfiguration( univCfg ) ;
         universe.initializePostConfig() ;
     }
@@ -174,7 +170,7 @@ public class UniverseLoader {
                 UniverseConfig  accCfg = univCfg.getNestedConfig( "Account." + accAlias ) ;
                 Account acc    = (Account)loadObject( accAlias, accCfg ) ;
                 
-                universe.addAccount( acc ) ;
+                universe.registerAccount( acc ) ;
             }
             catch( Exception e ) {
                 log.error( "Error loading " + accAlias, e ) ;

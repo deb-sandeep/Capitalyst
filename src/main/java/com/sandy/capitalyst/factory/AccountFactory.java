@@ -234,7 +234,7 @@ public class AccountFactory extends Factory {
         Object o = Utils.createEntity( currentACType, config, accName, universe ) ;
         Account account = Account.class.cast( o ) ;
         
-        universe.addAccount( account ) ;
+        universe.registerAccount( account ) ;
     }
     
     private String[] getRowContents( Row row, int numCols ) {
@@ -251,12 +251,9 @@ public class AccountFactory extends Factory {
         String val = null ;
         Cell cell = row.getCell( col ) ;
         if( cell != null ) {
-            val = getInterpolatedValue( cell.toString() ) ;
+            val = getUniverse().getInterpolatedValue( cell.toString() ) ;
         }
         return val ;
     }
     
-    private String getInterpolatedValue( String input ) {
-        return getUniverse().getConfiguration().interpolate( input ) ;
-    }
 }

@@ -19,6 +19,7 @@ import java.util.Locale ;
 import java.util.Map ;
 
 import org.apache.commons.beanutils.BeanUtils ;
+import org.apache.commons.beanutils.ConvertUtils ;
 import org.apache.commons.lang.time.DateUtils ;
 import org.apache.log4j.Logger ;
 
@@ -34,6 +35,8 @@ import com.sandy.capitalyst.cfg.UniverseConfig ;
 import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
+import com.sandy.capitalyst.core.amount.Amount ;
+import com.sandy.capitalyst.util.converter.AmountConverter ;
 
 public class Utils {
 
@@ -272,7 +275,7 @@ public class Utils {
             uc.setUniverse( universe ) ;
         }
         
-        Utils.injectFieldValues( obj, attrCfg ) ;
+        Utils.injectFieldValues( obj, attrCfg, universe ) ;
         
         if( obj instanceof PostConfigInitializable ) {
             ( (PostConfigInitializable)obj ).initializePostConfig() ;
@@ -282,7 +285,10 @@ public class Utils {
         
     }
 
-    public static void injectFieldValues( Object obj, UniverseConfig attrCfg ) {
+    public static void injectFieldValues( Object obj, UniverseConfig attrCfg,
+                                          Universe universe ) {
+        
+        ConvertUtils.register( new AmountConverter( universe ), Amount.class );
         
         List<ConfigurableField> fields = Utils.getAllConfigurableFields( obj.getClass() ) ;
         for( ConfigurableField field :  fields ) {
@@ -321,5 +327,8 @@ public class Utils {
             }
         }
     }
-    
+
+    public static Object clone( UniverseConstituent uc, Universe newUniverse ) {
+        return null ;
+    }
 }

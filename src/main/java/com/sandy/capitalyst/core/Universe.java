@@ -54,26 +54,44 @@ public class Universe implements DayObserver, PostConfigInitializable {
         journal = new Journal( this, accMgr ) ;
     }
     
-    public void setConfiguration( UniverseConfig config ) {
-        this.config = config ;
-    }
+    public String getName() { return this.name ; }
+    public void setName( String name ) { this.name = name ; }
+    
+    public void setStartDate( Date date ) { this.startDate = date ; }
+    public Date getStartDate() { return this.startDate ; }
+    
+    public void setEndDate( Date date ) { this.endDate = date ; }
+    public Date getEndDate() { return this.endDate ; }
+    
+    public void setInflationRate( Range rate ) { this.inflationRate = rate ; }
+    public Range getInflationRate() { return inflationRate ; }
 
-    public UniverseConfig getConfiguration() {
-        return this.config ;
-    }
+    public void setConfiguration( UniverseConfig c ) { this.config = c ; }
     
-    public EventBus getBus() {
-        return this.bus ;
-    }
+    @Override public void setUniverse( Universe u ) {}
+    @Override public Universe getUniverse() { return this ; }
     
-    public Date now() {
-        return clock.now() ;
-    }
+    @Override public void setId( String id ) { setName( id ) ; }
+    @Override public String getId() { return getName() ; }
     
     @Override
     public void initializePostConfig() {
         clock = new DayClock( this, this.startDate, this.endDate ) ;
-        addTimeObserver( this ) ;
+        registerTimeObserver( this ) ;
+    }
+    
+    public void initializePostCreation() {
+        PostUniverseCreationInitializable puc = null ;
+        for( UniverseConstituent uc : allEntities  ) {
+            if( uc instanceof PostUniverseCreationInitializable ) {
+                puc = ( PostUniverseCreationInitializable )uc ;
+                puc.initializePostUniverseCreation() ; 
+            }
+        }
+    }
+    
+    public EventBus getBus() {
+        return this.bus ;
     }
     
     public void runSimulation() {
@@ -81,48 +99,16 @@ public class Universe implements DayObserver, PostConfigInitializable {
         clock.run() ;
     }
     
+    public String getInterpolatedValue( String input ) {
+        return this.config.interpolate( input ) ;
+    }
+    
+    public Date now() {
+        return clock.now() ;
+    }
+    
     public boolean isVirgin() {
         return virgin ;
-    }
-
-    @Override
-    public void setUniverse( Universe u ) {}
-
-    @Override
-    public Universe getUniverse() {
-        return this ;
-    }
-    
-    public String getName() {
-        return this.name ;
-    }
-    
-    public void setName( String name ) {
-        this.name = name ;
-    }
-    
-    public void setStartDate( Date date ) {
-        this.startDate = date ;
-    }
-    
-    public void setEndDate( Date date ) {
-        this.endDate = date ;
-    }
-    
-    public Date getStartDate() {
-        return this.startDate ;
-    }
-    
-    public Date getEndDate() {
-        return this.endDate ;
-    }
-    
-    public Range getInflationRate() {
-        return inflationRate ;
-    }
-
-    public void setInflationRate( Range inflationRate ) {
-        this.inflationRate = inflationRate ;
     }
 
     public void addToContext( String alias, UniverseConstituent obj ) {
@@ -130,26 +116,46 @@ public class Universe implements DayObserver, PostConfigInitializable {
         obj.setUniverse( this ) ;
         context.put( alias, obj ) ;
         if( obj instanceof TimeObserver ) {
-            addTimeObserver( (TimeObserver)obj ) ;
+            registerTimeObserver( (TimeObserver)obj ) ;
+        }
+    }
+    
+    public void registerAccount( Account account ) {
+        account.setUniverse( this ) ; 
+        accMgr.addAccount( account ) ;
+        registerTxnGenerator( account ) ;
+        registerTimeObserver( account ) ;
+        
+        bus.publishEvent( EventType.ACCOUNT_CREATED, account ) ;
+    }
+    
+    public void registerTimeObserver( TimeObserver observer ) {
+        addEntity( observer ) ;
+        if( observer.getUniverse() == null ) {
+            observer.setUniverse( this ) ;
+        }
+        else if( observer.getUniverse() != this ) {
+            throw new IllegalStateException( "Entity from a different " + 
+                    "universe is being added" ) ;
+        }
+        clock.registerTimeObserver( observer ) ;
+    }
+    
+    public void registerTxnGenerator( TxnGenerator txGen ) {
+        if( !txnGenerators.contains( txGen ) ) {
+            addEntity( txGen ) ;
+            
+            txGen.setUniverse( this ) ;
+            txnGenerators.add( txGen ) ;
+            
+            if( txGen instanceof TimeObserver ) {
+                registerTimeObserver( (TimeObserver)txGen ) ;
+            }
         }
     }
     
     public UniverseConstituent getFromContext( String alias ) {
         return context.get( alias ) ;
-    }
-     
-    public void addAccount( Account account ) {
-        account.setUniverse( this ) ; 
-        accMgr.addAccount( account ) ;
-        registerTxnGenerator( account ) ;
-        addTimeObserver( account ) ;
-        
-        bus.publishEvent( EventType.ACCOUNT_CREATED, account ) ;
-    }
-    
-    public void removeAccount( Account account ) {
-        removeTimeObserver( account ) ;
-        accMgr.removeAccount( account ) ;
     }
     
     public Account getAccount( String accNo ) {
@@ -164,35 +170,13 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return accMgr.getAllAccounts() ;
     }
     
-    public void addTimeObserver( TimeObserver observer ) {
-        addEntity( observer ) ;
-        if( observer.getUniverse() == null ) {
-            observer.setUniverse( this ) ;
-        }
-        else if( observer.getUniverse() != this ) {
-            throw new IllegalStateException( "Entity from a different " + 
-                                             "universe is being added" ) ;
-        }
-        clock.registerTimeObserver( observer ) ;
-    }
-    
-    public void removeTimeObserver( TimeObserver observer ) {
-        clock.removeTimeObserver( observer ) ;
-    }
-    
     public Collection<TxnGenerator> getAllTxGens() {
         return this.txnGenerators ;
     }
     
-    public void registerTxnGenerator( TxnGenerator txGen ) {
-        addEntity( txGen ) ;
-        if( !txnGenerators.contains( txGen ) ) {
-            txGen.setUniverse( this ) ;
-            txnGenerators.add( txGen ) ;
-        }
-        
-        if( txGen instanceof TimeObserver ) {
-            addTimeObserver( (TimeObserver)txGen ) ;
+    public void postTransactions( List<Txn> txnList ) {
+        for( Txn t : txnList ) {
+            postTransaction( t ) ;
         }
     }
     
@@ -216,12 +200,6 @@ public class Universe implements DayObserver, PostConfigInitializable {
                 journal.addTransaction( txn ) ;
                 journal.addTransaction( taxTx ) ;
             }
-        }
-    }
-    
-    public void postTransactions( List<Txn> txnList ) {
-        for( Txn t : txnList ) {
-            postTransaction( t ) ;
         }
     }
     
@@ -269,16 +247,6 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return getName() ;
     }
 
-    @Override
-    public void setId( String id ) {
-        setName( id ) ;
-    }
-
-    @Override
-    public String getId() {
-        return getName() ;
-    }
-    
     public double getCurrentInflationRate() {
         Double rate = inflationRates.get( clock.getYear() ) ;
         if( rate == null ) {
@@ -292,17 +260,72 @@ public class Universe implements DayObserver, PostConfigInitializable {
         return base*(1+getCurrentInflationRate()/100) ;
     }
 
-    public void initializePostCreation() {
-        PostUniverseCreationInitializable puc = null ;
-        for( UniverseConstituent uc : allEntities  ) {
-            if( uc instanceof PostUniverseCreationInitializable ) {
-                puc = ( PostUniverseCreationInitializable )uc ;
-                puc.initializePostUniverseCreation() ; 
-            }
+    private void addEntity( UniverseConstituent entity ) {
+        allEntities.add( entity ) ;
+    }
+
+    public Universe clone( String newName ) {
+        
+        Universe u = new Universe( newName ) ;
+        u.setStartDate( getStartDate() ) ;
+        u.setEndDate( getEndDate() ) ;
+        u.setInflationRate( getInflationRate() ) ;
+        u.setId( getId() ) ;
+        
+        u.initializePostConfig() ;
+        
+        cloneContextObjects( u ) ;
+        cloneAccounts( u ) ;
+        cloneTxGens( u ) ;
+        cloneTimeObservers( u ) ;
+        
+        u.initializePostCreation() ;
+        
+        return u ;
+    }
+    
+    private void cloneContextObjects( Universe newUniverse ) {
+        
+        UniverseConstituent uc = null ;
+        UniverseConstituent ucClone = null ;
+        
+        for( String ctxKey : this.context.keySet() ) {
+            uc = this.context.get( ctxKey ) ;
+            ucClone = ( UniverseConstituent )Utils.clone( uc, newUniverse ) ;
+            
+            newUniverse.addToContext( ctxKey, ucClone ) ;
         }
     }
     
-    private void addEntity( UniverseConstituent entity ) {
-        allEntities.add( entity ) ;
+    private void cloneAccounts( Universe newUniverse ) {
+        
+        Account acClone = null ;
+        for( Account ac : getAllAccounts() ) {
+            acClone = ( Account )Utils.clone( ac, newUniverse ) ;
+            newUniverse.registerAccount( acClone ) ;
+        }
+    }
+    
+    private void cloneTxGens( Universe newUniverse ) {
+        
+        TxnGenerator txGenClone = null ;
+        for( TxnGenerator txGen : getAllTxGens() ) {
+            txGenClone = ( TxnGenerator )Utils.clone( txGen, newUniverse ) ;
+            newUniverse.registerTxnGenerator( txGenClone ) ;
+        }
+    }
+    
+    private void cloneTimeObservers( Universe newUniverse ) {
+        
+        TimeObserver oClone = null ;
+        for( TimeObserver o : clock.getObservers() ) {
+            if( !( o instanceof Account || 
+                   o instanceof TxnGenerator || 
+                   this.context.containsValue( o ) ) ) {
+                
+                oClone = ( TimeObserver )Utils.clone( o, newUniverse ) ;
+                newUniverse.registerTimeObserver( oClone ) ;
+            }
+        }
     }
 }

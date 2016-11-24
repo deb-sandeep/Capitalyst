@@ -62,7 +62,7 @@ public class AmountConverter extends AbstractConverter {
     private Amount createAmtWithUniverseRateOfInflation( double baseAmount ) {
         InflatingAmount amt = new InflatingAmount( baseAmount ) ;
         amt.setIncrementRange( universe.getInflationRate() ) ;
-        universe.addTimeObserver( amt ) ;
+        universe.registerTimeObserver( amt ) ;
         return amt ;
     }
     
@@ -70,14 +70,14 @@ public class AmountConverter extends AbstractConverter {
         String input = minMaxStr.substring( 0, minMaxStr.length()-1 ) ;
         InflatingAmount amt = new InflatingAmount( baseAmount ) ;
         amt.setIncrementRange( createRange( input ) ) ;
-        universe.addTimeObserver( amt ) ;
+        universe.registerTimeObserver( amt ) ;
         return amt ;
     }
     
     private Amount createAmtWithStepBounds( double baseAmount, String rangeInput ) {
         StepIncreasingAmount amt = new StepIncreasingAmount( baseAmount ) ;
         amt.setIncrementRange( createRange( rangeInput ) ) ;
-        universe.addTimeObserver( amt ) ;
+        universe.registerTimeObserver( amt ) ;
         return amt ;
     }
     

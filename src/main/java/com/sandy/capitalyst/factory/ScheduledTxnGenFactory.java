@@ -120,7 +120,7 @@ public class ScheduledTxnGenFactory extends Factory {
                     cellContent = cell.toString() ;
                 }
                 
-                cellContent = getInterpolatedValue( cellContent ) ;
+                cellContent = getUniverse().getInterpolatedValue( cellContent ) ;
                 buffer.append( cellContent ).append( ":" ) ;
             }
             buffer.append( "EOR" ) ;
@@ -145,9 +145,5 @@ public class ScheduledTxnGenFactory extends Factory {
         txnGen.setId( txnGen.getName() ) ;
         
         universe.registerTxnGenerator( txnGen ) ;
-    }
-    
-    private String getInterpolatedValue( String input ) {
-        return getUniverse().getConfiguration().interpolate( input ) ;
     }
 }
