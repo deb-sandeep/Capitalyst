@@ -332,8 +332,6 @@ public class Utils {
     public static Object clone( Object master, Universe newUniverse ) 
         throws Exception {
         
-        log.debug( "Cloning " + master ) ;
-        
         Class<?> cls = master.getClass() ;
         List<ConfigurableField> cfgFields = getAllConfigurableFields( cls ) ;
         Object clone = null ;

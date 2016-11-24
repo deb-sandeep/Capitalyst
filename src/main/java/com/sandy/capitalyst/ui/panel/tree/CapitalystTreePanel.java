@@ -84,6 +84,7 @@ public class CapitalystTreePanel extends JPanel
                 doMouseClicked( me ) ;
             }
         } ) ;
+        tree.setCellRenderer( new CapitalystTreeCellRenderer() ) ;
         
         super.setLayout( new BorderLayout() ) ;
         
