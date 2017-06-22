@@ -1,9 +1,12 @@
 package com.sandy.capitalyst.core;
 
+import java.io.Serializable ;
 import java.util.Date ;
 
-public class Txn {
+public class Txn implements Serializable {
     
+    private static final long serialVersionUID = 1001L ;
+
     public static enum TxnType { CREDIT, DEBIT } ;
 
     private String accountNumber ;

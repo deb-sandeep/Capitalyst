@@ -1,5 +1,7 @@
 package com.sandy.capitalyst.ui.panel.tree;
 
+import java.util.List ;
+
 import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.DefaultTreeModel ;
 
@@ -7,6 +9,7 @@ import org.jfree.util.Log ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AggregateAccount ;
+import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
 import com.sandy.capitalyst.ui.helper.AccountWrapper ;
@@ -16,8 +19,10 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
 
     public static final String ACCOUNT_NODE_NAME = "Accounts" ;
     public static final String TXGENS_NODE_NAME  = "Txn Generators" ;
+    public static final String DESER_NODE_NAME   = "Loaded Accounts" ;
     
     private DefaultMutableTreeNode rootNode = null ;
+    private DefaultMutableTreeNode deserLedgerNode = null ;
     
     public CapitalystProjectTreeModel() {
         
@@ -41,6 +46,7 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
         node.setUserObject( u ) ;
         node.add( createAccountsNode( u ) );
         node.add( createTxGensNode( u ) );
+        node.add( createDeserializedAccountsNode( u ) ) ;
         return node ;
     }
     
@@ -149,5 +155,32 @@ public class CapitalystProjectTreeModel extends DefaultTreeModel {
             Log.debug( "Added account tp agg " + acWrapper.toString() );
             addAccountToParentNodes( (DefaultMutableTreeNode)root.getParent(), a ) ;
         }
+    }
+    
+    private DefaultMutableTreeNode createDeserializedAccountsNode( Universe u ) {
+        
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode( DESER_NODE_NAME ) ;
+        node.setUserObject( DESER_NODE_NAME ) ;
+        deserLedgerNode = node ;
+        return node ;
+    }
+
+    public void addDeserializedAccount( String name, List<Txn> txnList ) {
+        
+        if( name.endsWith( ".ledger" ) ) {
+            name = name.substring( name.lastIndexOf( "." ) + 1 ) ;
+        }
+        
+        Account account = new Account() ;
+        account.setId( name ) ;
+        account.setName( name ) ;
+        account.getLedger().addAll( txnList ) ;
+        // TODO: SEt the universe.. this will cause a redesign as I am not 
+        //       storing the universe name in the serialized ledger. Think!
+        
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode( account.getName() ) ;
+        node.setUserObject( new AccountWrapper( account ) ) ;
+        
+        deserLedgerNode.add( node ) ;
     }
 }

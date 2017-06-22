@@ -5,8 +5,15 @@ import java.awt.event.ActionEvent ;
 import java.awt.event.ActionListener ;
 import java.awt.event.MouseAdapter ;
 import java.awt.event.MouseEvent ;
+import java.io.File ;
+import java.io.FileInputStream ;
+import java.io.FileOutputStream ;
+import java.io.ObjectInputStream ;
+import java.io.ObjectOutputStream ;
 import java.util.Enumeration ;
+import java.util.List ;
 
+import javax.swing.JFileChooser ;
 import javax.swing.JMenuItem ;
 import javax.swing.JOptionPane ;
 import javax.swing.JPanel ;
@@ -17,6 +24,7 @@ import javax.swing.SwingUtilities ;
 import javax.swing.TransferHandler ;
 import javax.swing.event.TreeSelectionEvent ;
 import javax.swing.event.TreeSelectionListener ;
+import javax.swing.filechooser.FileNameExtensionFilter ;
 import javax.swing.tree.DefaultMutableTreeNode ;
 import javax.swing.tree.TreePath ;
 import javax.swing.tree.TreeSelectionModel ;
@@ -25,6 +33,7 @@ import org.apache.log4j.Logger ;
 
 import com.sandy.capitalyst.account.Account ;
 import com.sandy.capitalyst.account.AggregateAccount ;
+import com.sandy.capitalyst.core.Txn ;
 import com.sandy.capitalyst.core.Universe ;
 import com.sandy.capitalyst.core.UniverseConstituent ;
 import com.sandy.capitalyst.txgen.TxnGenerator ;
@@ -48,11 +57,19 @@ public class CapitalystTreePanel extends JPanel
     private JTree                      tree            = null ;
     private TransferHandler            transferHandler = null ;
     
-    private JPopupMenu popupMenu         = null ;
+    private JPopupMenu universePopup     = null ;
     private JMenuItem  runSimulationMI   = null ;
     private JMenuItem  cloneUniverseMI   = null ;
     private JMenuItem  removeUniverseMI  = null ;
     private JMenuItem  resetSimulationMI = null ;
+    
+    private JPopupMenu accountPopup = null ;
+    private JMenuItem  saveLedgerMI = null ;
+    
+    private JPopupMenu serializedLedgersPopup = null ;
+    private JMenuItem  loadLedgerMI = null ;
+    
+    private JFileChooser ledgerFileChooser = new JFileChooser() ;
     
     public CapitalystTreePanel( TransferHandler th, 
                                 CapitalystChartPanel chartPanel,
@@ -64,6 +81,9 @@ public class CapitalystTreePanel extends JPanel
         this.ledgerTabPane = ledgerPanel ;
         this.transferHandler = th ;
         
+        this.ledgerFileChooser.setMultiSelectionEnabled( false ) ;
+        this.ledgerFileChooser.setFileFilter( new FileNameExtensionFilter( 
+                                                  "Ledger files", "ledger" ) ) ;
         setUpUI() ;
         setUpListeners() ;
     }
@@ -77,7 +97,8 @@ public class CapitalystTreePanel extends JPanel
         tree.setFont( UIConstants.TREE_FONT ) ;
         tree.setDragEnabled( true ) ;
         tree.setTransferHandler( transferHandler ) ;
-        tree.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION ) ;
+        tree.getSelectionModel()
+            .setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION ) ;
         tree.addTreeSelectionListener( this ) ;
         tree.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent me ) {
@@ -110,13 +131,24 @@ public class CapitalystTreePanel extends JPanel
         removeUniverseMI = new JMenuItem( "Remove Universe" ) ;
         removeUniverseMI.addActionListener( this ) ;
         
+        universePopup = new JPopupMenu() ;
+        universePopup.add( runSimulationMI ) ;
+        universePopup.add( resetSimulationMI ) ;
+        universePopup.addSeparator() ;
+        universePopup.add( cloneUniverseMI ) ;
+        universePopup.add( removeUniverseMI ) ;
         
-        popupMenu = new JPopupMenu() ;
-        popupMenu.add( runSimulationMI ) ;
-        popupMenu.add( resetSimulationMI ) ;
-        popupMenu.addSeparator() ;
-        popupMenu.add( cloneUniverseMI ) ;
-        popupMenu.add( removeUniverseMI ) ;
+        saveLedgerMI = new JMenuItem( "Save ledger" ) ;
+        saveLedgerMI.addActionListener( this ) ;
+        
+        accountPopup = new JPopupMenu() ;
+        accountPopup.add( saveLedgerMI ) ;
+        
+        loadLedgerMI = new JMenuItem( "Load ledger" ) ;
+        loadLedgerMI.addActionListener( this ) ;
+        
+        serializedLedgersPopup = new JPopupMenu() ;
+        serializedLedgersPopup.add( loadLedgerMI ) ;
     }
     
     private void setUpListeners() {
@@ -144,7 +176,16 @@ public class CapitalystTreePanel extends JPanel
                         else {
                             runSimulationMI.setEnabled( false ) ;
                         }
-                        popupMenu.show( tree, e.getX(), e.getY() ) ;
+                        universePopup.show( tree, e.getX(), e.getY() ) ;
+                    }
+                    else if( userObj instanceof AccountWrapper ) {
+                        accountPopup.show( tree, e.getX(), e.getY() ) ;
+                    }
+                    else if( userObj instanceof String ) {
+                        String nodeName = (String)userObj ;
+                        if ( nodeName.equals( CapitalystProjectTreeModel.DESER_NODE_NAME ) ) {
+                            serializedLedgersPopup.show( tree, e.getX(), e.getY() ) ;
+                        }
                     }
                 }
             }
@@ -211,6 +252,38 @@ public class CapitalystTreePanel extends JPanel
         else if( mi == removeUniverseMI ) {
             removeSelectedUniverse() ;
         }
+        else if( mi == saveLedgerMI ) {
+            Account account = getSelectedAccount() ;
+            if( account != null ) {
+                saveLedger( account ) ;
+            }
+        }
+        else if( mi == loadLedgerMI ) {
+            try {
+                loadLedger() ;
+            }
+            catch( Exception e1 ) {
+                log.error( "Could not load ledger", e1 ) ;
+                JOptionPane.showMessageDialog( this, 
+                                "Could not load ledger.\n" + e1.getMessage() ) ;
+            }
+        }
+    }
+    
+    private Account getSelectedAccount() {
+        
+        TreePath treePath = null ;
+        DefaultMutableTreeNode treeNode = null ; 
+        
+        treePath = tree.getSelectionPath() ;
+        if( treePath != null ) {
+            treeNode = ( DefaultMutableTreeNode )treePath.getLastPathComponent() ;
+            AccountWrapper accWrapper = ( AccountWrapper )treeNode.getUserObject() ;
+            if( accWrapper != null ) {
+                return accWrapper.getAccount() ;
+            }
+        }
+        return null ;
     }
     
     private void simulateSelectedUniverse() {
@@ -366,5 +439,89 @@ public class CapitalystTreePanel extends JPanel
                 }
             }
         }
+    }
+    
+    private void saveLedger( Account account ) {
+        
+        File targetFile = null ;
+        int choice = ledgerFileChooser.showSaveDialog( this ) ;
+        if( choice == JFileChooser.APPROVE_OPTION ) {
+            targetFile = ledgerFileChooser.getSelectedFile() ;
+        }
+        
+        if( targetFile != null ) {
+
+            if( !targetFile.getName().endsWith( ".ledger" ) ) {
+                targetFile = new File( targetFile.getParentFile(), 
+                                       targetFile.getName() + ".ledger" ) ;
+            }
+            
+            if( targetFile.exists() ) {
+                choice = JOptionPane.showConfirmDialog( this, 
+                                                 "Overwrite existing file." ) ;
+                if( choice == JOptionPane.CANCEL_OPTION ) {
+                    return ;
+                }
+            }
+            
+            try {
+                saveLedgerToFile( account.getLedger(), targetFile ) ;
+            }
+            catch( Exception e ) {
+                JOptionPane.showMessageDialog( this, "Error saving ledger.\n" +
+                                               "Message = " + e.getMessage() ) ;
+                log.error( "Failure saving ledger", e ) ;
+            }
+        }
+    }
+    
+    private void saveLedgerToFile( List<Txn> txnList, File tgtFile ) 
+        throws Exception {
+        
+        FileOutputStream fos = new FileOutputStream( tgtFile ) ;
+        ObjectOutputStream oos = new ObjectOutputStream( fos ) ;
+        oos.writeObject( txnList ) ;
+        oos.flush() ;
+        
+        fos.close() ;
+    }
+    
+    private void loadLedger() throws Exception {
+
+        File targetFile = null ;
+        int choice = ledgerFileChooser.showOpenDialog( this ) ;
+        if( choice == JFileChooser.APPROVE_OPTION ) {
+            targetFile = ledgerFileChooser.getSelectedFile() ;
+        }
+        
+        if( targetFile != null ) {
+            if( !targetFile.exists() ) {
+                JOptionPane.showMessageDialog( this, 
+                        "Error loading ledger. File doesn't exist." ) ;
+            }
+            
+            try {
+                loadLedgerFromFile( targetFile ) ;
+            }
+            catch( Exception e ) {
+                JOptionPane.showMessageDialog( this, 
+                                               "Error loading ledger.\n" +
+                                               "Message = " + e.getMessage() ) ;
+                log.error( "Failure loading ledger", e ) ;
+            }
+        }
+    }
+    
+    private void loadLedgerFromFile( File targetFile ) 
+        throws Exception {
+        
+        FileInputStream fis = new FileInputStream( targetFile ) ;
+        ObjectInputStream oos = new ObjectInputStream( fis ) ;
+        
+        @SuppressWarnings( "unchecked" )
+        List<Txn> txnList = ( List<Txn> )oos.readObject() ;
+        treeModel.addDeserializedAccount( targetFile.getName(), txnList ) ;
+        
+        fis.close() ;
     }
 }
