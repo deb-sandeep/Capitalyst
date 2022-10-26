@@ -26,6 +26,7 @@ import javax.swing.event.TreeSelectionEvent ;
 import javax.swing.event.TreeSelectionListener ;
 import javax.swing.filechooser.FileNameExtensionFilter ;
 import javax.swing.tree.DefaultMutableTreeNode ;
+import javax.swing.tree.TreeNode ;
 import javax.swing.tree.TreePath ;
 import javax.swing.tree.TreeSelectionModel ;
 
@@ -198,16 +199,15 @@ public class CapitalystTreePanel extends JPanel
         return universeNode ;
     }
     
-    @SuppressWarnings( "unchecked" )
     private void expandNode( DefaultMutableTreeNode node ) {
         
         if( node.getChildCount() > 0 && node.getDepth() > 1 ) {
             tree.expandPath( new TreePath( node.getPath() ) ) ;
             
-            Enumeration<DefaultMutableTreeNode> children = node.children() ;
+            Enumeration<TreeNode> children = node.children() ;
             while( children.hasMoreElements() ) {
                 
-                DefaultMutableTreeNode child = children.nextElement() ;
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode)children.nextElement() ;
                 if( child.getLevel() == 2 ) {
                     String nodeName = child.toString() ;
                     if( nodeName.equals( CapitalystProjectTreeModel.ACCOUNT_NODE_NAME ) ) {
@@ -305,7 +305,6 @@ public class CapitalystTreePanel extends JPanel
         }
     }
     
-    @SuppressWarnings( "unchecked" )
     private void resetSimulationOfSelectedUniverse() 
         throws Exception {
         
@@ -323,11 +322,11 @@ public class CapitalystTreePanel extends JPanel
         
         // Iterate through the descendants of the new universe and update
         // any existing time series with that from the new universe.
-        Enumeration<DefaultMutableTreeNode> descendents = null ;
+        Enumeration<TreeNode> descendents = null ;
         descendents = newUnivNode.depthFirstEnumeration() ;
         
         while( descendents.hasMoreElements() ) {
-            DefaultMutableTreeNode c = descendents.nextElement() ;
+            DefaultMutableTreeNode c = (DefaultMutableTreeNode)descendents.nextElement() ;
             Object userObj = c.getUserObject() ;
             if( userObj instanceof AccountWrapper ) {
                 AccountWrapper wrapper = ( AccountWrapper )userObj ;

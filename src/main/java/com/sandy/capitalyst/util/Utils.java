@@ -264,6 +264,7 @@ public class Utils {
         return map ;
     }
     
+    @SuppressWarnings( "deprecation" )
     public static Object createEntity( Class<?> cls, UniverseConfig attrCfg,
                                        String objId, Universe universe ) 
         throws Exception {
@@ -329,6 +330,7 @@ public class Utils {
         }
     }
 
+    @SuppressWarnings( "deprecation" )
     public static Object clone( Object master, Universe newUniverse ) 
         throws Exception {
         

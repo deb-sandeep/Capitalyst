@@ -52,21 +52,21 @@ public class LedgerQueryParser {
     // not restricting the user to fixed column names.
     private static final Map<String, Integer> COL_INDEX_MAP = new HashMap<String, Integer>() ;
     static {
-        COL_INDEX_MAP.put( "IS_CREDIT",   new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "CREDIT",      new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "IS_DEBIT",    new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
-        COL_INDEX_MAP.put( "DEBIT",       new Integer( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "IS_CREDIT",   Integer.valueOf( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "CREDIT",      Integer.valueOf( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "IS_DEBIT",    Integer.valueOf( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
+        COL_INDEX_MAP.put( "DEBIT",       Integer.valueOf( LedgerTableModel.COL_TXN_TYPE_MARKER ) ) ;
 
-        COL_INDEX_MAP.put( "DATE",        new Integer( LedgerTableModel.COL_DATE ) ) ;
+        COL_INDEX_MAP.put( "DATE",        Integer.valueOf( LedgerTableModel.COL_DATE ) ) ;
 
-        COL_INDEX_MAP.put( "AMOUNT",      new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
-        COL_INDEX_MAP.put( "AMT",         new Integer( LedgerTableModel.COL_TX_AMT ) ) ;
+        COL_INDEX_MAP.put( "AMOUNT",      Integer.valueOf( LedgerTableModel.COL_TX_AMT ) ) ;
+        COL_INDEX_MAP.put( "AMT",         Integer.valueOf( LedgerTableModel.COL_TX_AMT ) ) ;
 
-        COL_INDEX_MAP.put( "BALANCE",     new Integer( LedgerTableModel.COL_AC_BALANCE_AMT ) ) ;
+        COL_INDEX_MAP.put( "BALANCE",     Integer.valueOf( LedgerTableModel.COL_AC_BALANCE_AMT ) ) ;
 
-        COL_INDEX_MAP.put( "DESCRIPTION", new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
-        COL_INDEX_MAP.put( "DESCR",       new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
-        COL_INDEX_MAP.put( "DESC",        new Integer( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESCRIPTION", Integer.valueOf( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESCR",       Integer.valueOf( LedgerTableModel.COL_DESCRIPTION ) ) ;
+        COL_INDEX_MAP.put( "DESC",        Integer.valueOf( LedgerTableModel.COL_DESCRIPTION ) ) ;
     }
 
     /**
