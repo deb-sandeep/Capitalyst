@@ -7,7 +7,6 @@ import java.io.File ;
 
 import javax.swing.JFileChooser ;
 import javax.swing.JFrame ;
-import javax.swing.UIManager ;
 import javax.swing.filechooser.FileFilter ;
 
 import org.apache.log4j.Logger ;
@@ -44,12 +43,12 @@ public class CapitalystMainFrame extends JFrame {
         SwingUtils.centerOnScreen( this, 600, 500 ) ;
         setExtendedState( getExtendedState()|JFrame.MAXIMIZED_BOTH );
         
-        try {
-            UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
-        } 
-        catch ( Exception e ) {
-            e.printStackTrace();
-        }
+//        try {
+//            UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
+//        } 
+//        catch ( Exception e ) {
+//            e.printStackTrace();
+//        }
         setVisible( true ) ;
         newProject() ;
     }
